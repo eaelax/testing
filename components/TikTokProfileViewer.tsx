@@ -177,6 +177,9 @@ export default function TikTokProfileViewer({
     if (selectedVideo) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
+      if (modalVideoRef.current) {
+        modalVideoRef.current.setAttribute('referrerpolicy', 'no-referrer');
+      }
     } else {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
@@ -326,6 +329,7 @@ export default function TikTokProfileViewer({
 
     setTimeout(() => {
       if (modalVideoRef.current) {
+        modalVideoRef.current.setAttribute('referrerpolicy', 'no-referrer');
         modalVideoRef.current.load();
         modalVideoRef.current.play().catch(() => {});
       }
@@ -805,7 +809,6 @@ export default function TikTokProfileViewer({
                 playsInline
                 autoPlay
                 preload="metadata"
-                referrerPolicy="no-referrer"
                 crossOrigin="anonymous"
                 className="w-full h-full object-contain"
               />

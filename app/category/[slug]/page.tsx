@@ -66,7 +66,7 @@ export default async function CategoryDetailPage({ params }: Props) {
     <div className="min-h-screen flex flex-col bg-[#f0f4f9] text-slate-900">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -79,21 +79,21 @@ export default async function CategoryDetailPage({ params }: Props) {
           ]}
         />
 
-        {/* Hero Header: NO pill tag */}
-        <div className="mb-8 p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-xs">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+        {/* Hero Header */}
+        <div className="mb-6 p-5 sm:p-6 rounded-xl bg-white border border-slate-200 shadow-xs">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             {category.title}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-2 max-w-3xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 mt-1.5 max-w-2xl leading-relaxed">
             {category.seoDescription}
           </p>
 
           {/* Trending Tags */}
-          <div className="flex flex-wrap gap-2 mt-4 pt-2">
+          <div className="flex flex-wrap gap-1.5 mt-3 pt-1">
             {category.trendingTags.map((tag) => (
               <span
                 key={tag}
-                className="text-xs font-mono font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200"
+                className="text-[11px] font-mono font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200"
               >
                 {tag}
               </span>
@@ -102,9 +102,9 @@ export default async function CategoryDetailPage({ params }: Props) {
         </div>
 
         {/* Featured Creators in this Niche Grid */}
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base sm:text-lg font-bold text-slate-900">
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-3.5">
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">
               Top {category.name} Creators
             </h2>
             <span className="text-xs text-slate-500">
@@ -112,17 +112,17 @@ export default async function CategoryDetailPage({ params }: Props) {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
             {creatorsInNiche.map((creator) => (
               <Link
                 key={creator.username}
                 href={`/profile/${creator.username}`}
-                className="p-4 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all flex items-center gap-3.5 group shadow-xs"
+                className="p-3.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs transition-all flex items-center gap-3 group shadow-2xs"
               >
-                <div className="relative w-14 h-14 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={creator.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=60'}
+                    src={creator.avatar || `/api/avatar?username=${encodeURIComponent(creator.username)}`}
                     alt={creator.displayName}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover"
@@ -130,13 +130,13 @@ export default async function CategoryDetailPage({ params }: Props) {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-black transition-colors truncate">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-black transition-colors truncate">
                     {creator.displayName}
                   </h3>
-                  <p className="text-xs font-mono text-slate-500 truncate">
+                  <p className="text-[11px] font-mono text-slate-500 truncate">
                     @{creator.username}
                   </p>
-                  <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1">
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
                     <span>{creator.followers} followers</span>
                     <span>•</span>
                     <span>{creator.likes} likes</span>
@@ -149,10 +149,10 @@ export default async function CategoryDetailPage({ params }: Props) {
           </div>
         </section>
 
-        {/* Search & Downloader inside this Niche */}
-        <section className="mb-14 pt-8 border-t border-slate-200">
-          <div className="text-center mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+        {/* Search & Downloader inside this Niche with empty input by default */}
+        <section className="mb-12 pt-6 border-t border-slate-200">
+          <div className="text-center mb-5">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900">
               Search Any {category.name} Creator
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
@@ -161,25 +161,25 @@ export default async function CategoryDetailPage({ params }: Props) {
           </div>
 
           <TikTokProfileViewer
-            initialUsername={creatorsInNiche[0]?.username || ''}
+            initialUsername=""
             autoSearch={false}
           />
         </section>
 
         {/* Category FAQs */}
         {category.faqs.length > 0 && (
-          <section className="mb-12 p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-xs">
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-6">
+          <section className="mb-10 p-5 sm:p-6 rounded-xl bg-white border border-slate-200 shadow-xs">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-4">
               Frequently Asked Questions about {category.name}
             </h2>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {category.faqs.map((faq, index) => (
-                <div key={index} className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <h3 className="text-sm font-bold text-slate-900">
+                <div key={index} className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900">
                     {faq.question}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
                     {faq.answer}
                   </p>
                 </div>
@@ -190,17 +190,17 @@ export default async function CategoryDetailPage({ params }: Props) {
 
         {/* Browse Other Niches */}
         <section className="pt-6 border-t border-slate-200">
-          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
+          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
             Explore Other Categories
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {otherCategories.map((c) => (
               <Link
                 key={c.slug}
                 href={`/category/${c.slug}`}
-                className="p-3 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 text-xs text-slate-700 hover:text-slate-900 shadow-sm transition-all flex items-center justify-between"
+                className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-xs text-slate-700 hover:text-slate-900 shadow-2xs transition-all flex items-center justify-between"
               >
-                <span className="truncate">{c.name}</span>
+                <span className="truncate font-medium">{c.name}</span>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
             ))}

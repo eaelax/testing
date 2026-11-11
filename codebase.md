@@ -1469,167 +1469,117 @@ export async function GET(req: NextRequest) {
 ```ts
 import { NextRequest, NextResponse } from 'next/server';
 
-interface TikTokScrapedUser {
+interface TikTokUser {
+  id: string;
   uniqueId: string;
   nickname: string;
   avatar: string;
   signature: string;
   verified: boolean;
   secUid: string;
+  status: 'active' | 'private' | 'not_found';
 }
 
-interface TikTokScrapedStats {
+interface TikTokStats {
   followerCount: number | null;
   followingCount: number | null;
   heartCount: number | null;
   videoCount: number;
 }
 
-// Scrape profile metadata directly from TikTok web rehydration state
-async function scrapeTikTokUserProfile(username: string): Promise<{
-  user: TikTokScrapedUser;
-  stats: TikTokScrapedStats;
-} | null> {
-  const profileUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
-  const res = await fetch(profileUrl, {
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.9',
-    },
-    cache: 'no-store',
-  });
-
-  if (!res.ok) return null;
-  const html = await res.text();
-
-  const match = html.match(
-    /<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>([\s\S]*?)<\/script>/
-  );
-  if (!match || !match[1]) return null;
-
-  try {
-    const json = JSON.parse(match[1]);
-    const userDetail = json['__DEFAULT_SCOPE__']?.['webapp.user-detail'];
-    if (!userDetail || !userDetail.userInfo || !userDetail.userInfo.user) {
-      return null;
-    }
-
-    const u = userDetail.userInfo.user;
-    const s = userDetail.userInfo.stats || {};
-
-    return {
-      user: {
-        uniqueId: u.uniqueId || username,
-        nickname: u.nickname || u.uniqueId || username,
-        avatar: u.avatarLarger || u.avatarMedium || u.avatarThumb || '',
-        signature: u.signature || '',
-        verified: !!u.verified,
-        secUid: u.secUid || '',
-      },
-      stats: {
-        followerCount: s.followerCount ?? null,
-        followingCount: s.followingCount ?? null,
-        heartCount: s.heart ?? (s.heartCount > 0 ? s.heartCount : null),
-        videoCount: s.videoCount ?? 0,
-      },
-    };
-  } catch (e) {
-    console.error('Error parsing universal data rehydration JSON:', e);
-    return null;
-  }
+interface VideoOutput {
+  video_id: string;
+  id: string;
+  title: string;
+  duration: number;
+  cover: string;
+  origin_cover: string;
+  play: string;
+  wmplay: string;
+  music: string;
+  music_info: {
+    id: string;
+    title: string;
+    author: string;
+    play: string;
+    cover: string;
+  };
+  play_count: number;
+  digg_count: number;
+  comment_count: number;
+  share_count: number;
+  download_count: number;
+  create_time: number;
+  author: {
+    id: string;
+    unique_id: string;
+    nickname: string;
+    avatar: string;
+    signature: string;
+    verified: boolean;
+  };
 }
 
-// Fetch batch of videos using TikTok web creator item_list API
-async function fetchTikTokVideoBatch(
-  secUid: string,
-  username: string,
-  cursor: number,
-  count = 15
-): Promise<any[]> {
-  try {
-    const query = new URLSearchParams({
-      aid: '1988',
-      app_language: 'en',
-      app_name: 'tiktok_web',
-      browser_language: 'en-US',
-      browser_name: 'Mozilla',
-      browser_online: 'true',
-      browser_platform: 'Win32',
-      browser_version: '5.0 (Windows)',
-      channel: 'tiktok_web',
-      cookie_enabled: 'true',
-      count: String(count),
-      cursor: String(cursor),
-      device_id: '7312345678901234567',
-      device_platform: 'web_pc',
-      focus_state: 'true',
-      from_page: 'user',
-      history_len: '2',
-      is_fullscreen: 'false',
-      is_page_visible: 'true',
-      language: 'en',
-      os: 'windows',
-      region: 'US',
-      screen_height: '1080',
-      screen_width: '1920',
-      secUid: secUid,
-      type: '1',
-      tz_name: 'UTC',
-      verifyFp: 'verify_1234567',
-      webcast_language: 'en',
-    });
+const DESKTOP_BROWSER_HEADERS: Record<string, string> = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+  Accept:
+    'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Sec-Ch-Ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+  'Sec-Ch-Ua-Mobile': '?0',
+  'Sec-Ch-Ua-Platform': '"Windows"',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1',
+  'Cache-Control': 'max-age=0',
+};
 
-    const url = `https://www.tiktok.com/api/creator/item_list/?${query.toString()}`;
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        Referer: `https://www.tiktok.com/@${encodeURIComponent(username)}`,
-        Accept: 'application/json, text/plain, */*',
-      },
-      cache: 'no-store',
-    });
-
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.itemList || [];
-  } catch (err) {
-    console.warn('Batch fetch error:', err);
-    return [];
-  }
+function normalizeDirectCdnUrl(url?: string): string {
+  if (!url) return '';
+  return url.replace(/\\u0026/g, '&').replace(/\\u002F/g, '/');
 }
 
-function mapItemToVideo(item: any, user: TikTokScrapedUser) {
+function parseItem(item: any, user: TikTokUser): VideoOutput {
   const v = item.video || {};
-  const s = item.stats || {};
+  const s = item.stats || item.statsV2 || {};
   const m = item.music || {};
+
+  const directVideoPlay = normalizeDirectCdnUrl(
+    v.playAddr || v.downloadAddr || v.bitrateInfo?.[0]?.PlayAddr?.UrlList?.[0] || item.play || ''
+  );
+  const directVideoWm = normalizeDirectCdnUrl(
+    v.downloadAddr || v.playAddr || item.wmplay || directVideoPlay
+  );
+  const directAudioPlay = normalizeDirectCdnUrl(m.playUrl || m.url || item.music || '');
+
   return {
-    video_id: item.id,
-    id: item.id,
-    title: item.desc || '',
-    duration: v.duration || 0,
-    cover: v.cover || v.originCover || v.dynamicCover || '',
-    origin_cover: v.originCover || v.cover || '',
-    play: v.playAddr || v.downloadAddr || '',
-    wmplay: v.downloadAddr || v.playAddr || '',
-    music: m.playUrl || '',
+    video_id: String(item.id || item.video_id || ''),
+    id: String(item.id || item.video_id || ''),
+    title: item.desc || item.title || '',
+    duration: Number(v.duration || item.duration || 0),
+    cover: normalizeDirectCdnUrl(v.cover || v.originCover || v.dynamicCover || item.cover || ''),
+    origin_cover: normalizeDirectCdnUrl(v.originCover || v.cover || item.origin_cover || ''),
+    play: directVideoPlay,
+    wmplay: directVideoWm,
+    music: directAudioPlay,
     music_info: {
-      id: m.id || '',
-      title: m.title || '',
-      author: m.authorName || '',
-      play: m.playUrl || '',
-      cover: m.coverLarge || m.coverMedium || '',
+      id: String(m.id || ''),
+      title: m.title || m.album || 'Original Sound',
+      author: m.authorName || m.author || user.nickname,
+      play: directAudioPlay,
+      cover: normalizeDirectCdnUrl(m.coverLarge || m.coverMedium || m.coverThumb || ''),
     },
-    play_count: s.playCount || 0,
-    digg_count: s.diggCount || 0,
-    comment_count: s.commentCount || 0,
-    share_count: s.shareCount || 0,
-    download_count: s.collectCount || 0,
-    create_time: item.createTime || 0,
+    play_count: Number(s.playCount || item.play_count || 0),
+    digg_count: Number(s.diggCount || item.digg_count || 0),
+    comment_count: Number(s.commentCount || item.comment_count || 0),
+    share_count: Number(s.shareCount || item.share_count || 0),
+    download_count: Number(s.collectCount || item.download_count || 0),
+    create_time: Number(item.createTime || item.create_time || 0),
     author: {
-      id: user.secUid,
+      id: user.secUid || user.id,
       unique_id: user.uniqueId,
       nickname: user.nickname,
       avatar: user.avatar,
@@ -1639,121 +1589,204 @@ function mapItemToVideo(item: any, user: TikTokScrapedUser) {
   };
 }
 
+async function scrapeProfileHtml(username: string): Promise<{
+  user: TikTokUser;
+  stats: TikTokStats;
+  itemList: any[];
+} | null> {
+  const profileUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
+
+  const res = await fetch(profileUrl, {
+    headers: DESKTOP_BROWSER_HEADERS,
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    return null;
+  }
+
+  const html = await res.text();
+
+  // Pattern 1: __UNIVERSAL_DATA_FOR_REHYDRATION__
+  const rehydrationMatch = html.match(
+    /<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>([\s\S]*?)<\/script>/
+  );
+  if (rehydrationMatch && rehydrationMatch[1]) {
+    try {
+      const data = JSON.parse(rehydrationMatch[1]);
+      const defaultScope = data['__DEFAULT_SCOPE__'] || {};
+      const userDetail = defaultScope['webapp.user-detail'];
+
+      if (userDetail?.userInfo?.user) {
+        const u = userDetail.userInfo.user;
+        const s = userDetail.userInfo.stats || {};
+        const isPrivate = Boolean(u.secret || u.privateAccount);
+
+        const parsedUser: TikTokUser = {
+          id: u.id || u.secUid || username,
+          uniqueId: u.uniqueId || username,
+          nickname: u.nickname || u.uniqueId || username,
+          avatar: normalizeDirectCdnUrl(
+            u.avatarLarger || u.avatarMedium || u.avatarThumb || ''
+          ),
+          signature: u.signature || '',
+          verified: Boolean(u.verified),
+          secUid: u.secUid || '',
+          status: isPrivate ? 'private' : 'active',
+        };
+
+        const parsedStats: TikTokStats = {
+          followerCount: typeof s.followerCount === 'number' ? s.followerCount : null,
+          followingCount: typeof s.followingCount === 'number' ? s.followingCount : null,
+          heartCount:
+            typeof s.heart === 'number'
+              ? s.heart
+              : typeof s.heartCount === 'number'
+              ? s.heartCount
+              : null,
+          videoCount: Number(s.videoCount || 0),
+        };
+
+        const items = userDetail.itemList || defaultScope['webapp.video-detail']?.itemList || [];
+        return {
+          user: parsedUser,
+          stats: parsedStats,
+          itemList: Array.isArray(items) ? items : [],
+        };
+      }
+    } catch {
+      // Fall through to SIGI_STATE
+    }
+  }
+
+  // Pattern 2: SIGI_STATE
+  const sigiMatch = html.match(/<script id="SIGI_STATE"[^>]*>([\s\S]*?)<\/script>/);
+  if (sigiMatch && sigiMatch[1]) {
+    try {
+      const sigi = JSON.parse(sigiMatch[1]);
+      const userModule = sigi.UserModule?.users || {};
+      const userKey = Object.keys(userModule).find(
+        (k) => k.toLowerCase() === username.toLowerCase()
+      ) || Object.keys(userModule)[0];
+
+      if (userKey && userModule[userKey]) {
+        const u = userModule[userKey];
+        const s = sigi.UserModule?.stats?.[userKey] || {};
+        const isPrivate = Boolean(u.secret || u.privateAccount);
+
+        const parsedUser: TikTokUser = {
+          id: u.id || u.secUid || username,
+          uniqueId: u.uniqueId || username,
+          nickname: u.nickname || u.uniqueId || username,
+          avatar: normalizeDirectCdnUrl(
+            u.avatarLarger || u.avatarMedium || u.avatarThumb || ''
+          ),
+          signature: u.signature || '',
+          verified: Boolean(u.verified),
+          secUid: u.secUid || '',
+          status: isPrivate ? 'private' : 'active',
+        };
+
+        const parsedStats: TikTokStats = {
+          followerCount: typeof s.followerCount === 'number' ? s.followerCount : null,
+          followingCount: typeof s.followingCount === 'number' ? s.followingCount : null,
+          heartCount:
+            typeof s.heart === 'number'
+              ? s.heart
+              : typeof s.heartCount === 'number'
+              ? s.heartCount
+              : null,
+          videoCount: Number(s.videoCount || 0),
+        };
+
+        const itemModule = sigi.ItemModule || {};
+        const items = Object.values(itemModule);
+
+        return {
+          user: parsedUser,
+          stats: parsedStats,
+          itemList: items,
+        };
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
+  return null;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const usernameParam = searchParams.get('username');
-  const cursorParam = searchParams.get('cursor');
-  const countParam = searchParams.get('count');
 
   if (!usernameParam) {
     return NextResponse.json(
-      { code: -1, msg: 'Missing username parameter' },
+      { code: -1, msg: 'Missing username parameter.' },
       { status: 400 }
     );
   }
 
-  const cleanUser = usernameParam.replace(/^@+/, '').trim();
+  const cleanUser = usernameParam.replace(/^@+/, '').trim().toLowerCase();
 
   try {
-    const profileData = await scrapeTikTokUserProfile(cleanUser);
-    if (!profileData) {
+    const scraped = await scrapeProfileHtml(cleanUser);
+
+    if (!scraped) {
       return NextResponse.json(
         {
           code: -1,
-          msg: `User @${cleanUser} not found or account is private.`,
+          msg: `TikTok profile @${cleanUser} could not be resolved or does not exist.`,
         },
         { status: 404 }
       );
     }
 
-    const { user, stats } = profileData;
+    const { user, stats, itemList } = scraped;
 
-    // Check if pagination was requested
-    if (cursorParam) {
-      const cursorNum = Number(cursorParam);
-      const batch = await fetchTikTokVideoBatch(user.secUid, user.uniqueId, cursorNum, 15);
-      const formatted = batch.map((item) => mapItemToVideo(item, user));
-      
-      let nextCursor: number | null = null;
-      if (batch.length > 0) {
-        const minTime = Math.min(...batch.map((i: any) => i.createTime || 0));
-        if (minTime > 0) {
-          const candidate = minTime * 1000;
-          // Ensure cursor moves strictly backward in time to avoid repeating items or getting stuck
-          nextCursor = candidate < cursorNum ? candidate : cursorNum - 1000;
-        }
-      }
+    if (user.status === 'private') {
+      return NextResponse.json(
+        {
+          code: 0,
+          msg: 'User profile is private.',
+          data: {
+            user,
+            stats,
+            videos: [],
+            cursor: null,
+            hasMore: false,
+          },
+        },
+        { status: 200 }
+      );
+    }
 
-      // Continuous pagination: keep hasMore true as long as items were returned and nextCursor is valid
-      const hasMoreVideos = batch.length > 0 && nextCursor !== null && nextCursor > 0;
+    const formattedVideos = itemList.map((item) => parseItem(item, user));
 
-      return NextResponse.json({
+    return NextResponse.json(
+      {
         code: 0,
         msg: 'success',
         data: {
-          videos: formatted,
-          cursor: nextCursor,
-          hasMore: hasMoreVideos,
+          user,
+          stats,
+          videos: formattedVideos,
+          cursor: null,
+          hasMore: false,
         },
-      });
-    }
-
-    // Initial load: fetch 30 videos (2 batches of 15)
-    const batch1 = await fetchTikTokVideoBatch(user.secUid, user.uniqueId, Date.now(), 15);
-    const allItems = [...batch1];
-    let nextCursor: number | null = null;
-
-    if (batch1.length > 0) {
-      const minTime1 = Math.min(...batch1.map((i: any) => i.createTime || 0));
-      if (minTime1 > 0) {
-        const batch2 = await fetchTikTokVideoBatch(user.secUid, user.uniqueId, minTime1 * 1000, 15);
-        if (batch2.length > 0) {
-          const seen = new Set(batch1.map((i: any) => i.id));
-          for (const item of batch2) {
-            if (!seen.has(item.id)) {
-              allItems.push(item);
-              seen.add(item.id);
-            }
-          }
-          const minTime2 = Math.min(...batch2.map((i: any) => i.createTime || 0));
-          if (minTime2 > 0) {
-            nextCursor = minTime2 * 1000;
-          }
-        } else {
-          nextCursor = minTime1 * 1000;
-        }
-      }
-    }
-
-    const formattedVideos = allItems.map((item) => mapItemToVideo(item, user));
-
-    // Initial load hasMore: true if we have items and a valid nextCursor
-    const initialHasMore = allItems.length > 0 && nextCursor !== null && nextCursor > 0;
-
-    return NextResponse.json({
-      code: 0,
-      msg: 'success',
-      data: {
-        videos: formattedVideos,
-        user: {
-          id: user.secUid,
-          unique_id: user.uniqueId,
-          nickname: user.nickname,
-          avatar: user.avatar,
-          signature: user.signature,
-          verified: user.verified,
-        },
-        stats: stats,
-        cursor: nextCursor,
-        hasMore: initialHasMore,
       },
-    });
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        },
+      }
+    );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to retrieve profile data.';
+    const message = err instanceof Error ? err.message : 'Serverless scrape execution error.';
     return NextResponse.json({ code: -1, msg: message }, { status: 500 });
   }
 }
-
 ```
 
 # app\categories\page.tsx
@@ -7685,6 +7718,11 @@ import {
 } from 'lucide-react';
 import DownloadCounterModal from './DownloadCounterModal';
 import AdSlot from './AdSlot';
+import {
+  fetchProfileDirect,
+  executeDirectCdnDownload,
+  sanitizeUsername,
+} from '@/lib/tiktok-client';
 
 export interface Author {
   unique_id: string;
@@ -7692,6 +7730,7 @@ export interface Author {
   avatar: string;
   signature?: string;
   verified?: boolean;
+  status?: 'active' | 'private' | 'not_found';
 }
 
 export interface TikTokVideo {
@@ -7726,7 +7765,6 @@ export interface ProfileStats {
   videoCount: number | null;
 }
 
-// Exactly 5 trending profiles in one row
 const FEATURED_SUGGESTIONS = [
   { username: 'charlidamelio', name: "Charli D'Amelio" },
   { username: 'khaby.lame', name: 'Khaby Lame' },
@@ -7759,10 +7797,6 @@ function formatDuration(seconds?: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-function sanitizeUsername(input: string): string {
-  return input.trim().replace(/^@/, '');
-}
-
 interface TikTokProfileViewerProps {
   initialUsername?: string;
   autoSearch?: boolean;
@@ -7783,23 +7817,18 @@ export default function TikTokProfileViewer({
   const [loadingMore, setLoadingMore] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Profile data
   const [authorProfile, setAuthorProfile] = useState<Author | null>(null);
   const [profileStats, setProfileStats] = useState<ProfileStats | null>(null);
   const [videos, setVideos] = useState<TikTokVideo[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
 
-  // Modal & Video Playback state
   const [selectedVideo, setSelectedVideo] = useState<TikTokVideo | null>(null);
   const [activePlayUrl, setActivePlayUrl] = useState<string>('');
-  const [resolvedMusicUrl, setResolvedMusicUrl] = useState<string>('');
-  const [resolvingVideo, setResolvingVideo] = useState<boolean>(false);
   const [downloadingVideo, setDownloadingVideo] = useState(false);
   const [downloadingAudio, setDownloadingAudio] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Download Counter Modal state
   const [counterModalOpen, setCounterModalOpen] = useState(false);
   const [counterModalData, setCounterModalData] = useState<{
     url: string;
@@ -7814,8 +7843,6 @@ export default function TikTokProfileViewer({
   });
 
   const modalVideoRef = useRef<HTMLVideoElement | null>(null);
-  const streamCache = useRef<Map<string, { play: string; music: string }>>(new Map());
-
   const hasActiveResult = Boolean(authorProfile || videos.length > 0 || loading);
 
   const handleCopyProfileLink = () => {
@@ -7838,53 +7865,13 @@ export default function TikTokProfileViewer({
     setCounterModalOpen(true);
   };
 
-  // Background preloading on card hover for fast playback
-  const preloadVideo = useCallback(
-    async (video: TikTokVideo) => {
-      const videoId = String(video.video_id || video.id || '');
-      if (!videoId || streamCache.current.has(videoId)) return;
-      const authorUser = video.author?.unique_id || authorProfile?.unique_id || 'tiktok';
-
-      try {
-        const resolveRes = await fetch(
-          `/api/resolve?id=${encodeURIComponent(videoId)}&username=${encodeURIComponent(authorUser)}`
-        );
-        if (resolveRes.ok) {
-          const resData = await resolveRes.json();
-          if (resData.success && resData.play) {
-            streamCache.current.set(videoId, {
-              play: resData.play,
-              music: resData.music || '',
-            });
-          }
-        }
-      } catch {
-        // Silent
-      }
-    },
-    [authorProfile?.unique_id]
-  );
-
-  const resetToHome = useCallback(() => {
-    setAuthorProfile(null);
-    setProfileStats(null);
-    setVideos([]);
-    setNextCursor(null);
-    setHasMore(false);
-    setErrorMsg(null);
-    setUsernameInput('');
-  }, []);
-
   const closeModal = useCallback(() => {
     setSelectedVideo(null);
     setActivePlayUrl('');
-    setResolvedMusicUrl('');
-    setResolvingVideo(false);
     setDownloadingVideo(false);
     setDownloadingAudio(false);
   }, []);
 
-  // Disable website scrolling behind video modal
   useEffect(() => {
     if (selectedVideo) {
       document.body.style.overflow = 'hidden';
@@ -7899,7 +7886,6 @@ export default function TikTokProfileViewer({
     };
   }, [selectedVideo]);
 
-  // Close modal when pressing Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && selectedVideo) {
@@ -7910,7 +7896,6 @@ export default function TikTokProfileViewer({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedVideo, closeModal]);
 
-  // Search handler
   const handleSearch = useCallback(
     async (usernameToSearch?: string) => {
       const targetUser = sanitizeUsername(usernameToSearch || usernameInput);
@@ -7925,17 +7910,10 @@ export default function TikTokProfileViewer({
       setHasMore(false);
 
       try {
-        const res = await fetch(`/api/tiktok?username=${encodeURIComponent(targetUser)}`);
-        const contentType = res.headers.get('content-type') || '';
+        const result = await fetchProfileDirect(targetUser);
 
-        if (!contentType.includes('application/json')) {
-          throw new Error('Received unexpected response. Please try again.');
-        }
-
-        const data = await res.json();
-
-        if (!data || data.code !== 0 || !data.data) {
-          const errorText = data?.msg || `User @${targetUser} was not found or is private.`;
+        if (!result || result.code !== 0 || !result.data) {
+          const errorText = result?.msg || `User @${targetUser} was not found or is private.`;
           setErrorMsg(errorText);
           setAuthorProfile(null);
           setProfileStats(null);
@@ -7943,9 +7921,9 @@ export default function TikTokProfileViewer({
           return;
         }
 
-        const postVideos: TikTokVideo[] = data.data.videos || [];
-        const userObj = data.data.user || {};
-        const statsObj = data.data.stats || {};
+        const postVideos: TikTokVideo[] = result.data.videos || [];
+        const userObj = result.data.user || {};
+        const statsObj = result.data.stats || {};
 
         const authorInfo: Author = {
           unique_id: userObj.unique_id || targetUser,
@@ -7953,6 +7931,7 @@ export default function TikTokProfileViewer({
           avatar: userObj.avatar || '',
           signature: userObj.signature || '',
           verified: !!userObj.verified,
+          status: userObj.status || 'active',
         };
 
         const stats: ProfileStats = {
@@ -7969,14 +7948,14 @@ export default function TikTokProfileViewer({
         setAuthorProfile(authorInfo);
         setProfileStats(stats);
         setVideos(postVideos);
-        setNextCursor(data.data.cursor || null);
-        setHasMore(!!data.data.hasMore && !!data.data.cursor);
+        setNextCursor(result.data.cursor || null);
+        setHasMore(Boolean(result.data.hasMore && result.data.cursor));
 
         if (postVideos.length === 0) {
           setErrorMsg(`@${targetUser} was found, but has 0 public videos.`);
         }
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Failed to get profile data.';
+        const msg = err instanceof Error ? err.message : 'Failed to retrieve profile data.';
         setErrorMsg(msg);
         setAuthorProfile(null);
         setProfileStats(null);
@@ -7988,7 +7967,6 @@ export default function TikTokProfileViewer({
     [usernameInput]
   );
 
-  // Auto search on mount if requested
   const searchedRef = useRef(false);
   useEffect(() => {
     if (autoSearch && initialUsername && !searchedRef.current) {
@@ -8000,10 +7978,8 @@ export default function TikTokProfileViewer({
     }
   }, [autoSearch, initialUsername, handleSearch]);
 
-  // Show more videos (loads 15 more until end reached)
   const handleShowMoreVideos = async () => {
     if (!authorProfile?.unique_id || !nextCursor || loadingMore) return;
-
     setLoadingMore(true);
 
     try {
@@ -8042,55 +8018,10 @@ export default function TikTokProfileViewer({
     }
   };
 
-  // Open video player modal
-  const openModal = async (video: TikTokVideo) => {
+  const openModal = (video: TikTokVideo) => {
     setSelectedVideo(video);
-    const videoId = String(video.video_id || video.id);
-    const authorUser = video.author?.unique_id || authorProfile?.unique_id || 'tiktok';
-
-    const cached = streamCache.current.get(videoId);
-    if (cached && cached.play) {
-      setActivePlayUrl(cached.play);
-      if (cached.music) setResolvedMusicUrl(cached.music);
-      setResolvingVideo(false);
-      setTimeout(() => {
-        if (modalVideoRef.current) {
-          modalVideoRef.current.load();
-          modalVideoRef.current.play().catch(() => {});
-        }
-      }, 20);
-      return;
-    }
-
-    setResolvingVideo(true);
-    setActivePlayUrl('');
-
-    let playableUrl = '';
-    let musicUrl = '';
-
-    try {
-      const resolveRes = await fetch(
-        `/api/resolve?id=${encodeURIComponent(videoId)}&username=${encodeURIComponent(authorUser)}`
-      );
-      if (resolveRes.ok) {
-        const resData = await resolveRes.json();
-        if (resData.success && resData.play) {
-          playableUrl = resData.play;
-          musicUrl = resData.music || '';
-          streamCache.current.set(videoId, { play: playableUrl, music: musicUrl });
-          if (musicUrl) setResolvedMusicUrl(musicUrl);
-        }
-      }
-    } catch {
-      // Fallback
-    }
-
-    if (!playableUrl) {
-      playableUrl = video.play || video.wmplay || '';
-    }
-
-    setActivePlayUrl(playableUrl);
-    setResolvingVideo(false);
+    const directPlayableUrl = video.play || video.wmplay || '';
+    setActivePlayUrl(directPlayableUrl);
 
     setTimeout(() => {
       if (modalVideoRef.current) {
@@ -8100,74 +8031,8 @@ export default function TikTokProfileViewer({
     }, 20);
   };
 
-  // Video playback error fallback
-  const handleVideoError = () => {
-    if (activePlayUrl && !activePlayUrl.startsWith('/api/proxy')) {
-      const proxied = `/api/proxy?url=${encodeURIComponent(activePlayUrl)}`;
-      setActivePlayUrl(proxied);
-      if (modalVideoRef.current) {
-        modalVideoRef.current.load();
-        modalVideoRef.current.play().catch(() => {});
-      }
-    }
-  };
-
-  // Client-side file downloader
-  const downloadFile = async (url: string, filename: string) => {
-    try {
-      const res = await fetch(url, { referrerPolicy: 'no-referrer' });
-      if (res.ok) {
-        const blob = await res.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = blobUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(blobUrl);
-        }, 2000);
-        return;
-      }
-    } catch {
-      // Fallback
-    }
-
-    try {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.target = '_blank';
-      a.rel = 'noreferrer';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-      }, 1000);
-      return;
-    } catch {
-      // Fallback
-    }
-
-    const proxyDownloadUrl = `/api/proxy?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(
-      filename
-    )}&download=1`;
-    const a = document.createElement('a');
-    a.href = proxyDownloadUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-    }, 1000);
-  };
-
-  // Download HD Video (In-button "Downloading...")
   const handleDownloadVideo = async () => {
     if (!selectedVideo || downloadingVideo) return;
-    // Pause video playback immediately as requested
     if (modalVideoRef.current) {
       modalVideoRef.current.pause();
     }
@@ -8176,47 +8041,18 @@ export default function TikTokProfileViewer({
     const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
     const videoId = String(selectedVideo.video_id || selectedVideo.id || Date.now());
     const filename = `${authorUser}-${videoId}.mp4`;
+    const directVideoUrl = selectedVideo.play || selectedVideo.wmplay || activePlayUrl;
 
-    let videoUrl =
-      streamCache.current.get(videoId)?.play ||
-      activePlayUrl ||
-      selectedVideo.play ||
-      selectedVideo.wmplay ||
-      '';
-
-    if (!videoUrl || videoUrl.startsWith('/api/proxy')) {
-      try {
-        const resolveRes = await fetch(
-          `/api/resolve?id=${encodeURIComponent(videoId)}&username=${encodeURIComponent(authorUser)}`
-        );
-        if (resolveRes.ok) {
-          const resolveData = await resolveRes.json();
-          if (resolveData.success && resolveData.play) {
-            videoUrl = resolveData.play;
-            streamCache.current.set(videoId, {
-              play: resolveData.play,
-              music: resolveData.music || '',
-            });
-          }
-        }
-      } catch {
-        // Fallback
-      }
-    }
-
-    if (videoUrl) {
-      const proxyDownloadUrl = `/api/proxy?url=${encodeURIComponent(videoUrl)}&filename=${encodeURIComponent(
-        filename
-      )}&download=1`;
+    if (directVideoUrl) {
       setCounterModalData({
-        url: proxyDownloadUrl,
+        url: directVideoUrl,
         filename,
         mediaType: 'video',
         title: selectedVideo.title,
       });
       setCounterModalOpen(true);
     } else {
-      alert('Video download URL is unavailable.');
+      alert('Direct video stream URL is unavailable.');
     }
 
     setTimeout(() => {
@@ -8224,10 +8060,8 @@ export default function TikTokProfileViewer({
     }, 500);
   };
 
-  // Download Audio Only (MP3)
   const handleDownloadAudio = async () => {
     if (!selectedVideo || downloadingAudio) return;
-    // Pause video playback immediately as requested
     if (modalVideoRef.current) {
       modalVideoRef.current.pause();
     }
@@ -8236,48 +8070,18 @@ export default function TikTokProfileViewer({
     const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
     const videoId = String(selectedVideo.video_id || selectedVideo.id || Date.now());
     const filename = `${authorUser}-${videoId}.mp3`;
+    const directAudioUrl = selectedVideo.music_info?.play || selectedVideo.music || '';
 
-    let audioUrl =
-      streamCache.current.get(videoId)?.music ||
-      resolvedMusicUrl ||
-      selectedVideo.music_info?.play ||
-      selectedVideo.music ||
-      '';
-
-    if (!audioUrl) {
-      try {
-        const resolveRes = await fetch(
-          `/api/resolve?id=${encodeURIComponent(videoId)}&username=${encodeURIComponent(authorUser)}`
-        );
-        if (resolveRes.ok) {
-          const resolveData = await resolveRes.json();
-          if (resolveData.success && resolveData.music) {
-            audioUrl = resolveData.music;
-            setResolvedMusicUrl(audioUrl);
-            streamCache.current.set(videoId, {
-              play: resolveData.play || '',
-              music: audioUrl,
-            });
-          }
-        }
-      } catch {
-        // Fallback
-      }
-    }
-
-    if (audioUrl) {
-      const proxyDownloadUrl = `/api/proxy?url=${encodeURIComponent(audioUrl)}&filename=${encodeURIComponent(
-        filename
-      )}&download=1`;
+    if (directAudioUrl) {
       setCounterModalData({
-        url: proxyDownloadUrl,
+        url: directAudioUrl,
         filename,
         mediaType: 'audio',
         title: selectedVideo.title,
       });
       setCounterModalOpen(true);
     } else {
-      alert('Audio download URL is unavailable.');
+      alert('Direct audio stream URL is unavailable.');
     }
 
     setTimeout(() => {
@@ -8287,7 +8091,6 @@ export default function TikTokProfileViewer({
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Title & Subtitle */}
       {(title || subtitle) && (
         <div className="text-center max-w-3xl mx-auto mb-6">
           {title && (
@@ -8303,8 +8106,7 @@ export default function TikTokProfileViewer({
         </div>
       )}
 
-
-      {/* Search input with lowered width */}
+      {/* Search Input Box */}
       <section className="w-full max-w-2xl mx-auto mb-6">
         <form
           onSubmit={(e) => {
@@ -8345,7 +8147,6 @@ export default function TikTokProfileViewer({
           </button>
         </form>
 
-        {/* 5. Trending profiles under search bar */}
         {!hasActiveResult && (
           <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
             <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
@@ -8367,24 +8168,21 @@ export default function TikTokProfileViewer({
           </div>
         )}
 
-        {/* Error Alert Box */}
         {errorMsg && (
           <div className="mt-4 p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-start gap-2.5">
             <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-red-900">Profile not found</p>
+              <p className="font-semibold text-red-900">Profile lookup notice</p>
               <p className="text-red-700 text-xs mt-0.5">{errorMsg}</p>
             </div>
           </div>
         )}
       </section>
 
-      {/* 2. TikTok Profile Details Container with increased size and visibility */}
+      {/* TikTok Profile Details Container */}
       {authorProfile && (
         <section className="w-full mb-8 bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
-          {/* Top section: Avatar on left, Title + Circular actions + Right bordered buttons */}
           <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-7">
-            {/* Square avatar with increased size */}
             <div className="relative shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -8400,21 +8198,19 @@ export default function TikTokProfileViewer({
               />
             </div>
 
-            {/* Profile Info & Header Actions */}
             <div className="flex-1 min-w-0 w-full flex flex-col justify-between">
-              {/* Row 1: Name + Circular icons + Right-aligned Action Buttons */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
                     {authorProfile.nickname || authorProfile.unique_id}
                   </h2>
 
-                  {/* Circular action buttons */}
                   <div className="flex items-center gap-1.5 ml-1">
                     <a
                       href={`https://www.tiktok.com/@${authorProfile.unique_id}`}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noreferrer noopener"
+                      referrerPolicy="no-referrer"
                       className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors"
                       title="Open TikTok Profile"
                     >
@@ -8435,7 +8231,6 @@ export default function TikTokProfileViewer({
                   </div>
                 </div>
 
-                {/* Buttons: same size, in one line, short text */}
                 <div className="flex items-center gap-2 flex-nowrap shrink-0">
                   <button
                     type="button"
@@ -8469,7 +8264,8 @@ export default function TikTokProfileViewer({
                   <a
                     href={`https://www.tiktok.com/@${authorProfile.unique_id}`}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noreferrer noopener"
+                    referrerPolicy="no-referrer"
                     className="h-9 px-3.5 sm:px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-800 text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-1.5 shadow-2xs transition-all whitespace-nowrap min-w-[85px] sm:min-w-[100px]"
                     title="Open TikTok profile"
                   >
@@ -8479,7 +8275,6 @@ export default function TikTokProfileViewer({
                 </div>
               </div>
 
-              {/* Sub-line: username & bio with larger font */}
               <div className="mt-2.5 flex flex-col gap-1.5">
                 <div className="flex items-center gap-2 text-sm sm:text-base text-slate-600 flex-wrap">
                   <span className="font-mono text-slate-900 font-bold">
@@ -8494,7 +8289,6 @@ export default function TikTokProfileViewer({
                   </p>
                 )}
 
-                {/* Verified or Not Verified tag under description */}
                 <div className="mt-2.5 flex items-center gap-2">
                   {authorProfile.verified ? (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-xs font-bold shadow-2xs">
@@ -8511,23 +8305,20 @@ export default function TikTokProfileViewer({
             </div>
           </div>
 
-          {/* Divider line */}
           <div className="border-t border-slate-200 my-4 sm:my-5" />
 
-          {/* Bottom row: Separate containers with unique colors, same size, low height */}
+          {/* Metrics Row */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3 items-stretch">
-            {/* 1. Status Container (Emerald) */}
             <div className="h-[68px] sm:h-[72px] rounded-xl px-3 py-2 bg-emerald-50/90 border border-emerald-200/80 flex flex-col justify-center shadow-2xs">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-700 leading-none mb-1">
                 Status
               </span>
               <span className="text-sm sm:text-base font-extrabold tracking-tight text-emerald-950 leading-tight flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <span>Active</span>
+                <span>{authorProfile.status === 'private' ? 'Private' : 'Active'}</span>
               </span>
             </div>
 
-            {/* 2. Followers Container (Sky Blue) */}
             <div className="h-[68px] sm:h-[72px] rounded-xl px-3 py-2 bg-sky-50/90 border border-sky-200/80 flex flex-col justify-center shadow-2xs">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-sky-700 leading-none mb-1">
                 Followers
@@ -8537,7 +8328,6 @@ export default function TikTokProfileViewer({
               </span>
             </div>
 
-            {/* 3. Total Likes Container (Rose Pink) */}
             <div className="h-[68px] sm:h-[72px] rounded-xl px-3 py-2 bg-rose-50/90 border border-rose-200/80 flex flex-col justify-center shadow-2xs">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-rose-700 leading-none mb-1">
                 Total Likes
@@ -8547,7 +8337,6 @@ export default function TikTokProfileViewer({
               </span>
             </div>
 
-            {/* 4. Following Container (Purple) */}
             <div className="h-[68px] sm:h-[72px] rounded-xl px-3 py-2 bg-purple-50/90 border border-purple-200/80 flex flex-col justify-center shadow-2xs">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-purple-700 leading-none mb-1">
                 Following
@@ -8557,7 +8346,6 @@ export default function TikTokProfileViewer({
               </span>
             </div>
 
-            {/* 5. Videos Container (Amber) */}
             <div className="h-[68px] sm:h-[72px] rounded-xl px-3 py-2 bg-amber-50/90 border border-amber-200/80 flex flex-col justify-center shadow-2xs">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-700 leading-none mb-1">
                 Videos
@@ -8567,7 +8355,6 @@ export default function TikTokProfileViewer({
               </span>
             </div>
 
-            {/* 6. Account Type Container (Indigo) */}
             <div className="h-[68px] sm:h-[72px] rounded-xl px-3 py-2 bg-indigo-50/90 border border-indigo-200/80 flex flex-col justify-center shadow-2xs">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-indigo-700 leading-none mb-1">
                 Account
@@ -8580,7 +8367,7 @@ export default function TikTokProfileViewer({
         </section>
       )}
 
-      {/* Video Grid Section with enhanced details visibility */}
+      {/* Video Grid Section */}
       {videos.length > 0 && !loading && (
         <section className="w-full flex flex-col gap-4">
           <AdSlot placement="above_grid" />
@@ -8598,7 +8385,6 @@ export default function TikTokProfileViewer({
             </div>
           </div>
 
-          {/* Video Grid: 5 videos per row on desktop */}
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {videos.map((video, index) => {
               const coverImg = video.cover || video.origin_cover || '';
@@ -8607,10 +8393,8 @@ export default function TikTokProfileViewer({
                 <div
                   key={video.video_id || video.id || index}
                   onClick={() => openModal(video)}
-                  onMouseEnter={() => preloadVideo(video)}
                   className="relative aspect-[9/16] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-pointer shadow-xs group"
                 >
-                  {/* Thumbnail Cover Image - STATIC NO ZOOM */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={coverImg}
@@ -8620,14 +8404,12 @@ export default function TikTokProfileViewer({
                     className="w-full h-full object-cover bg-slate-100 pointer-events-none"
                   />
 
-                  {/* Centered Play Button (Triangle) on Hover in #f7024e */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                     <div className="w-12 h-12 rounded-full bg-[#f7024e] text-white flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110">
                       <Play className="w-5 h-5 fill-white text-white translate-x-0.5" />
                     </div>
                   </div>
 
-                  {/* Top Scrim & Duration with larger badges */}
                   <div className="absolute inset-x-0 top-0 p-2.5 flex justify-between items-start bg-gradient-to-b from-black/75 via-black/25 to-transparent pointer-events-none">
                     <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-black/70 text-white shadow-xs">
                       #{index + 1}
@@ -8639,7 +8421,6 @@ export default function TikTokProfileViewer({
                     )}
                   </div>
 
-                  {/* Bottom Stats Overlay with fully visible shares metric */}
                   <div className="absolute inset-x-0 bottom-0 px-2 sm:px-2.5 py-2 sm:py-2.5 bg-gradient-to-t from-black/95 via-black/75 to-transparent flex flex-col gap-1 pointer-events-none">
                     <p className="text-xs sm:text-sm text-white line-clamp-2 font-bold leading-snug drop-shadow-sm">
                       {video.title || 'Watch Video'}
@@ -8667,7 +8448,6 @@ export default function TikTokProfileViewer({
             })}
           </div>
 
-          {/* SHOW MORE VIDEOS Button at end of grid */}
           {hasMore && (
             <div className="flex flex-col items-center justify-center pt-6 pb-4">
               <button
@@ -8696,7 +8476,7 @@ export default function TikTokProfileViewer({
         </section>
       )}
 
-      {/* Video Player & Downloader Modal with enhanced data size and visibility */}
+      {/* Video Player Modal */}
       {selectedVideo && (
         <div
           onClick={closeModal}
@@ -8706,7 +8486,6 @@ export default function TikTokProfileViewer({
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-lg sm:max-w-xl md:max-w-2xl bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[96vh] animate-in fade-in zoom-in-95 duration-200"
           >
-            {/* Floating Close Button */}
             <button
               type="button"
               onClick={closeModal}
@@ -8717,35 +8496,25 @@ export default function TikTokProfileViewer({
               <X className="w-4 h-4" />
             </button>
 
-            {/* Video Player Viewport */}
             <div className="relative bg-black flex items-center justify-center h-[54vh] sm:h-[60vh] max-h-[540px] min-h-[360px] w-full overflow-hidden shrink-0">
-              {resolvingVideo ? (
-                <div className="flex flex-col items-center justify-center gap-2 text-slate-300 py-16">
-                  <Loader2 className="w-8 h-8 text-sky-400 animate-spin" />
-                  <span className="text-xs sm:text-sm font-medium">Loading video...</span>
-                </div>
-              ) : (
-                <video
-                  ref={modalVideoRef}
-                  src={activePlayUrl || selectedVideo.play || selectedVideo.wmplay}
-                  controls
-                  playsInline
-                  autoPlay
-                  preload="auto"
-                  onError={handleVideoError}
-                  className="w-full h-full object-contain"
-                />
-              )}
+              <video
+                ref={modalVideoRef}
+                src={activePlayUrl || selectedVideo.play || selectedVideo.wmplay}
+                controls
+                playsInline
+                autoPlay
+                preload="metadata"
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
+                className="w-full h-full object-contain"
+              />
             </div>
 
-            {/* Video Details & Meta with enhanced font size and visibility */}
             <div className="p-4 sm:p-6 flex flex-col gap-3.5 bg-white shrink-0">
-              {/* Video Title */}
               <p className="text-sm sm:text-base md:text-lg font-bold text-slate-900 line-clamp-2 leading-snug break-words">
                 {selectedVideo.title || 'TikTok Video'}
               </p>
 
-              {/* Stats Bar */}
               <div className="flex items-center justify-between text-xs sm:text-sm md:text-base text-slate-700 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 font-mono font-bold">
                 <span className="flex items-center gap-1.5 sm:gap-2">
                   <Play className="w-4 h-4 fill-slate-600 text-slate-600" />
@@ -8764,9 +8533,7 @@ export default function TikTokProfileViewer({
                 ) : null}
               </div>
 
-              {/* Action Buttons: in-button "Downloading..." */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                {/* Button 1: Download HD Video */}
                 <button
                   type="button"
                   disabled={downloadingVideo || downloadingAudio}
@@ -8786,7 +8553,6 @@ export default function TikTokProfileViewer({
                   )}
                 </button>
 
-                {/* Button 2: Download Audio Only (MP3) */}
                 <button
                   type="button"
                   disabled={downloadingVideo || downloadingAudio}
@@ -8811,10 +8577,8 @@ export default function TikTokProfileViewer({
         </div>
       )}
 
-      {/* Pages and Sections (Displayed on Home, NOT in Search Result) */}
       {!hasActiveResult && children}
 
-      {/* Download Counter Modal with Ads & Background Stream Preparation */}
       <DownloadCounterModal
         isOpen={counterModalOpen}
         onClose={() => setCounterModalOpen(false)}
@@ -8826,7 +8590,6 @@ export default function TikTokProfileViewer({
     </div>
   );
 }
-
 ```
 
 # eslint.config.mjs
@@ -9417,6 +9180,171 @@ export function useSiteSettings(): [SiteSettings, (newSettings: SiteSettings) =>
   return [settings, update];
 }
 
+```
+
+# lib\tiktok-client.ts
+
+```ts
+/**
+ * Zero-bandwidth client-side media and API controller.
+ * Direct CDN streaming and direct client-side downloads using 'no-referrer' handling.
+ */
+
+export interface TikTokProfileApiResponse {
+  code: number;
+  msg: string;
+  data?: {
+    user: {
+      id: string;
+      unique_id: string;
+      nickname: string;
+      avatar: string;
+      signature: string;
+      verified: boolean;
+      status: 'active' | 'private' | 'not_found';
+    };
+    stats: {
+      followerCount: number | null;
+      followingCount: number | null;
+      heartCount: number | null;
+      videoCount: number;
+    };
+    videos: Array<{
+      video_id: string;
+      id: string;
+      title: string;
+      duration: number;
+      cover: string;
+      origin_cover: string;
+      play: string;
+      wmplay: string;
+      music: string;
+      music_info: {
+        id: string;
+        title: string;
+        author: string;
+        play: string;
+        cover: string;
+      };
+      play_count: number;
+      digg_count: number;
+      comment_count: number;
+      share_count: number;
+      download_count: number;
+      create_time: number;
+      author: {
+        id: string;
+        unique_id: string;
+        nickname: string;
+        avatar: string;
+        signature: string;
+        verified: boolean;
+      };
+    }>;
+    cursor: string | null;
+    hasMore: boolean;
+  };
+}
+
+export function sanitizeUsername(rawInput: string): string {
+  let cleaned = (rawInput || '').trim();
+  const urlMatch = cleaned.match(/tiktok\.com\/@?([a-zA-Z0-9._]+)/);
+  if (urlMatch && urlMatch[1]) {
+    cleaned = urlMatch[1];
+  }
+  return cleaned.replace(/^@+/, '').trim().toLowerCase();
+}
+
+/**
+ * Fetch profile data directly from the zero-bandwidth serverless endpoint.
+ */
+export async function fetchProfileDirect(username: string): Promise<TikTokProfileApiResponse> {
+  const clean = sanitizeUsername(username);
+  if (!clean) {
+    throw new Error('Please enter a valid TikTok username.');
+  }
+
+  const response = await fetch(`/api/tiktok?username=${encodeURIComponent(clean)}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+    cache: 'no-store',
+  });
+
+  const json: TikTokProfileApiResponse = await response.json();
+  return json;
+}
+
+/**
+ * Executes 100% direct client-side download from CDN without routing bytes through the server.
+ * Uses no-referrer policies to avoid hotlink blocks and triggers native browser save.
+ */
+export async function executeDirectCdnDownload(cdnUrl: string, filename: string): Promise<void> {
+  if (!cdnUrl) {
+    throw new Error('Media URL is unavailable for download.');
+  }
+
+  // Attempt 1: In-browser direct fetch using 'no-referrer' to bypass CDN referrer verification
+  try {
+    const res = await fetch(cdnUrl, {
+      method: 'GET',
+      mode: 'cors',
+      referrerPolicy: 'no-referrer',
+      credentials: 'omit',
+    });
+
+    if (res.ok) {
+      const blob = await res.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      const tempLink = document.createElement('a');
+      tempLink.style.display = 'none';
+      tempLink.href = objectUrl;
+      tempLink.download = filename;
+      tempLink.rel = 'noreferrer noopener';
+      document.body.appendChild(tempLink);
+      tempLink.click();
+
+      setTimeout(() => {
+        document.body.removeChild(tempLink);
+        window.URL.revokeObjectURL(objectUrl);
+      }, 1500);
+      return;
+    }
+  } catch {
+    // Fall back to direct link download if browser CORS prevents Blob instantiation
+  }
+
+  // Attempt 2: Direct anchor trigger with no-referrer
+  const directLink = document.createElement('a');
+  directLink.style.display = 'none';
+  directLink.href = cdnUrl;
+  directLink.download = filename;
+  directLink.target = '_blank';
+  directLink.rel = 'noreferrer noopener';
+  directLink.setAttribute('referrerpolicy', 'no-referrer');
+  document.body.appendChild(directLink);
+  directLink.click();
+
+  setTimeout(() => {
+    document.body.removeChild(directLink);
+  }, 1000);
+}
+
+/**
+ * Prepares direct HTML5 video playback without server proxying.
+ */
+export function configureDirectPlayback(
+  videoElement: HTMLVideoElement,
+  directCdnUrl: string
+): void {
+  if (!videoElement || !directCdnUrl) return;
+
+  videoElement.setAttribute('referrerpolicy', 'no-referrer');
+  videoElement.crossOrigin = 'anonymous';
+  videoElement.src = directCdnUrl;
+  videoElement.preload = 'metadata';
+}
 ```
 
 # lib\utils.ts

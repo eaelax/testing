@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getUserSessionCookies } from '@/lib/tiktok-session';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const targetUrl = searchParams.get('url');
   const filename = searchParams.get('filename');
+  const username = searchParams.get('user');
   const isAttachment = searchParams.get('download') === '1' || !!filename;
 
   if (!targetUrl) {
@@ -14,9 +16,16 @@ export async function GET(req: NextRequest) {
     const rangeHeader = req.headers.get('range');
     const upstreamHeaders: Record<string, string> = {
       'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
       Referer: 'https://www.tiktok.com/',
     };
+
+    if (username) {
+      const sessionCookie = getUserSessionCookies(username);
+      if (sessionCookie) {
+        upstreamHeaders['Cookie'] = sessionCookie;
+      }
+    }
 
     if (rangeHeader) {
       upstreamHeaders['Range'] = rangeHeader;

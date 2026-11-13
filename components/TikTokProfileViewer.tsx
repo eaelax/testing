@@ -30,6 +30,7 @@ export interface Author {
   unique_id: string;
   nickname: string;
   avatar: string;
+  secUid?: string;
   signature?: string;
   verified?: boolean;
   status?: 'active' | 'private' | 'not_found';
@@ -99,6 +100,10 @@ function formatDuration(seconds?: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+function isTikTokCookieCdn(url: string): boolean {
+  return /tiktok\.com|tiktokv\.com|tiktokcdn/i.test(url);
+}
+
 interface TikTokProfileViewerProps {
   initialUsername?: string;
   autoSearch?: boolean;
@@ -147,6 +152,7 @@ export default function TikTokProfileViewer({
 
   const modalVideoRef = useRef<HTMLVideoElement | null>(null);
   const playbackFallbackStepRef = useRef<number>(0);
+  const activeModalIdRef = useRef<string>('');
   const hasActiveResult = Boolean(authorProfile || videos.length > 0 || loading);
 
   const handleCopyProfileLink = () => {
@@ -172,6 +178,7 @@ export default function TikTokProfileViewer({
   };
 
   const closeModal = useCallback(() => {
+    activeModalIdRef.current = '';
     setSelectedVideo(null);
     setActivePlayUrl('');
     setVideoResolving(false);
@@ -240,6 +247,7 @@ export default function TikTokProfileViewer({
           unique_id: userObj?.unique_id || targetUser,
           nickname: userObj?.nickname || targetUser,
           avatar: userObj?.avatar || '',
+          secUid: userObj?.secUid || '',
           signature: userObj?.signature || '',
           verified: Boolean(userObj?.verified),
           status: userObj?.status || 'active',
@@ -296,7 +304,12 @@ export default function TikTokProfileViewer({
     setLoadingMore(true);
 
     try {
-      const batch = await fetchMoreVideosDirect(authorProfile.unique_id, nextCursor, 15);
+      const batch = await fetchMoreVideosDirect(
+        authorProfile.unique_id,
+        nextCursor,
+        15,
+        authorProfile.secUid || ''
+      );
 
       if (batch.videos.length > 0) {
         setVideos((prev) => {
@@ -325,21 +338,28 @@ export default function TikTokProfileViewer({
   };
 
   const openModal = async (video: TikTokVideo) => {
+    const videoId = String(video.video_id || video.id || '');
+    const authorUser = video.author?.unique_id || authorProfile?.unique_id || 'tiktok';
+    activeModalIdRef.current = videoId;
     playbackFallbackStepRef.current = 0;
+
     setSelectedVideo(video);
+    const existingUrl = video.play || video.wmplay || '';
 
-    const initialUrl = video.play || video.wmplay || '';
-    setActivePlayUrl(initialUrl);
-
-    if (!initialUrl) {
+    // If URL is missing or points directly to TikTok cookie-gated CDN, resolve a clean watermark-free stream
+    if (!existingUrl || isTikTokCookieCdn(existingUrl)) {
+      setActivePlayUrl('');
       setVideoResolving(true);
-      const authorUser = video.author?.unique_id || authorProfile?.unique_id || 'tiktok';
-      const videoId = String(video.video_id || video.id || '');
+
       const resolved = await resolveVideoStreamDirect(videoId, authorUser);
-      setVideoResolving(false);
+      if (activeModalIdRef.current !== videoId) return;
 
       if (resolved?.play) {
-        setActivePlayUrl(resolved.play);
+        const finalStream = resolved.needsProxy
+          ? `/api/proxy?url=${encodeURIComponent(resolved.play)}`
+          : resolved.play;
+
+        setActivePlayUrl(finalStream);
         setSelectedVideo((prev) =>
           prev
             ? {
@@ -354,8 +374,12 @@ export default function TikTokProfileViewer({
               }
             : prev
         );
+      } else if (existingUrl) {
+        setActivePlayUrl(`/api/proxy?url=${encodeURIComponent(existingUrl)}`);
       }
+      setVideoResolving(false);
     } else {
+      setActivePlayUrl(existingUrl);
       setVideoResolving(false);
     }
 
@@ -371,18 +395,21 @@ export default function TikTokProfileViewer({
   const handleVideoPlayError = async () => {
     if (!selectedVideo) return;
     const step = playbackFallbackStepRef.current;
+    const videoId = String(selectedVideo.video_id || selectedVideo.id || '');
+    const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
 
     if (step === 0) {
       playbackFallbackStepRef.current = 1;
       setVideoResolving(true);
-      const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
-      const videoId = String(selectedVideo.video_id || selectedVideo.id || '');
       const resolved = await resolveVideoStreamDirect(videoId, authorUser);
       setVideoResolving(false);
+      if (activeModalIdRef.current !== videoId) return;
 
       const candidate = resolved?.play || resolved?.wmplay || selectedVideo.wmplay || '';
       if (candidate && candidate !== activePlayUrl) {
-        setActivePlayUrl(candidate);
+        setActivePlayUrl(
+          resolved?.needsProxy ? `/api/proxy?url=${encodeURIComponent(candidate)}` : candidate
+        );
         return;
       }
     }
@@ -390,7 +417,9 @@ export default function TikTokProfileViewer({
     if (step <= 1 && activePlayUrl && !activePlayUrl.startsWith('/api/proxy')) {
       playbackFallbackStepRef.current = 2;
       const rawUrl = selectedVideo.play || selectedVideo.wmplay || activePlayUrl;
-      setActivePlayUrl(`/api/proxy?url=${encodeURIComponent(rawUrl)}`);
+      if (rawUrl) {
+        setActivePlayUrl(`/api/proxy?url=${encodeURIComponent(rawUrl)}`);
+      }
     }
   };
 
@@ -406,13 +435,11 @@ export default function TikTokProfileViewer({
     const filename = `${authorUser}-${videoId}.mp4`;
 
     let directVideoUrl = selectedVideo.play || selectedVideo.wmplay || '';
-    if (!directVideoUrl && activePlayUrl && !activePlayUrl.startsWith('/api/proxy')) {
-      directVideoUrl = activePlayUrl;
-    }
-
-    if (!directVideoUrl) {
+    if (!directVideoUrl || isTikTokCookieCdn(directVideoUrl)) {
       const resolved = await resolveVideoStreamDirect(videoId, authorUser);
-      directVideoUrl = resolved?.play || resolved?.wmplay || '';
+      if (resolved?.play) {
+        directVideoUrl = resolved.play;
+      }
     }
 
     if (directVideoUrl) {
@@ -442,7 +469,6 @@ export default function TikTokProfileViewer({
     const filename = `${authorUser}-${videoId}.mp3`;
 
     let directAudioUrl = selectedVideo.music_info?.play || selectedVideo.music || '';
-
     if (!directAudioUrl) {
       const resolved = await resolveVideoStreamDirect(videoId, authorUser);
       directAudioUrl = resolved?.music || '';
@@ -480,7 +506,7 @@ export default function TikTokProfileViewer({
         </div>
       )}
 
-      {/* Sleek, Balanced Search Input Box */}
+      {/* Search Input Box */}
       <section className="w-full max-w-xl mx-auto mb-5">
         <form
           onSubmit={(e) => {
@@ -772,14 +798,28 @@ export default function TikTokProfileViewer({
                       alt={video.title || 'TikTok video'}
                       referrerPolicy="no-referrer"
                       loading="lazy"
+                      data-step="0"
                       className="w-full h-full object-cover bg-slate-900 pointer-events-none"
                       onError={(e) => {
                         const target = e.currentTarget as HTMLImageElement;
-                        if (video.origin_cover && target.src !== video.origin_cover) {
+                        const step = target.getAttribute('data-step') || '0';
+
+                        if (step === '0' && video.origin_cover && video.origin_cover !== coverImg) {
+                          target.setAttribute('data-step', '1');
                           target.src = video.origin_cover;
-                        } else {
-                          target.style.display = 'none';
+                          return;
                         }
+
+                        if (step === '0' || step === '1') {
+                          target.setAttribute('data-step', '2');
+                          const rawCover = video.cover || video.origin_cover || '';
+                          if (rawCover && !rawCover.startsWith('/api/proxy')) {
+                            target.src = `/api/proxy?url=${encodeURIComponent(rawCover)}`;
+                            return;
+                          }
+                        }
+
+                        target.style.display = 'none';
                       }}
                     />
                   ) : null}
@@ -885,7 +925,7 @@ export default function TikTokProfileViewer({
               )}
               <video
                 ref={modalVideoRef}
-                src={activePlayUrl || selectedVideo.play || selectedVideo.wmplay || undefined}
+                src={activePlayUrl || undefined}
                 poster={selectedVideo.cover || selectedVideo.origin_cover || undefined}
                 controls
                 playsInline

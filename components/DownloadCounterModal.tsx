@@ -10,6 +10,7 @@ interface DownloadCounterModalProps {
   isOpen: boolean;
   onClose: () => void;
   downloadUrl: string;
+  fallbackUrl?: string;
   fileName: string;
   mediaType: 'video' | 'audio' | 'avatar';
   title?: string;
@@ -18,6 +19,7 @@ interface DownloadCounterModalProps {
 function ModalContent({
   initialSeconds,
   downloadUrl,
+  fallbackUrl,
   fileName,
   mediaType,
   title,
@@ -26,6 +28,7 @@ function ModalContent({
 }: {
   initialSeconds: number;
   downloadUrl: string;
+  fallbackUrl?: string;
   fileName: string;
   mediaType: 'video' | 'audio' | 'avatar';
   title?: string;
@@ -37,8 +40,8 @@ function ModalContent({
   const [hasClickedDownload, setHasClickedDownload] = useState(false);
 
   const triggerDownload = () => {
-    if (!downloadUrl) return;
-    executeDirectCdnDownload(downloadUrl, fileName).catch(() => {});
+    if (!downloadUrl && !fallbackUrl) return;
+    executeDirectCdnDownload(downloadUrl, fileName, fallbackUrl).catch(() => {});
   };
 
   const handleManualDownloadClick = () => {
@@ -51,8 +54,6 @@ function ModalContent({
 
   useEffect(() => {
     let current = initialSeconds;
-    let closeTimer: ReturnType<typeof setTimeout> | null = null;
-
     const timer = setInterval(() => {
       current -= 1;
       setCounter(current);
@@ -60,20 +61,17 @@ function ModalContent({
       if (current <= 0) {
         clearInterval(timer);
         setIsReady(true);
-        if (downloadUrl) {
-          executeDirectCdnDownload(downloadUrl, fileName).catch(() => {});
+        if (downloadUrl || fallbackUrl) {
+          executeDirectCdnDownload(downloadUrl, fileName, fallbackUrl).catch(() => {});
         }
-        closeTimer = setTimeout(() => {
+        setTimeout(() => {
           onClose();
         }, 1200);
       }
     }, 1000);
 
-    return () => {
-      clearInterval(timer);
-      if (closeTimer) clearTimeout(closeTimer);
-    };
-  }, [initialSeconds, downloadUrl, fileName, onClose]);
+    return () => clearInterval(timer);
+  }, [initialSeconds, downloadUrl, fallbackUrl, fileName, onClose]);
 
   const progressPercent = Math.min(
     100,
@@ -215,6 +213,7 @@ export default function DownloadCounterModal({
   isOpen,
   onClose,
   downloadUrl,
+  fallbackUrl,
   fileName,
   mediaType,
   title,
@@ -232,6 +231,7 @@ export default function DownloadCounterModal({
       <ModalContent
         initialSeconds={initialSeconds}
         downloadUrl={downloadUrl}
+        fallbackUrl={fallbackUrl}
         fileName={fileName}
         mediaType={mediaType}
         title={title}

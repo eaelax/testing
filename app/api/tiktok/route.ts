@@ -70,11 +70,14 @@ const DESKTOP_BROWSER_HEADERS: Record<string, string> = {
   'Cache-Control': 'max-age=0',
 };
 
-const API_HEADERS: Record<string, string> = {
+const TIKWM_HEADERS: Record<string, string> = {
   'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-  Accept: 'application/json, text/plain, */*',
+  Accept: 'application/json, text/javascript, */*; q=0.01',
   'Accept-Language': 'en-US,en;q=0.9',
+  Origin: 'https://www.tikwm.com',
+  Referer: 'https://www.tikwm.com/',
+  Cookie: 'current_language=en',
 };
 
 function sleep(ms: number): Promise<void> {
@@ -353,19 +356,75 @@ async function scrapeProfileHtml(username: string): Promise<{
 async function fetchTikwmPosts(
   username: string,
   cursor = '0',
-  count = 30
+  count = 30,
+  userId?: string
 ): Promise<{ videos: unknown[]; cursor: string | null; hasMore: boolean }> {
-  for (let attempt = 0; attempt < 2; attempt++) {
+  const paramSets: Array<Record<string, string>> = [
+    { unique_id: username, count: String(count), cursor: String(cursor) },
+  ];
+  if (userId && /^\d+$/.test(userId)) {
+    paramSets.push({ user_id: userId, count: String(count), cursor: String(cursor) });
+  }
+
+  for (const params of paramSets) {
+    // Try POST first (official TikWM web client method)
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8500);
+
+        const res = await fetch('https://www.tikwm.com/api/user/posts', {
+          method: 'POST',
+          headers: {
+            ...TIKWM_HEADERS,
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          },
+          body: new URLSearchParams(params).toString(),
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeout);
+
+        if (res.ok) {
+          const text = await res.text();
+          if (text.trim().startsWith('{')) {
+            const data = JSON.parse(text) as JsonRecord;
+            if (data && data.code === 0 && data.data) {
+              const payload = asObj(data.data);
+              const videos = Array.isArray(payload.videos) ? payload.videos : [];
+              if (videos.length > 0) {
+                return {
+                  videos,
+                  cursor: payload.cursor ? asStr(payload.cursor) : null,
+                  hasMore: Boolean(payload.hasMore && payload.cursor),
+                };
+              }
+            }
+            const msg = asStr(data?.msg).toLowerCase();
+            if (attempt === 0 && (data?.code === -1 || msg.includes('limit') || msg.includes('second'))) {
+              await sleep(1150);
+              continue;
+            }
+          }
+        }
+      } catch {
+        if (attempt === 0) {
+          await sleep(400);
+          continue;
+        }
+      }
+      break;
+    }
+
+    // Try GET fallback
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 9000);
-
-      const getUrl = `https://www.tikwm.com/api/user/posts?unique_id=${encodeURIComponent(
-        username
-      )}&count=${count}&cursor=${encodeURIComponent(cursor)}`;
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const getUrl = `https://www.tikwm.com/api/user/posts?${new URLSearchParams(params).toString()}`;
 
       const res = await fetch(getUrl, {
-        headers: API_HEADERS,
+        headers: TIKWM_HEADERS,
         cache: 'no-store',
         signal: controller.signal,
       });
@@ -373,65 +432,76 @@ async function fetchTikwmPosts(
       clearTimeout(timeout);
 
       if (res.ok) {
-        const data = (await res.json()) as JsonRecord;
-        if (data && data.code === 0 && data.data) {
-          const payload = asObj(data.data);
-          return {
-            videos: Array.isArray(payload.videos) ? payload.videos : [],
-            cursor: payload.cursor ? asStr(payload.cursor) : null,
-            hasMore: Boolean(payload.hasMore && payload.cursor),
-          };
-        }
-        const msg = asStr(data?.msg).toLowerCase();
-        if (attempt === 0 && (data?.code === -1 || msg.includes('limit') || msg.includes('second'))) {
-          await sleep(1150);
-          continue;
+        const text = await res.text();
+        if (text.trim().startsWith('{')) {
+          const data = JSON.parse(text) as JsonRecord;
+          if (data && data.code === 0 && data.data) {
+            const payload = asObj(data.data);
+            const videos = Array.isArray(payload.videos) ? payload.videos : [];
+            if (videos.length > 0) {
+              return {
+                videos,
+                cursor: payload.cursor ? asStr(payload.cursor) : null,
+                hasMore: Boolean(payload.hasMore && payload.cursor),
+              };
+            }
+          }
         }
       }
     } catch {
-      if (attempt === 0) {
-        await sleep(500);
-        continue;
-      }
+      // Continue
     }
   }
 
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+  // Last server-side fallback for page 1: search feed filtered to this creator
+  if (cursor === '0') {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const searchBody = new URLSearchParams({
+        keywords: username,
+        count: '35',
+        cursor: '0',
+        HD: '1',
+      });
 
-    const bodyParams = new URLSearchParams({
-      unique_id: username,
-      count: String(count),
-      cursor: String(cursor),
-    });
+      const res = await fetch('https://www.tikwm.com/api/feed/search', {
+        method: 'POST',
+        headers: {
+          ...TIKWM_HEADERS,
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        },
+        body: searchBody.toString(),
+        cache: 'no-store',
+        signal: controller.signal,
+      });
 
-    const res = await fetch('https://www.tikwm.com/api/user/posts', {
-      method: 'POST',
-      headers: {
-        ...API_HEADERS,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: bodyParams.toString(),
-      cache: 'no-store',
-      signal: controller.signal,
-    });
+      clearTimeout(timeout);
 
-    clearTimeout(timeout);
-
-    if (res.ok) {
-      const data = (await res.json()) as JsonRecord;
-      if (data && data.code === 0 && data.data) {
-        const payload = asObj(data.data);
-        return {
-          videos: Array.isArray(payload.videos) ? payload.videos : [],
-          cursor: payload.cursor ? asStr(payload.cursor) : null,
-          hasMore: Boolean(payload.hasMore && payload.cursor),
-        };
+      if (res.ok) {
+        const text = await res.text();
+        if (text.trim().startsWith('{')) {
+          const data = JSON.parse(text) as JsonRecord;
+          if (data && data.code === 0 && data.data) {
+            const payload = asObj(data.data);
+            const allVideos = Array.isArray(payload.videos) ? payload.videos : [];
+            const filtered = allVideos.filter((v) => {
+              const author = asObj(asObj(v).author);
+              return asStr(author.unique_id).toLowerCase() === username.toLowerCase();
+            });
+            if (filtered.length > 0) {
+              return {
+                videos: filtered,
+                cursor: null,
+                hasMore: false,
+              };
+            }
+          }
+        }
       }
+    } catch {
+      // Fail
     }
-  } catch {
-    // Fail
   }
 
   return { videos: [], cursor: null, hasMore: false };
@@ -448,7 +518,7 @@ async function fetchTikwmUserInfo(
       const res = await fetch(
         `https://www.tikwm.com/api/user/info?unique_id=${encodeURIComponent(username)}`,
         {
-          headers: API_HEADERS,
+          headers: TIKWM_HEADERS,
           cache: 'no-store',
           signal: controller.signal,
         }
@@ -457,51 +527,54 @@ async function fetchTikwmUserInfo(
       clearTimeout(timeout);
 
       if (res.ok) {
-        const data = (await res.json()) as JsonRecord;
-        if (data && data.code === 0 && data.data) {
-          const payload = asObj(data.data);
-          const u = asObj(payload.user || payload);
-          const s = asObj(payload.stats);
+        const text = await res.text();
+        if (text.trim().startsWith('{')) {
+          const data = JSON.parse(text) as JsonRecord;
+          if (data && data.code === 0 && data.data) {
+            const payload = asObj(data.data);
+            const u = asObj(payload.user || payload);
+            const s = asObj(payload.stats);
 
-          const parsedUser: TikTokUser = {
-            id: asStr(u.id || u.unique_id, username),
-            uniqueId: asStr(u.unique_id, username),
-            nickname: asStr(u.nickname || u.unique_id, username),
-            avatar: normalizeDirectCdnUrl(asStr(u.avatarLarger) || asStr(u.avatarMedium) || asStr(u.avatar)),
-            signature: asStr(u.signature),
-            verified: Boolean(u.verified),
-            secUid: asStr(u.secUid),
-            status: u.secret || u.privateAccount ? 'private' : 'active',
-          };
+            const parsedUser: TikTokUser = {
+              id: asStr(u.id || u.unique_id, username),
+              uniqueId: asStr(u.unique_id, username),
+              nickname: asStr(u.nickname || u.unique_id, username),
+              avatar: normalizeDirectCdnUrl(asStr(u.avatarLarger) || asStr(u.avatarMedium) || asStr(u.avatar)),
+              signature: asStr(u.signature),
+              verified: Boolean(u.verified),
+              secUid: asStr(u.secUid),
+              status: u.secret || u.privateAccount ? 'private' : 'active',
+            };
 
-          const parsedStats: TikTokStats = {
-            followerCount:
-              s.followerCount !== undefined
-                ? asNum(s.followerCount)
-                : u.follower_count !== undefined
-                ? asNum(u.follower_count)
-                : null,
-            followingCount:
-              s.followingCount !== undefined
-                ? asNum(s.followingCount)
-                : u.following_count !== undefined
-                ? asNum(u.following_count)
-                : null,
-            heartCount:
-              s.heartCount !== undefined
-                ? asNum(s.heartCount)
-                : u.total_favorited !== undefined
-                ? asNum(u.total_favorited)
-                : null,
-            videoCount: asNum(s.videoCount || u.aweme_count),
-          };
+            const parsedStats: TikTokStats = {
+              followerCount:
+                s.followerCount !== undefined
+                  ? asNum(s.followerCount)
+                  : u.follower_count !== undefined
+                  ? asNum(u.follower_count)
+                  : null,
+              followingCount:
+                s.followingCount !== undefined
+                  ? asNum(s.followingCount)
+                  : u.following_count !== undefined
+                  ? asNum(u.following_count)
+                  : null,
+              heartCount:
+                s.heartCount !== undefined
+                  ? asNum(s.heartCount)
+                  : u.total_favorited !== undefined
+                  ? asNum(u.total_favorited)
+                  : null,
+              videoCount: asNum(s.videoCount || u.aweme_count),
+            };
 
-          return { user: parsedUser, stats: parsedStats };
-        }
-        const msg = asStr(data?.msg).toLowerCase();
-        if (attempt === 0 && (data?.code === -1 || msg.includes('limit') || msg.includes('second'))) {
-          await sleep(1150);
-          continue;
+            return { user: parsedUser, stats: parsedStats };
+          }
+          const msg = asStr(data?.msg).toLowerCase();
+          if (attempt === 0 && (data?.code === -1 || msg.includes('limit') || msg.includes('second'))) {
+            await sleep(1150);
+            continue;
+          }
         }
       }
     } catch {
@@ -600,11 +673,13 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Full server fallback: run SSR scrape + TikWM posts (never concurrent with TikWM user info)
-    const [scraped, tikwmPosts] = await Promise.all([
-      scrapeProfileHtml(cleanUser),
-      fetchTikwmPosts(cleanUser, '0', countParam),
-    ]);
+    // Full server fallback: scrape SSR metadata first so we also have numeric user_id if needed
+    const scraped = await scrapeProfileHtml(cleanUser);
+    const scrapedUserId = scraped?.user?.id;
+    const tikwmPosts =
+      scraped?.user?.status === 'private'
+        ? { videos: [], cursor: null, hasMore: false }
+        : await fetchTikwmPosts(cleanUser, '0', countParam, scrapedUserId);
 
     let tikwmInfo: { user: TikTokUser; stats: TikTokStats } | null = null;
     if (!scraped) {

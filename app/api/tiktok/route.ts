@@ -144,10 +144,12 @@ function extractSetCookies(headers: Headers): string[] {
 }
 
 function randomDeviceId(): string {
-  const min = 7250000000000000000n;
-  const range = 75099899999994577n;
-  const rand = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) % range;
-  return (min + rand).toString();
+  const prefix = 7250 + Math.floor(Math.random() * 75);
+  let suffix = '';
+  for (let i = 0; i < 15; i++) {
+    suffix += Math.floor(Math.random() * 10).toString();
+  }
+  return `${prefix}${suffix}`;
 }
 
 function randomVerifyFp(): string {
@@ -474,7 +476,7 @@ async function scrapeProfileHtml(username: string): Promise<{
 
 /**
  * Fetches paginated creator video list directly from TikTok's /api/creator/item_list/
- * using the exact public parameters used by yt-dlp TikTokUserIE (no X-Gnarly / X-Bogus needed).
+ * using the public parameters used by yt-dlp TikTokUserIE.
  */
 async function fetchCreatorItemList(
   secUid: string,

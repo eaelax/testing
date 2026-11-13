@@ -1,1 +1,44 @@
 @import "tailwindcss";
+
+:root {
+  /* Backgrounds & Surfaces (Flat, Tonal Layering) */
+  --bg-page: #F3F4F6;
+  --bg-surface: #FFFFFF;
+  --bg-surface-subtle: #F8F9FA;
+  --bg-surface-hover: #F1F3F5;
+
+  /* Typography */
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #5C6573;
+  --text-on-accent: #FFFFFF;
+
+  /* Hairline Borders (No thick/hard borders) */
+  --border-subtle: #E5E7EB;
+  --border-control: #D1D5DB;
+  --border-hover: #9CA3AF;
+
+  /* Primary Brand Action (TikTok Crimson) */
+  --accent-primary: #D61C47;
+  --accent-primary-hover: #B9153B;
+  --accent-primary-soft: #FDF2F4;
+  --accent-primary-text: #BE123C;
+
+  /* Secondary / Structural Dark Action */
+  --accent-dark: #111827;
+  --accent-dark-hover: #1F2937;
+
+  /* Supporting Semantic Accents (Tools, Verified, Status) */
+  --teal-soft: #F0FDFA;
+  --teal-text: #0F766E;
+  --slate-soft: #F1F5F9;
+  --slate-text: #334155;
+
+  /* Strictly Flat UI */
+  --shadow-none: none;
+}
+
+body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+}

@@ -50,11 +50,11 @@ export default function FaqSection() {
   };
 
   return (
-    <section id="faq" className="w-full mt-14 pt-10 border-t border-slate-200 scroll-mt-20">
+    <section id="faq" className="w-full mt-14 pt-10 border-t border-[#E5E7EB] scroll-mt-20">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         {/* Left Column: Heading, Subtitle & Contact Us Button */}
         <div className="lg:col-span-5 flex flex-col items-start">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight leading-[1.1]">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#111827] tracking-tight leading-[1.1]">
             Frequently
             <br />
             Asked
@@ -62,20 +62,20 @@ export default function FaqSection() {
             Questions
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-500 mt-4 leading-relaxed max-w-sm">
+          <p className="text-sm sm:text-base text-[#4B5563] mt-4 leading-relaxed max-w-sm">
             Find answers to frequently asked questions about viewing profiles and saving watermark-free media.
           </p>
 
           <a
             href="mailto:support@tikprofilesviewer.com"
-            className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#18181b] hover:bg-black active:scale-[0.98] text-white text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer"
+            className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#111827] hover:bg-[#1F2937] active:scale-[0.98] text-[#FFFFFF] text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
           >
-            <Mail className="w-4 h-4 text-slate-300" />
+            <Mail className="w-4 h-4 text-[#D1D5DB]" />
             <span>Contact us</span>
           </a>
         </div>
 
-        {/* Right Column: Accordion Cards Stack with Lower Height matching reference */}
+        {/* Right Column: Accordion Cards Stack */}
         <div className="lg:col-span-7 flex flex-col space-y-2.5 sm:space-y-3">
           {FAQS.map((item, index) => {
             const isOpen = openIndex === index;
@@ -83,7 +83,7 @@ export default function FaqSection() {
             return (
               <div
                 key={index}
-                className="rounded-2xl bg-white border border-slate-200 shadow-2xs transition-all hover:border-slate-300 overflow-hidden"
+                className="rounded-2xl bg-[#FFFFFF] border border-[#E5E7EB] transition-colors hover:border-[#9CA3AF] overflow-hidden"
               >
                 <button
                   type="button"
@@ -91,21 +91,21 @@ export default function FaqSection() {
                   className="w-full px-5 py-3 sm:py-3.5 text-left flex items-center justify-between gap-4 cursor-pointer focus:outline-none group"
                   aria-expanded={isOpen}
                 >
-                  <span className="text-sm sm:text-base font-medium text-slate-900 tracking-tight">
+                  <span className="text-sm sm:text-base font-medium text-[#111827] tracking-tight">
                     {item.question}
                   </span>
 
-                  <div className="w-7 h-7 rounded-full bg-slate-50 group-hover:bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-500 shrink-0 transition-colors">
+                  <div className="w-7 h-7 rounded-full bg-[#F8F9FA] group-hover:bg-[#F1F3F5] border border-[#E5E7EB] flex items-center justify-center text-[#4B5563] shrink-0 transition-colors">
                     {isOpen ? (
-                      <X className="w-3.5 h-3.5 text-slate-900" />
+                      <X className="w-3.5 h-3.5 text-[#111827]" />
                     ) : (
-                      <Plus className="w-3.5 h-3.5 text-slate-600" />
+                      <Plus className="w-3.5 h-3.5 text-[#4B5563]" />
                     )}
                   </div>
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 pb-4 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100">
+                  <div className="px-5 pb-4 pt-2.5 text-xs sm:text-sm text-[#4B5563] leading-relaxed border-t border-[#E5E7EB]">
                     <p>{item.answer}</p>
                   </div>
                 )}

@@ -101,7 +101,7 @@ export default async function CreatorProfilePage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f0f4f9] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-[#111827]">
       <Navbar />
 
       <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">

@@ -88,20 +88,10 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafbfc] text-slate-900 relative">
+    <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-[#111827] relative">
       <Navbar />
 
-      {/* Top Section with ambient aurora gradient behind Text and Search Input */}
       <div className="relative w-full overflow-hidden flex-1 flex flex-col">
-        {/* Soft multi-color aurora ambient glow behind Text and Search Input */}
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] max-w-[130vw] h-[520px] pointer-events-none -z-10 blur-3xl opacity-80"
-          style={{
-            background:
-              'radial-gradient(ellipse 75% 65% at 50% 42%, rgba(254, 40, 88, 0.14) 0%, rgba(168, 85, 247, 0.12) 30%, rgba(245, 158, 11, 0.08) 54%, rgba(42, 240, 234, 0.12) 76%, transparent 100%)',
-          }}
-        />
-
         <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-8 flex flex-col items-center">
           <script
             type="application/ld+json"
@@ -112,13 +102,13 @@ export default function HomePage() {
             dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
           />
 
-          {/* Hero Headline & Subtitle (Balanced, elegant typography scale) */}
+          {/* Hero Headline & Subtitle */}
           <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-4xl md:text-[40px] font-black tracking-tight text-slate-950 leading-[1.18]">
+            <h1 className="text-2xl sm:text-4xl md:text-[40px] font-black tracking-tight text-[#111827] leading-[1.18]">
               View Any TikTok Profile &amp; Download Videos in HD
             </h1>
 
-            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-2 sm:mt-3 leading-relaxed max-w-xl mx-auto font-normal">
+            <p className="text-xs sm:text-sm md:text-base text-[#4B5563] mt-2 sm:mt-3 leading-relaxed max-w-xl mx-auto font-normal">
               Inspect public TikTok profiles anonymously, watch videos quickly without lag, and save watermark-free HD videos and MP3 audio for free.
             </p>
           </div>
@@ -128,19 +118,19 @@ export default function HomePage() {
             <TikTokProfileViewer initialUsername="" autoSearch={false}>
               <div className="w-full">
                 {/* How to Use Section (Anchored for Navbar #how-to-use) */}
-                <section id="how-to-use" className="w-full mt-12 pt-8 border-t border-slate-200 scroll-mt-20">
+                <section id="how-to-use" className="w-full mt-12 pt-8 border-t border-[#E5E7EB] scroll-mt-20">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                      <h2 className="text-xl sm:text-2xl font-bold text-[#111827]">
                         How to Use Tik Profiles Viewer
                       </h2>
-                      <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                      <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5">
                         Follow these simple steps to view and download any public video.
                       </p>
                     </div>
                     <Link
                       href="/how-to-use-tiktok-profile-viewer"
-                      className="text-xs font-semibold text-slate-900 hover:text-slate-700 flex items-center gap-1 transition-colors"
+                      className="text-xs font-semibold text-[#111827] hover:text-[#D61C47] flex items-center gap-1 transition-colors"
                     >
                       <span>Full guide</span>
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -154,19 +144,19 @@ export default function HomePage() {
                 <ExploreNichesSection />
 
                 {/* Trending Creators */}
-                <section className="w-full mt-12 pt-8 border-t border-slate-200">
+                <section className="w-full mt-12 pt-8 border-t border-[#E5E7EB]">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                      <h2 className="text-xl sm:text-2xl font-bold text-[#111827]">
                         Trending TikTok Creators
                       </h2>
-                      <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                      <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5">
                         Popular creators you can inspect right now.
                       </p>
                     </div>
                     <Link
                       href="/creators"
-                      className="text-xs font-semibold text-slate-900 hover:text-slate-700 flex items-center gap-1 transition-colors"
+                      className="text-xs font-semibold text-[#111827] hover:text-[#D61C47] flex items-center gap-1 transition-colors"
                     >
                       <span>View all creators</span>
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -178,9 +168,9 @@ export default function HomePage() {
                       <Link
                         key={creator.username}
                         href={`/profile/${creator.username}`}
-                        className="group p-4 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all flex items-center gap-3.5 shadow-xs"
+                        className="group p-4 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#9CA3AF] transition-colors flex items-center gap-3.5"
                       >
-                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#F8F9FA] shrink-0 border border-[#E5E7EB]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={creator.avatar || `/api/avatar?username=${encodeURIComponent(creator.username)}`}
@@ -192,20 +182,20 @@ export default function HomePage() {
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-black transition-colors truncate">
+                          <h3 className="text-sm font-bold text-[#111827] transition-colors truncate">
                             {creator.displayName}
                           </h3>
-                          <p className="text-xs font-mono text-slate-500 truncate">
+                          <p className="text-xs font-mono text-[#5C6573] truncate">
                             @{creator.username}
                           </p>
-                          <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                          <div className="flex items-center gap-2 text-[11px] text-[#5C6573] mt-0.5">
                             <span>{creator.followers} followers</span>
                             <span>•</span>
                             <span className="truncate">{creator.category}</span>
                           </div>
                         </div>
 
-                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-800 transition-colors shrink-0" />
+                        <ChevronRight className="w-4 h-4 text-[#5C6573] group-hover:text-[#111827] transition-colors shrink-0" />
                       </Link>
                     ))}
                   </div>
@@ -217,19 +207,19 @@ export default function HomePage() {
                 <AdSlot placement="footer" />
 
                 {/* About Tik Profiles Viewer (Anchored for Navbar #about) */}
-                <section id="about" className="w-full mt-12 pt-8 border-t border-slate-200 scroll-mt-20">
+                <section id="about" className="w-full mt-12 pt-8 border-t border-[#E5E7EB] scroll-mt-20">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                      <h2 className="text-xl sm:text-2xl font-bold text-[#111827]">
                         About Tik Profiles Viewer
                       </h2>
-                      <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                      <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5">
                         Free web service on TikProfilesViewer.com built for everyone.
                       </p>
                     </div>
                     <Link
                       href="/about-tiktok-profile-viewer"
-                      className="text-xs font-semibold text-slate-900 hover:text-slate-700 flex items-center gap-1 transition-colors"
+                      className="text-xs font-semibold text-[#111827] hover:text-[#D61C47] flex items-center gap-1 transition-colors"
                     >
                       <span>Read more</span>
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -237,32 +227,32 @@ export default function HomePage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                    <div className="p-5 sm:p-6 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col gap-2.5">
-                      <div className="w-9 h-9 rounded-lg bg-slate-100 text-slate-900 flex items-center justify-center">
+                    <div className="p-5 sm:p-6 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB] flex flex-col gap-2.5">
+                      <div className="w-9 h-9 rounded-lg bg-[#FDF2F4] text-[#BE123C] flex items-center justify-center">
                         <Zap className="w-4 h-4" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-bold text-slate-900">Fast Video Player</h3>
-                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                      <h3 className="text-sm sm:text-base font-bold text-[#111827]">Fast Video Player</h3>
+                      <p className="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
                         Play videos smoothly without lag. Videos start quickly with clear picture quality.
                       </p>
                     </div>
 
-                    <div className="p-5 sm:p-6 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col gap-2.5">
-                      <div className="w-9 h-9 rounded-lg bg-slate-100 text-slate-900 flex items-center justify-center">
+                    <div className="p-5 sm:p-6 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB] flex flex-col gap-2.5">
+                      <div className="w-9 h-9 rounded-lg bg-[#F1F5F9] text-[#334155] flex items-center justify-center">
                         <Download className="w-4 h-4" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-bold text-slate-900">100% Free Forever</h3>
-                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                      <h3 className="text-sm sm:text-base font-bold text-[#111827]">100% Free Forever</h3>
+                      <p className="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
                         No payments, no credit card, and no limits. Download as many videos as you want.
                       </p>
                     </div>
 
-                    <div className="p-5 sm:p-6 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col gap-2.5">
-                      <div className="w-9 h-9 rounded-lg bg-slate-100 text-slate-900 flex items-center justify-center">
+                    <div className="p-5 sm:p-6 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB] flex flex-col gap-2.5">
+                      <div className="w-9 h-9 rounded-lg bg-[#F0FDFA] text-[#0F766E] flex items-center justify-center">
                         <ShieldCheck className="w-4 h-4" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-bold text-slate-900">Private & Anonymous</h3>
-                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                      <h3 className="text-sm sm:text-base font-bold text-[#111827]">Private &amp; Anonymous</h3>
+                      <p className="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
                         Nobody knows you viewed their profile. No sign up required, and your data stays private.
                       </p>
                     </div>

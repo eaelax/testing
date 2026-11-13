@@ -21,7 +21,7 @@ import DownloadCounterModal from './DownloadCounterModal';
 import AdSlot from './AdSlot';
 import {
   fetchProfileDirect,
-  executeDirectCdnDownload,
+  fetchMoreVideosDirect,
   sanitizeUsername,
 } from '@/lib/tiktok-client';
 
@@ -258,7 +258,15 @@ export default function TikTokProfileViewer({
         if (authorInfo.status === 'private') {
           setErrorMsg(`@${targetUser} is a private TikTok account.`);
         } else if (postVideos.length === 0) {
-          setErrorMsg(`@${targetUser} was found, but has 0 public videos available.`);
+          if (stats.videoCount && stats.videoCount > 0) {
+            setErrorMsg(
+              `@${targetUser} has ${formatNumber(
+                stats.videoCount
+              )} videos, but the video feed could not be loaded right now. Please try searching again in a moment.`
+            );
+          } else {
+            setErrorMsg(`@${targetUser} was found, but has 0 public videos available.`);
+          }
         }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Failed to retrieve profile data.';
@@ -289,12 +297,7 @@ export default function TikTokProfileViewer({
     setLoadingMore(true);
 
     try {
-      const res = await fetch(
-        `/api/tiktok?username=${encodeURIComponent(
-          authorProfile.unique_id
-        )}&cursor=${encodeURIComponent(nextCursor)}&count=15`
-      );
-      const data = await res.json();
+      const data = await fetchMoreVideosDirect(authorProfile.unique_id, nextCursor, 15);
 
       if (data && data.code === 0 && data.data?.videos && data.data.videos.length > 0) {
         const newBatch: TikTokVideo[] = data.data.videos;

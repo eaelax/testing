@@ -21,7 +21,9 @@ import DownloadCounterModal from './DownloadCounterModal';
 import AdSlot from './AdSlot';
 import {
   fetchProfileDirect,
-  fetchMoreVideosDirect,
+  resolvePlayableMedia,
+  buildProxyUrl,
+  requiresSessionProxy,
   sanitizeUsername,
 } from '@/lib/tiktok-client';
 
@@ -126,6 +128,9 @@ export default function TikTokProfileViewer({
 
   const [selectedVideo, setSelectedVideo] = useState<TikTokVideo | null>(null);
   const [activePlayUrl, setActivePlayUrl] = useState<string>('');
+  const [resolvedDirectPlayUrl, setResolvedDirectPlayUrl] = useState<string>('');
+  const [resolvedDirectMusicUrl, setResolvedDirectMusicUrl] = useState<string>('');
+  const [proxyFallbackAttempted, setProxyFallbackAttempted] = useState(false);
   const [downloadingVideo, setDownloadingVideo] = useState(false);
   const [downloadingAudio, setDownloadingAudio] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -133,17 +138,20 @@ export default function TikTokProfileViewer({
   const [counterModalOpen, setCounterModalOpen] = useState(false);
   const [counterModalData, setCounterModalData] = useState<{
     url: string;
+    fallbackUrl?: string;
     filename: string;
     mediaType: 'video' | 'audio' | 'avatar';
     title?: string;
   }>({
     url: '',
+    fallbackUrl: '',
     filename: '',
     mediaType: 'video',
     title: '',
   });
 
   const modalVideoRef = useRef<HTMLVideoElement | null>(null);
+  const activeVideoIdRef = useRef<string | null>(null);
   const hasActiveResult = Boolean(authorProfile || videos.length > 0 || loading);
 
   const handleCopyProfileLink = () => {
@@ -159,6 +167,7 @@ export default function TikTokProfileViewer({
     const filename = `${authorProfile.unique_id}-avatar.jpg`;
     setCounterModalData({
       url: authorProfile.avatar,
+      fallbackUrl: buildProxyUrl(authorProfile.avatar, authorProfile.unique_id, filename, true),
       filename,
       mediaType: 'avatar',
       title: `@${authorProfile.unique_id} Profile Photo`,
@@ -167,8 +176,12 @@ export default function TikTokProfileViewer({
   };
 
   const closeModal = useCallback(() => {
+    activeVideoIdRef.current = null;
     setSelectedVideo(null);
     setActivePlayUrl('');
+    setResolvedDirectPlayUrl('');
+    setResolvedDirectMusicUrl('');
+    setProxyFallbackAttempted(false);
     setDownloadingVideo(false);
     setDownloadingAudio(false);
   }, []);
@@ -258,15 +271,7 @@ export default function TikTokProfileViewer({
         if (authorInfo.status === 'private') {
           setErrorMsg(`@${targetUser} is a private TikTok account.`);
         } else if (postVideos.length === 0) {
-          if (stats.videoCount && stats.videoCount > 0) {
-            setErrorMsg(
-              `@${targetUser} has ${formatNumber(
-                stats.videoCount
-              )} videos, but the video feed could not be loaded right now. Please try searching again in a moment.`
-            );
-          } else {
-            setErrorMsg(`@${targetUser} was found, but has 0 public videos available.`);
-          }
+          setErrorMsg(`@${targetUser} was found, but has 0 public videos available.`);
         }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Failed to retrieve profile data.';
@@ -297,7 +302,12 @@ export default function TikTokProfileViewer({
     setLoadingMore(true);
 
     try {
-      const data = await fetchMoreVideosDirect(authorProfile.unique_id, nextCursor, 15);
+      const res = await fetch(
+        `/api/tiktok?username=${encodeURIComponent(
+          authorProfile.unique_id
+        )}&cursor=${encodeURIComponent(nextCursor)}&count=15`
+      );
+      const data = await res.json();
 
       if (data && data.code === 0 && data.data?.videos && data.data.videos.length > 0) {
         const newBatch: TikTokVideo[] = data.data.videos;
@@ -328,9 +338,22 @@ export default function TikTokProfileViewer({
   };
 
   const openModal = (video: TikTokVideo) => {
+    const videoId = String(video.video_id || video.id || '');
+    const authorUser = video.author?.unique_id || authorProfile?.unique_id || 'tiktok';
+    activeVideoIdRef.current = videoId;
+
     setSelectedVideo(video);
-    const directPlayableUrl = video.play || video.wmplay || '';
-    setActivePlayUrl(directPlayableUrl);
+    setProxyFallbackAttempted(false);
+    setResolvedDirectPlayUrl('');
+    setResolvedDirectMusicUrl('');
+
+    const rawDirectUrl = video.play || video.wmplay || '';
+    const initialPlayableUrl =
+      rawDirectUrl && requiresSessionProxy(rawDirectUrl)
+        ? buildProxyUrl(rawDirectUrl, authorUser)
+        : rawDirectUrl;
+
+    setActivePlayUrl(initialPlayableUrl);
 
     setTimeout(() => {
       if (modalVideoRef.current) {
@@ -339,6 +362,36 @@ export default function TikTokProfileViewer({
         modalVideoRef.current.play().catch(() => {});
       }
     }, 20);
+
+    // Resolve clean direct CDN stream (0 server bandwidth) in background
+    if (videoId) {
+      resolvePlayableMedia(videoId, authorUser).then((resolved) => {
+        if (!resolved || activeVideoIdRef.current !== videoId) return;
+        if (resolved.play) {
+          setResolvedDirectPlayUrl(resolved.play);
+          if (!requiresSessionProxy(resolved.play) && requiresSessionProxy(rawDirectUrl)) {
+            setActivePlayUrl(resolved.play);
+          }
+        }
+        if (resolved.music) {
+          setResolvedDirectMusicUrl(resolved.music);
+        }
+      });
+    }
+  };
+
+  const handleVideoPlaybackError = () => {
+    if (!selectedVideo || proxyFallbackAttempted) return;
+    const rawUrl = resolvedDirectPlayUrl || selectedVideo.play || selectedVideo.wmplay || '';
+    if (!rawUrl) return;
+
+    const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
+    const proxyUrl = buildProxyUrl(rawUrl, authorUser);
+
+    if (activePlayUrl !== proxyUrl) {
+      setProxyFallbackAttempted(true);
+      setActivePlayUrl(proxyUrl);
+    }
   };
 
   const handleDownloadVideo = async () => {
@@ -351,11 +404,25 @@ export default function TikTokProfileViewer({
     const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
     const videoId = String(selectedVideo.video_id || selectedVideo.id || Date.now());
     const filename = `${authorUser}-${videoId}.mp4`;
-    const directVideoUrl = selectedVideo.play || selectedVideo.wmplay || activePlayUrl;
+
+    let directVideoUrl =
+      resolvedDirectPlayUrl || selectedVideo.play || selectedVideo.wmplay || '';
+
+    if ((!directVideoUrl || requiresSessionProxy(directVideoUrl)) && videoId) {
+      const resolved = await resolvePlayableMedia(videoId, authorUser);
+      if (resolved?.play) {
+        directVideoUrl = resolved.play;
+        setResolvedDirectPlayUrl(resolved.play);
+      }
+      if (resolved?.music) {
+        setResolvedDirectMusicUrl(resolved.music);
+      }
+    }
 
     if (directVideoUrl) {
       setCounterModalData({
         url: directVideoUrl,
+        fallbackUrl: buildProxyUrl(directVideoUrl, authorUser, filename, true),
         filename,
         mediaType: 'video',
         title: selectedVideo.title,
@@ -380,11 +447,22 @@ export default function TikTokProfileViewer({
     const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
     const videoId = String(selectedVideo.video_id || selectedVideo.id || Date.now());
     const filename = `${authorUser}-${videoId}.mp3`;
-    const directAudioUrl = selectedVideo.music_info?.play || selectedVideo.music || '';
+
+    let directAudioUrl =
+      resolvedDirectMusicUrl || selectedVideo.music_info?.play || selectedVideo.music || '';
+
+    if (!directAudioUrl && videoId) {
+      const resolved = await resolvePlayableMedia(videoId, authorUser);
+      if (resolved?.music) {
+        directAudioUrl = resolved.music;
+        setResolvedDirectMusicUrl(resolved.music);
+      }
+    }
 
     if (directAudioUrl) {
       setCounterModalData({
         url: directAudioUrl,
+        fallbackUrl: buildProxyUrl(directAudioUrl, authorUser, filename, true),
         filename,
         mediaType: 'audio',
         title: selectedVideo.title,
@@ -807,7 +885,7 @@ export default function TikTokProfileViewer({
                 playsInline
                 autoPlay
                 preload="metadata"
-                crossOrigin="anonymous"
+                onError={handleVideoPlaybackError}
                 className="w-full h-full object-contain"
               />
             </div>
@@ -885,6 +963,7 @@ export default function TikTokProfileViewer({
         isOpen={counterModalOpen}
         onClose={() => setCounterModalOpen(false)}
         downloadUrl={counterModalData.url}
+        fallbackUrl={counterModalData.fallbackUrl}
         fileName={counterModalData.filename}
         mediaType={counterModalData.mediaType}
         title={counterModalData.title}

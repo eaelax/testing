@@ -63,7 +63,7 @@ export default async function CategoryDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f0f4f9] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-[#111827]">
       <Navbar />
 
       <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -80,11 +80,11 @@ export default async function CategoryDetailPage({ params }: Props) {
         />
 
         {/* Hero Header */}
-        <div className="mb-6 p-5 sm:p-6 rounded-xl bg-white border border-slate-200 shadow-xs">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <div className="mb-6 p-5 sm:p-6 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB]">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
             {category.title}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1.5 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#4B5563] mt-1.5 max-w-2xl leading-relaxed">
             {category.seoDescription}
           </p>
 
@@ -93,7 +93,7 @@ export default async function CategoryDetailPage({ params }: Props) {
             {category.trendingTags.map((tag) => (
               <span
                 key={tag}
-                className="text-[11px] font-mono font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200"
+                className="text-[11px] font-mono font-medium px-2.5 py-0.5 rounded-full bg-[#F8F9FA] text-[#4B5563] border border-[#E5E7EB]"
               >
                 {tag}
               </span>
@@ -104,10 +104,10 @@ export default async function CategoryDetailPage({ params }: Props) {
         {/* Featured Creators in this Niche Grid */}
         <section className="mb-10">
           <div className="flex items-center justify-between mb-3.5">
-            <h2 className="text-sm sm:text-base font-bold text-slate-900">
+            <h2 className="text-sm sm:text-base font-bold text-[#111827]">
               Top {category.name} Creators
             </h2>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-[#5C6573]">
               Click any creator to view profile and download videos
             </span>
           </div>
@@ -117,9 +117,9 @@ export default async function CategoryDetailPage({ params }: Props) {
               <Link
                 key={creator.username}
                 href={`/profile/${creator.username}`}
-                className="p-3.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs transition-all flex items-center gap-3 group shadow-2xs"
+                className="p-3.5 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#9CA3AF] transition-colors flex items-center gap-3 group"
               >
-                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-[#F8F9FA] shrink-0 border border-[#E5E7EB]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={creator.avatar || `/api/avatar?username=${encodeURIComponent(creator.username)}`}
@@ -130,32 +130,32 @@ export default async function CategoryDetailPage({ params }: Props) {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-black transition-colors truncate">
+                  <h3 className="text-xs sm:text-sm font-bold text-[#111827] transition-colors truncate">
                     {creator.displayName}
                   </h3>
-                  <p className="text-[11px] font-mono text-slate-500 truncate">
+                  <p className="text-[11px] font-mono text-[#5C6573] truncate">
                     @{creator.username}
                   </p>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                  <div className="flex items-center gap-2 text-[11px] text-[#5C6573] mt-0.5">
                     <span>{creator.followers} followers</span>
                     <span>•</span>
                     <span>{creator.likes} likes</span>
                   </div>
                 </div>
 
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-800 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-[#5C6573] group-hover:text-[#111827] transition-colors" />
               </Link>
             ))}
           </div>
         </section>
 
         {/* Search & Downloader inside this Niche with empty input by default */}
-        <section className="mb-12 pt-6 border-t border-slate-200">
+        <section className="mb-12 pt-6 border-t border-[#E5E7EB]">
           <div className="text-center mb-5">
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">
+            <h2 className="text-lg sm:text-xl font-bold text-[#111827]">
               Search Any {category.name} Creator
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-[#4B5563] mt-1">
               Search any username to watch videos and download HD MP4 and MP3 audio.
             </p>
           </div>
@@ -168,18 +168,18 @@ export default async function CategoryDetailPage({ params }: Props) {
 
         {/* Category FAQs */}
         {category.faqs.length > 0 && (
-          <section className="mb-10 p-5 sm:p-6 rounded-xl bg-white border border-slate-200 shadow-xs">
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-4">
+          <section className="mb-10 p-5 sm:p-6 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB]">
+            <h2 className="text-base sm:text-lg font-bold text-[#111827] mb-4">
               Frequently Asked Questions about {category.name}
             </h2>
 
             <div className="flex flex-col gap-3">
               {category.faqs.map((faq, index) => (
-                <div key={index} className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+                <div key={index} className="p-3.5 rounded-xl bg-[#F8F9FA] border border-[#E5E7EB]">
+                  <h3 className="text-xs sm:text-sm font-bold text-[#111827]">
                     {faq.question}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#4B5563] mt-1 leading-relaxed">
                     {faq.answer}
                   </p>
                 </div>
@@ -189,8 +189,8 @@ export default async function CategoryDetailPage({ params }: Props) {
         )}
 
         {/* Browse Other Niches */}
-        <section className="pt-6 border-t border-slate-200">
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
+        <section className="pt-6 border-t border-[#E5E7EB]">
+          <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider mb-3">
             Explore Other Categories
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -198,10 +198,10 @@ export default async function CategoryDetailPage({ params }: Props) {
               <Link
                 key={c.slug}
                 href={`/category/${c.slug}`}
-                className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-xs text-slate-700 hover:text-slate-900 shadow-2xs transition-all flex items-center justify-between"
+                className="p-2.5 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#9CA3AF] text-xs text-[#4B5563] hover:text-[#111827] transition-colors flex items-center justify-between"
               >
                 <span className="truncate font-medium">{c.name}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-[#5C6573]" />
               </Link>
             ))}
           </div>

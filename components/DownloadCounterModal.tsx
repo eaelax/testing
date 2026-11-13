@@ -92,17 +92,17 @@ function ModalContent({
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="relative w-full max-w-lg sm:max-w-xl bg-white rounded-2xl border border-slate-200 shadow-2xl p-5 sm:p-7 flex flex-col justify-between items-center text-center overflow-hidden animate-in fade-in zoom-in-95 duration-200 select-none"
+      className="relative w-full max-w-lg sm:max-w-xl bg-[#FFFFFF] rounded-2xl border border-[#E5E7EB] p-5 sm:p-7 flex flex-col justify-between items-center text-center overflow-hidden animate-in fade-in zoom-in-95 duration-200 select-none"
     >
       {/* Top Header Row with Status & Close Button */}
-      <div className="w-full flex items-center justify-between pb-3 border-b border-slate-200">
+      <div className="w-full flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
         <div className="flex items-center gap-2">
           {mediaType === 'audio' ? (
-            <Music className="w-4 h-4 text-purple-700" />
+            <Music className="w-4 h-4 text-[#0F766E]" />
           ) : (
-            <Film className="w-4 h-4 text-[#fe2858]" />
+            <Film className="w-4 h-4 text-[#D61C47]" />
           )}
-          <span className="text-xs sm:text-sm font-bold text-slate-900">
+          <span className="text-xs sm:text-sm font-bold text-[#111827]">
             {mediaType === 'audio' ? 'Clean Audio Downloader' : 'Watermark-Free HD Downloader'}
           </span>
         </div>
@@ -110,7 +110,7 @@ function ModalContent({
         <button
           type="button"
           onClick={onClose}
-          className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+          className="w-8 h-8 rounded-full bg-[#F8F9FA] hover:bg-[#F1F3F5] border border-[#D1D5DB] text-[#111827] flex items-center justify-center transition-colors cursor-pointer"
           aria-label="Close"
           title="Close and return to videos"
         >
@@ -129,7 +129,7 @@ function ModalContent({
                   cx="50"
                   cy="50"
                   r="42"
-                  className="stroke-slate-200/80"
+                  className="stroke-[#E5E7EB]"
                   strokeWidth="7"
                   fill="transparent"
                 />
@@ -137,7 +137,7 @@ function ModalContent({
                   cx="50"
                   cy="50"
                   r="42"
-                  className="stroke-[#01ebe4] transition-all duration-1000 ease-linear"
+                  className="stroke-[#D61C47] transition-all duration-1000 ease-linear"
                   strokeWidth="7"
                   strokeDasharray={264}
                   strokeDashoffset={264 - (264 * progressPercent) / 100}
@@ -146,21 +146,21 @@ function ModalContent({
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl sm:text-5xl font-black text-slate-950 font-mono tracking-tight leading-none">
+                <span className="text-4xl sm:text-5xl font-black text-[#111827] font-mono tracking-tight leading-none">
                   {counter}
                 </span>
-                <span className="text-[10px] sm:text-xs text-slate-600 font-bold uppercase tracking-wider mt-1">
+                <span className="text-[10px] sm:text-xs text-[#5C6573] font-bold uppercase tracking-wider mt-1">
                   Seconds
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-950 mb-1.5">
-              <Loader2 className="w-4 h-4 animate-spin text-[#fe2858]" />
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#111827] mb-1.5">
+              <Loader2 className="w-4 h-4 animate-spin text-[#D61C47]" />
               <span>Preparing {mediaType.toUpperCase()} Stream</span>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-600 max-w-sm leading-relaxed px-2">
+            <p className="text-xs sm:text-sm text-[#4B5563] max-w-sm leading-relaxed px-2">
               {settings.downloadPreparingText ||
                 'Fetching original high quality stream and removing watermarks in background...'}
             </p>
@@ -168,19 +168,19 @@ function ModalContent({
         ) : (
           <div className="flex flex-col items-center justify-center w-full max-w-md animate-in fade-in duration-300">
             {/* Success icon */}
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center mb-3 sm:mb-4 shadow-xs">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#F0FDFA] text-[#0F766E] border border-[#99F6E4]/70 flex items-center justify-center mb-3 sm:mb-4">
               {isDownloading ? (
-                <Loader2 className="w-9 h-9 sm:w-10 sm:h-10 animate-spin text-[#00b5af]" />
+                <Loader2 className="w-9 h-9 sm:w-10 sm:h-10 animate-spin text-[#D61C47]" />
               ) : (
                 <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12" />
               )}
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+            <h3 className="text-xl sm:text-2xl font-black text-[#111827] tracking-tight">
               {isDownloading ? 'Saving File...' : 'Download is Ready!'}
             </h3>
 
-            <p className="text-xs sm:text-sm text-slate-600 max-w-sm mt-1.5 leading-relaxed px-2">
+            <p className="text-xs sm:text-sm text-[#4B5563] max-w-sm mt-1.5 leading-relaxed px-2">
               {downloadError
                 ? downloadError
                 : isDownloading
@@ -196,16 +196,16 @@ function ModalContent({
                 type="button"
                 disabled={isDownloading || !downloadUrl}
                 onClick={handleManualDownloadClick}
-                className="w-full py-3.5 px-6 rounded-xl bg-[#01ebe4] hover:bg-[#00d7d0] active:scale-[0.98] disabled:opacity-60 text-slate-950 font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer"
+                className="w-full py-3.5 px-6 rounded-xl bg-[#D61C47] hover:bg-[#B9153B] active:scale-[0.98] disabled:opacity-60 text-[#FFFFFF] font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all cursor-pointer"
               >
                 {isDownloading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin text-slate-950 shrink-0" />
+                    <Loader2 className="w-5 h-5 animate-spin text-[#FFFFFF] shrink-0" />
                     <span>Downloading File...</span>
                   </>
                 ) : (
                   <>
-                    <Download className="w-5 h-5 text-slate-950 shrink-0" />
+                    <Download className="w-5 h-5 text-[#FFFFFF] shrink-0" />
                     <span>
                       {hasTriggeredDownload
                         ? 'Download Again'
@@ -222,7 +222,7 @@ function ModalContent({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-800 border border-slate-300 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                className="w-full py-2.5 px-5 rounded-xl bg-[#FFFFFF] hover:bg-[#F3F4F6] active:scale-[0.98] text-[#1F2937] border border-[#D1D5DB] hover:border-[#9CA3AF] font-bold text-xs sm:text-sm transition-all cursor-pointer"
               >
                 Back to Profile Videos
               </button>
@@ -235,14 +235,14 @@ function ModalContent({
       <AdSlot placement="modal" className="w-full my-1 shrink-0" />
 
       {/* Bottom Metadata Info Card */}
-      <div className="w-full p-2.5 sm:p-3 rounded-xl bg-slate-100/80 border border-slate-200 text-[11px] sm:text-xs text-slate-700 flex items-center justify-between shrink-0">
+      <div className="w-full p-2.5 sm:p-3 rounded-xl bg-[#F8F9FA] border border-[#E5E7EB] text-[11px] sm:text-xs text-[#4B5563] flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1.5 truncate max-w-[260px] sm:max-w-[340px] text-left">
-          <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-          <span className="truncate font-mono font-semibold text-slate-800">
+          <Sparkles className="w-3.5 h-3.5 text-[#BE123C] shrink-0" />
+          <span className="truncate font-mono font-semibold text-[#111827]">
             {fileName || title || 'tiktok_clean_media'}
           </span>
         </div>
-        <span className="font-extrabold text-emerald-800 shrink-0 uppercase tracking-wider text-[10px] ml-2 bg-emerald-100/80 px-2 py-0.5 rounded border border-emerald-200">
+        <span className="font-extrabold text-[#0F766E] shrink-0 uppercase tracking-wider text-[10px] ml-2 bg-[#F0FDFA] px-2 py-0.5 rounded border border-[#99F6E4]/70">
           No Watermark HD
         </span>
       </div>
@@ -266,7 +266,7 @@ export default function DownloadCounterModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4"
+      className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-4"
     >
       <ModalContent
         initialSeconds={initialSeconds}

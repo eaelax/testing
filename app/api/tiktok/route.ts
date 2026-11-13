@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+import {
+  getUserSessionCookies,
+  mergeCookieStrings,
+  setUserSessionCookies,
+} from '@/lib/tiktok-session';
 
 interface TikTokUser {
   id: string;
@@ -51,59 +57,26 @@ interface VideoOutput {
   };
 }
 
-// Server-side in-memory caches to minimize external calls and bandwidth
-const profileHtmlCache = new Map<
-  string,
-  {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RawItem = Record<string, any>;
+
+interface ProfileCacheEntry {
+  payload: {
     user: TikTokUser;
     stats: TikTokStats;
-    itemList: any[];
-    expiresAt: number;
-  }
->();
-
-const postsCache = new Map<
-  string,
-  {
-    videos: any[];
+    videos: VideoOutput[];
     cursor: string | null;
     hasMore: boolean;
-    expiresAt: number;
-  }
->();
-
-const PROFILE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
-const POSTS_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-// Server-side TikWM queue to strictly respect 1 request/second rate limit per server IP
-let tikwmQueue: Promise<void> = Promise.resolve();
-let lastTikwmRequestTime = 0;
-const TIKWM_MIN_INTERVAL_MS = 1150;
-
-function waitForTikwmSlot(): Promise<void> {
-  const run = tikwmQueue.then(async () => {
-    const now = Date.now();
-    const elapsed = now - lastTikwmRequestTime;
-    if (elapsed < TIKWM_MIN_INTERVAL_MS) {
-      await new Promise((resolve) => setTimeout(resolve, TIKWM_MIN_INTERVAL_MS - elapsed));
-    }
-    lastTikwmRequestTime = Date.now();
-  });
-  tikwmQueue = run.catch(() => {});
-  return run;
+  };
+  expiresAt: number;
 }
 
-function pruneCache<T extends { expiresAt: number }>(cache: Map<string, T>, maxSize = 500) {
-  if (cache.size <= maxSize) return;
-  const now = Date.now();
-  for (const [k, v] of cache.entries()) {
-    if (v.expiresAt < now) cache.delete(k);
-  }
-  if (cache.size > maxSize) {
-    const firstKey = cache.keys().next().value;
-    if (firstKey) cache.delete(firstKey);
-  }
-}
+const profileResponseCache = new Map<string, ProfileCacheEntry>();
+const secUidCache = new Map<string, { secUid: string; user: TikTokUser; expiresAt: number }>();
+
+const PROFILE_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const SECUID_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const MIN_TIKTOK_CURSOR_MS = 1472706000000; // Sept 1, 2016
 
 const DESKTOP_BROWSER_HEADERS: Record<string, string> = {
   'User-Agent':
@@ -129,62 +102,211 @@ const API_HEADERS: Record<string, string> = {
   'Accept-Language': 'en-US,en;q=0.9',
 };
 
-function normalizeDirectCdnUrl(url?: string): string {
-  if (!url) return '';
-  let cleaned = url.replace(/\\u0026/g, '&').replace(/\\u002F/g, '/').trim();
-  if (cleaned.startsWith('/')) {
-    cleaned = `https://www.tikwm.com${cleaned}`;
+function generateDeviceId(): string {
+  const prefix = 250 + Math.floor(Math.random() * 75);
+  let suffix = '';
+  for (let i = 0; i < 15; i++) {
+    suffix += Math.floor(Math.random() * 10).toString();
   }
-  return cleaned;
+  return `7${prefix}${suffix}`;
 }
 
-function parseItem(item: any, fallbackUser: TikTokUser): VideoOutput {
-  const v = item.video || {};
-  const s = item.stats || item.statsV2 || {};
-  const m = item.music || item.music_info || {};
-  const itemAuthor = item.author || {};
+function generateVerifyFp(): string {
+  const hex = '0123456789abcdef';
+  let out = 'verify_';
+  for (let i = 0; i < 7; i++) {
+    out += hex[Math.floor(Math.random() * hex.length)];
+  }
+  return out;
+}
 
-  const directVideoPlay = normalizeDirectCdnUrl(
-    item.play ||
-      item.hdplay ||
-      v.playAddr ||
-      v.downloadAddr ||
-      v.bitrateInfo?.[0]?.PlayAddr?.UrlList?.[0] ||
-      ''
-  );
-  const directVideoWm = normalizeDirectCdnUrl(
-    item.wmplay || v.downloadAddr || v.playAddr || directVideoPlay
-  );
-  const directAudioPlay = normalizeDirectCdnUrl(
-    item.music || m.playUrl || m.play || m.url || ''
-  );
+function extractSetCookies(headers: Headers): string[] {
+  const headersWithGetSetCookie = headers as Headers & { getSetCookie?: () => string[] };
+  if (typeof headersWithGetSetCookie.getSetCookie === 'function') {
+    return headersWithGetSetCookie.getSetCookie();
+  }
+  const combined = headers.get('set-cookie');
+  if (!combined) return [];
+  return combined.split(/,(?=[^;]+?=)/g);
+}
 
-  const authorUniqueId = itemAuthor.unique_id || itemAuthor.uniqueId || fallbackUser.uniqueId;
-  const authorNickname = itemAuthor.nickname || fallbackUser.nickname || authorUniqueId;
-  const authorAvatar = normalizeDirectCdnUrl(
-    itemAuthor.avatar || itemAuthor.avatarLarger || fallbackUser.avatar
-  );
+function extractAttrById(html: string, id: string, attr: string): string | null {
+  const pattern1 = new RegExp(`<[^>]+id=["']${id}["'][^>]*${attr}=["']([^"']+)["']`, 'i');
+  const pattern2 = new RegExp(`<[^>]+${attr}=["']([^"']+)["'][^>]*id=["']${id}["']`, 'i');
+  const m = html.match(pattern1) || html.match(pattern2);
+  return m && m[1] ? m[1] : null;
+}
+
+function solveTikTokWafChallenge(html: string): string[] {
+  try {
+    const csClass = extractAttrById(html, 'cs', 'class');
+    const wciClass = extractAttrById(html, 'wci', 'class');
+    if (!csClass || !wciClass) return [];
+
+    const challengeJson = Buffer.from(`${csClass}===`, 'base64').toString('utf8');
+    const challengeData = JSON.parse(challengeJson) as {
+      v?: { a?: string; c?: string };
+      d?: string;
+    };
+
+    if (!challengeData?.v?.a || !challengeData?.v?.c) return [];
+
+    const expectedDigest = Buffer.from(challengeData.v.c, 'base64');
+    const baseBytes = Buffer.from(challengeData.v.a, 'base64');
+    const baseHash = crypto.createHash('sha256').update(baseBytes).digest();
+
+    let solvedNonce = -1;
+    for (let i = 0; i <= 1_000_000; i++) {
+      const attempt = crypto
+        .createHash('sha256')
+        .update(baseHash)
+        .update(String(i))
+        .digest();
+      if (attempt.equals(expectedDigest)) {
+        solvedNonce = i;
+        break;
+      }
+    }
+
+    if (solvedNonce === -1) return [];
+
+    challengeData.d = Buffer.from(String(solvedNonce), 'utf8').toString('base64');
+    const wciValue = Buffer.from(JSON.stringify(challengeData), 'utf8').toString('base64');
+    const cookies: string[] = [`${wciClass}=${wciValue}`];
+
+    const rciClass = extractAttrById(html, 'rci', 'class');
+    const rsClass = extractAttrById(html, 'rs', 'class');
+    if (rciClass && rsClass) {
+      cookies.push(`${rciClass}=${rsClass}`);
+    }
+
+    return cookies;
+  } catch {
+    return [];
+  }
+}
+
+function normalizeDirectCdnUrl(url?: unknown): string {
+  if (typeof url !== 'string' || !url) return '';
+  return url.replace(/\\u0026/g, '&').replace(/\\u002F/g, '/');
+}
+
+function extractUrlField(val: unknown): string {
+  if (!val) return '';
+  if (typeof val === 'string') return normalizeDirectCdnUrl(val);
+  if (Array.isArray(val)) {
+    for (const entry of val) {
+      if (typeof entry === 'string' && entry) return normalizeDirectCdnUrl(entry);
+      if (entry && typeof entry === 'object') {
+        const obj = entry as RawItem;
+        const candidate = obj.src || obj.url || obj.UrlList?.[0] || obj.urlList?.[0];
+        if (typeof candidate === 'string' && candidate) return normalizeDirectCdnUrl(candidate);
+      }
+    }
+    return '';
+  }
+  if (typeof val === 'object') {
+    const obj = val as RawItem;
+    const candidate =
+      obj.UrlList?.[0] || obj.urlList?.[0] || obj.src || obj.url || '';
+    return normalizeDirectCdnUrl(candidate);
+  }
+  return '';
+}
+
+function extractBestBitrateUrl(bitrateInfo: unknown): string {
+  if (!Array.isArray(bitrateInfo) || bitrateInfo.length === 0) return '';
+
+  // Prefer standard H.264 streams over HEVC/bytevc1 so HTML5 <video> plays everywhere
+  for (const entry of bitrateInfo) {
+    const playAddr = entry?.PlayAddr;
+    const urlKey = String(playAddr?.UrlKey || '');
+    const urls: unknown = playAddr?.UrlList || playAddr?.urlList;
+    if (
+      Array.isArray(urls) &&
+      urls.length > 0 &&
+      !urlKey.includes('hvc1') &&
+      !urlKey.includes('bytevc1') &&
+      !urlKey.includes('bytevc2')
+    ) {
+      const candidate = normalizeDirectCdnUrl(urls[0]);
+      if (candidate && !candidate.includes('/media-video-hvc1/')) {
+        return candidate;
+      }
+    }
+  }
+
+  for (const entry of bitrateInfo) {
+    const urls: unknown = entry?.PlayAddr?.UrlList || entry?.PlayAddr?.urlList;
+    if (Array.isArray(urls) && urls.length > 0) {
+      const candidate = normalizeDirectCdnUrl(urls[0]);
+      if (candidate) return candidate;
+    }
+  }
+
+  return '';
+}
+
+function parseItem(item: RawItem, user: TikTokUser): VideoOutput {
+  const v: RawItem = item.video || {};
+  const s: RawItem = item.stats || item.statsV2 || {};
+  const m: RawItem = item.music || item.music_info || {};
+  const imgPost: RawItem = item.imagePost || {};
+
+  const directVideoPlay =
+    normalizeDirectCdnUrl(item.play || item.hdplay) ||
+    extractUrlField(v.playAddr) ||
+    extractBestBitrateUrl(v.bitrateInfo) ||
+    extractUrlField(v.downloadAddr) ||
+    '';
+
+  const directVideoWm =
+    normalizeDirectCdnUrl(item.wmplay) ||
+    extractUrlField(v.downloadAddr) ||
+    directVideoPlay;
+
+  const directAudioPlay =
+    normalizeDirectCdnUrl(item.music) ||
+    extractUrlField(m.playUrl) ||
+    extractUrlField(m.play) ||
+    extractUrlField(m.url) ||
+    '';
+
+  const coverUrl =
+    normalizeDirectCdnUrl(item.cover || item.origin_cover) ||
+    extractUrlField(v.cover) ||
+    extractUrlField(v.originCover) ||
+    extractUrlField(v.dynamicCover) ||
+    extractUrlField(imgPost.cover?.imageURL) ||
+    '';
+
+  const originCoverUrl =
+    normalizeDirectCdnUrl(item.origin_cover || item.cover) ||
+    extractUrlField(v.originCover) ||
+    extractUrlField(v.cover) ||
+    coverUrl;
 
   return {
     video_id: String(item.video_id || item.id || v.id || ''),
     id: String(item.video_id || item.id || v.id || ''),
-    title: item.title || item.desc || v.desc || '',
+    title: String(item.title || item.desc || v.desc || ''),
     duration: Number(item.duration || v.duration || 0),
-    cover: normalizeDirectCdnUrl(
-      item.cover || item.origin_cover || v.cover || v.originCover || v.dynamicCover || ''
-    ),
-    origin_cover: normalizeDirectCdnUrl(
-      item.origin_cover || item.cover || v.originCover || v.cover || ''
-    ),
+    cover: coverUrl,
+    origin_cover: originCoverUrl,
     play: directVideoPlay,
     wmplay: directVideoWm,
     music: directAudioPlay,
     music_info: {
       id: String(m.id || ''),
-      title: m.title || m.album || 'Original Sound',
-      author: m.authorName || m.author || authorNickname,
+      title: String(m.title || m.album || 'Original Sound'),
+      author: String(m.authorName || m.author || user.nickname),
       play: directAudioPlay,
-      cover: normalizeDirectCdnUrl(m.coverLarge || m.coverMedium || m.coverThumb || m.cover || ''),
+      cover:
+        extractUrlField(m.coverLarge) ||
+        extractUrlField(m.coverMedium) ||
+        extractUrlField(m.coverThumb) ||
+        normalizeDirectCdnUrl(m.cover) ||
+        '',
     },
     play_count: Number(item.play_count || s.playCount || 0),
     digg_count: Number(item.digg_count || s.diggCount || 0),
@@ -193,201 +315,373 @@ function parseItem(item: any, fallbackUser: TikTokUser): VideoOutput {
     download_count: Number(item.download_count || item.collect_count || s.collectCount || 0),
     create_time: Number(item.create_time || item.createTime || 0),
     author: {
-      id: itemAuthor.id || fallbackUser.secUid || fallbackUser.id,
-      unique_id: authorUniqueId,
-      nickname: authorNickname,
-      avatar: authorAvatar,
-      signature: fallbackUser.signature,
-      verified: typeof itemAuthor.verified === 'boolean' ? itemAuthor.verified : fallbackUser.verified,
+      id: user.secUid || user.id,
+      unique_id: user.uniqueId,
+      nickname: user.nickname,
+      avatar: user.avatar,
+      signature: user.signature,
+      verified: user.verified,
     },
   };
+}
+
+function parseProfileFromHtml(
+  html: string,
+  username: string
+): {
+  user: TikTokUser;
+  stats: TikTokStats;
+  itemList: RawItem[];
+} | null {
+  // Pattern 1: __UNIVERSAL_DATA_FOR_REHYDRATION__
+  const rehydrationMatch = html.match(
+    /<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>([\s\S]*?)<\/script>/
+  );
+  if (rehydrationMatch && rehydrationMatch[1]) {
+    try {
+      const data = JSON.parse(rehydrationMatch[1]) as RawItem;
+      const defaultScope: RawItem = data['__DEFAULT_SCOPE__'] || {};
+      const userDetail: RawItem = defaultScope['webapp.user-detail'] || {};
+
+      if (userDetail?.userInfo?.user) {
+        const u: RawItem = userDetail.userInfo.user;
+        const s: RawItem = userDetail.userInfo.stats || {};
+        const isPrivate = Boolean(u.secret || u.privateAccount);
+
+        const parsedUser: TikTokUser = {
+          id: String(u.id || u.secUid || username),
+          uniqueId: String(u.uniqueId || username),
+          nickname: String(u.nickname || u.uniqueId || username),
+          avatar: normalizeDirectCdnUrl(u.avatarLarger || u.avatarMedium || u.avatarThumb || ''),
+          signature: String(u.signature || ''),
+          verified: Boolean(u.verified),
+          secUid: String(u.secUid || ''),
+          status: isPrivate ? 'private' : 'active',
+        };
+
+        const parsedStats: TikTokStats = {
+          followerCount: typeof s.followerCount === 'number' ? s.followerCount : null,
+          followingCount: typeof s.followingCount === 'number' ? s.followingCount : null,
+          heartCount:
+            typeof s.heart === 'number'
+              ? s.heart
+              : typeof s.heartCount === 'number'
+              ? s.heartCount
+              : null,
+          videoCount: Number(s.videoCount || 0),
+        };
+
+        const items =
+          userDetail.itemList || defaultScope['webapp.video-detail']?.itemList || [];
+        return {
+          user: parsedUser,
+          stats: parsedStats,
+          itemList: Array.isArray(items) ? items : [],
+        };
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
+  // Pattern 2: SIGI_STATE
+  const sigiMatch = html.match(/<script id="SIGI_STATE"[^>]*>([\s\S]*?)<\/script>/);
+  if (sigiMatch && sigiMatch[1]) {
+    try {
+      const sigi = JSON.parse(sigiMatch[1]) as RawItem;
+      const userModule: RawItem = sigi.UserModule?.users || {};
+      const userKey =
+        Object.keys(userModule).find((k) => k.toLowerCase() === username.toLowerCase()) ||
+        Object.keys(userModule)[0];
+
+      if (userKey && userModule[userKey]) {
+        const u: RawItem = userModule[userKey];
+        const s: RawItem = sigi.UserModule?.stats?.[userKey] || {};
+        const isPrivate = Boolean(u.secret || u.privateAccount);
+
+        const parsedUser: TikTokUser = {
+          id: String(u.id || u.secUid || username),
+          uniqueId: String(u.uniqueId || username),
+          nickname: String(u.nickname || u.uniqueId || username),
+          avatar: normalizeDirectCdnUrl(u.avatarLarger || u.avatarMedium || u.avatarThumb || ''),
+          signature: String(u.signature || ''),
+          verified: Boolean(u.verified),
+          secUid: String(u.secUid || ''),
+          status: isPrivate ? 'private' : 'active',
+        };
+
+        const parsedStats: TikTokStats = {
+          followerCount: typeof s.followerCount === 'number' ? s.followerCount : null,
+          followingCount: typeof s.followingCount === 'number' ? s.followingCount : null,
+          heartCount:
+            typeof s.heart === 'number'
+              ? s.heart
+              : typeof s.heartCount === 'number'
+              ? s.heartCount
+              : null,
+          videoCount: Number(s.videoCount || 0),
+        };
+
+        const itemModule: RawItem = sigi.ItemModule || {};
+        const items = Object.values(itemModule) as RawItem[];
+
+        return {
+          user: parsedUser,
+          stats: parsedStats,
+          itemList: items,
+        };
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
+  return null;
 }
 
 async function scrapeProfileHtml(username: string): Promise<{
   user: TikTokUser;
   stats: TikTokStats;
-  itemList: any[];
+  itemList: RawItem[];
+  cookieHeader: string;
 } | null> {
-  const cached = profileHtmlCache.get(username);
-  if (cached && cached.expiresAt > Date.now()) {
-    return {
-      user: cached.user,
-      stats: cached.stats,
-      itemList: cached.itemList,
-    };
+  const profileUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
+  let cookieHeader = getUserSessionCookies(username);
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const headers: Record<string, string> = { ...DESKTOP_BROWSER_HEADERS };
+      if (cookieHeader) {
+        headers['Cookie'] = cookieHeader;
+      }
+
+      const res = await fetch(profileUrl, {
+        headers,
+        cache: 'no-store',
+      });
+
+      const setCookies = extractSetCookies(res.headers);
+      if (setCookies.length > 0) {
+        cookieHeader = mergeCookieStrings(cookieHeader, setCookies);
+      }
+
+      if (!res.ok) {
+        return null;
+      }
+
+      const html = await res.text();
+
+      // Check for TikTok SHA-256 WAF challenge ("Please wait...")
+      if (attempt === 0 && html.includes('id="cs"') && html.includes('id="wci"')) {
+        const solvedCookies = solveTikTokWafChallenge(html);
+        if (solvedCookies.length > 0) {
+          cookieHeader = mergeCookieStrings(cookieHeader, solvedCookies);
+          continue;
+        }
+      }
+
+      const parsed = parseProfileFromHtml(html, username);
+      if (parsed) {
+        if (cookieHeader) {
+          setUserSessionCookies(username, cookieHeader);
+        }
+        return {
+          ...parsed,
+          cookieHeader,
+        };
+      }
+      break;
+    } catch {
+      break;
+    }
   }
 
-  const profileUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
+  return null;
+}
 
+async function fetchCreatorItemList(
+  secUid: string,
+  username: string,
+  cursorMs: string,
+  count: number,
+  initialCookieHeader: string
+): Promise<{
+  videos: RawItem[];
+  cursor: string | null;
+  hasMore: boolean;
+  cookieHeader: string;
+}> {
+  if (!secUid) {
+    return { videos: [], cursor: null, hasMore: false, cookieHeader: initialCookieHeader };
+  }
+
+  let cookieHeader = initialCookieHeader || getUserSessionCookies(username);
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 9000);
+
+      const params = new URLSearchParams({
+        aid: '1988',
+        app_language: 'en',
+        app_name: 'tiktok_web',
+        browser_language: 'en-US',
+        browser_name: 'Mozilla',
+        browser_online: 'true',
+        browser_platform: 'Win32',
+        browser_version: '5.0 (Windows)',
+        channel: 'tiktok_web',
+        cookie_enabled: 'true',
+        count: String(Math.min(30, Math.max(1, count))),
+        cursor: String(cursorMs),
+        device_id: generateDeviceId(),
+        device_platform: 'web_pc',
+        focus_state: 'true',
+        from_page: 'user',
+        history_len: '2',
+        is_fullscreen: 'false',
+        is_page_visible: 'true',
+        language: 'en',
+        os: 'windows',
+        priority_region: '',
+        referer: '',
+        region: 'US',
+        screen_height: '1080',
+        screen_width: '1920',
+        secUid,
+        type: '1',
+        tz_name: 'UTC',
+        verifyFp: generateVerifyFp(),
+        webcast_language: 'en',
+      });
+
+      const headers: Record<string, string> = {
+        ...API_HEADERS,
+        Referer: `https://www.tiktok.com/@${encodeURIComponent(username)}`,
+      };
+      if (cookieHeader) {
+        headers['Cookie'] = cookieHeader;
+      }
+
+      const res = await fetch(
+        `https://www.tiktok.com/api/creator/item_list/?${params.toString()}`,
+        {
+          headers,
+          cache: 'no-store',
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeout);
+
+      const setCookies = extractSetCookies(res.headers);
+      if (setCookies.length > 0) {
+        cookieHeader = mergeCookieStrings(cookieHeader, setCookies);
+        setUserSessionCookies(username, cookieHeader);
+      }
+
+      if (!res.ok) continue;
+
+      const text = await res.text();
+      if (!text || !text.trim()) continue;
+
+      const data = JSON.parse(text) as {
+        itemList?: RawItem[];
+        hasMorePrevious?: boolean;
+        hasMore?: boolean;
+      };
+
+      const items = Array.isArray(data.itemList) ? data.itemList : [];
+      if (items.length === 0) continue;
+
+      const lastItem = items[items.length - 1];
+      const rawCreateTime = Number(lastItem?.createTime || lastItem?.create_time || 0);
+      let nextCursorMs = rawCreateTime > 0 ? rawCreateTime * 1000 : 0;
+
+      if (nextCursorMs > 0 && String(nextCursorMs) === String(cursorMs)) {
+        nextCursorMs -= 7 * 86_400_000;
+      }
+
+      const hasMoreFlag = Boolean(data.hasMorePrevious ?? data.hasMore);
+      const hasMore = Boolean(
+        hasMoreFlag && nextCursorMs >= MIN_TIKTOK_CURSOR_MS
+      );
+
+      return {
+        videos: items,
+        cursor: nextCursorMs > 0 ? String(nextCursorMs) : null,
+        hasMore,
+        cookieHeader,
+      };
+    } catch {
+      // Retry with rotated device_id on second attempt
+    }
+  }
+
+  return { videos: [], cursor: null, hasMore: false, cookieHeader };
+}
+
+async function fetchEmbedProfileVideos(username: string): Promise<{
+  videos: RawItem[];
+  secUid: string;
+}> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
 
-    const res = await fetch(profileUrl, {
-      headers: DESKTOP_BROWSER_HEADERS,
+    const res = await fetch(`https://www.tiktok.com/embed/@${encodeURIComponent(username)}`, {
+      headers: {
+        ...DESKTOP_BROWSER_HEADERS,
+        Referer: 'https://www.tiktok.com/',
+      },
       cache: 'no-store',
       signal: controller.signal,
     });
 
     clearTimeout(timeout);
-
-    if (!res.ok) {
-      return null;
-    }
+    if (!res.ok) return { videos: [], secUid: '' };
 
     const html = await res.text();
-
-    // Pattern 1: __UNIVERSAL_DATA_FOR_REHYDRATION__
-    const rehydrationMatch = html.match(
-      /<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>([\s\S]*?)<\/script>/
+    const stateMatch = html.match(
+      /<script id="__FRONTITY_CONNECT_STATE__"[^>]*>([\s\S]*?)<\/script>/
     );
-    if (rehydrationMatch && rehydrationMatch[1]) {
-      try {
-        const data = JSON.parse(rehydrationMatch[1]);
-        const defaultScope = data['__DEFAULT_SCOPE__'] || {};
-        const userDetail = defaultScope['webapp.user-detail'];
+    if (!stateMatch || !stateMatch[1]) return { videos: [], secUid: '' };
 
-        if (userDetail?.userInfo?.user) {
-          const u = userDetail.userInfo.user;
-          const s = userDetail.userInfo.stats || {};
-          const isPrivate = Boolean(u.secret || u.privateAccount);
+    const json = JSON.parse(stateMatch[1]) as RawItem;
+    const sourceData: RawItem = json?.source?.data || {};
+    const targetKey =
+      Object.keys(sourceData).find(
+        (k) => k.toLowerCase() === `/embed/@${username.toLowerCase()}`
+      ) || Object.keys(sourceData).find((k) => k.toLowerCase().startsWith('/embed/@'));
 
-          const parsedUser: TikTokUser = {
-            id: u.id || u.secUid || username,
-            uniqueId: u.uniqueId || username,
-            nickname: u.nickname || u.uniqueId || username,
-            avatar: normalizeDirectCdnUrl(
-              u.avatarLarger || u.avatarMedium || u.avatarThumb || ''
-            ),
-            signature: u.signature || '',
-            verified: Boolean(u.verified),
-            secUid: u.secUid || '',
-            status: isPrivate ? 'private' : 'active',
-          };
+    if (!targetKey) return { videos: [], secUid: '' };
 
-          const parsedStats: TikTokStats = {
-            followerCount: typeof s.followerCount === 'number' ? s.followerCount : null,
-            followingCount: typeof s.followingCount === 'number' ? s.followingCount : null,
-            heartCount:
-              typeof s.heart === 'number'
-                ? s.heart
-                : typeof s.heartCount === 'number'
-                ? s.heartCount
-                : null,
-            videoCount: Number(s.videoCount || 0),
-          };
+    const embedData: RawItem = sourceData[targetKey] || {};
+    const videoList = Array.isArray(embedData.videoList) ? (embedData.videoList as RawItem[]) : [];
 
-          const items =
-            userDetail.itemList || defaultScope['webapp.video-detail']?.itemList || [];
-          const result = {
-            user: parsedUser,
-            stats: parsedStats,
-            itemList: Array.isArray(items) ? items : [],
-          };
-
-          profileHtmlCache.set(username, {
-            ...result,
-            expiresAt: Date.now() + PROFILE_CACHE_TTL_MS,
-          });
-          pruneCache(profileHtmlCache);
-
-          return result;
-        }
-      } catch {
-        // Fall through
+    let extractedSecUid = '';
+    for (const item of videoList) {
+      if (item.authorSecId || item.author?.secUid) {
+        extractedSecUid = String(item.authorSecId || item.author?.secUid);
+        break;
       }
     }
 
-    // Pattern 2: SIGI_STATE
-    const sigiMatch = html.match(/<script id="SIGI_STATE"[^>]*>([\s\S]*?)<\/script>/);
-    if (sigiMatch && sigiMatch[1]) {
-      try {
-        const sigi = JSON.parse(sigiMatch[1]);
-        const userModule = sigi.UserModule?.users || {};
-        const userKey =
-          Object.keys(userModule).find(
-            (k) => k.toLowerCase() === username.toLowerCase()
-          ) || Object.keys(userModule)[0];
-
-        if (userKey && userModule[userKey]) {
-          const u = userModule[userKey];
-          const s = sigi.UserModule?.stats?.[userKey] || {};
-          const isPrivate = Boolean(u.secret || u.privateAccount);
-
-          const parsedUser: TikTokUser = {
-            id: u.id || u.secUid || username,
-            uniqueId: u.uniqueId || username,
-            nickname: u.nickname || u.uniqueId || username,
-            avatar: normalizeDirectCdnUrl(
-              u.avatarLarger || u.avatarMedium || u.avatarThumb || ''
-            ),
-            signature: u.signature || '',
-            verified: Boolean(u.verified),
-            secUid: u.secUid || '',
-            status: isPrivate ? 'private' : 'active',
-          };
-
-          const parsedStats: TikTokStats = {
-            followerCount: typeof s.followerCount === 'number' ? s.followerCount : null,
-            followingCount: typeof s.followingCount === 'number' ? s.followingCount : null,
-            heartCount:
-              typeof s.heart === 'number'
-                ? s.heart
-                : typeof s.heartCount === 'number'
-                ? s.heartCount
-                : null,
-            videoCount: Number(s.videoCount || 0),
-          };
-
-          const itemModule = sigi.ItemModule || {};
-          const items = Object.values(itemModule);
-
-          const result = {
-            user: parsedUser,
-            stats: parsedStats,
-            itemList: items,
-          };
-
-          profileHtmlCache.set(username, {
-            ...result,
-            expiresAt: Date.now() + PROFILE_CACHE_TTL_MS,
-          });
-          pruneCache(profileHtmlCache);
-
-          return result;
-        }
-      } catch {
-        // Fall through
-      }
-    }
+    return { videos: videoList, secUid: extractedSecUid };
   } catch {
-    // Scrape failed
+    return { videos: [], secUid: '' };
   }
-
-  return null;
 }
 
 async function fetchTikwmPosts(
   username: string,
   cursor: string = '0',
   count: number = 30
-): Promise<{ videos: any[]; cursor: string | null; hasMore: boolean }> {
-  const cacheKey = `${username}:${cursor}:${count}`;
-  const cached = postsCache.get(cacheKey);
-  if (cached && cached.expiresAt > Date.now()) {
-    return {
-      videos: cached.videos,
-      cursor: cached.cursor,
-      hasMore: cached.hasMore,
-    };
-  }
-
-  // Attempt 1: GET request (respecting global 1 req/sec queue)
+): Promise<{ videos: RawItem[]; cursor: string | null; hasMore: boolean }> {
   try {
-    await waitForTikwmSlot();
-
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+    const timeout = setTimeout(() => controller.abort(), 7000);
 
     const getUrl = `https://www.tikwm.com/api/user/posts?unique_id=${encodeURIComponent(
       username
@@ -401,74 +695,19 @@ async function fetchTikwmPosts(
 
     clearTimeout(timeout);
 
-    if (res.ok) {
-      const data = await res.json();
+    const contentType = res.headers.get('content-type') || '';
+    if (res.ok && contentType.includes('json')) {
+      const data = (await res.json()) as RawItem;
       if (data && data.code === 0 && data.data) {
-        const result = {
+        return {
           videos: Array.isArray(data.data.videos) ? data.data.videos : [],
           cursor: data.data.cursor ? String(data.data.cursor) : null,
           hasMore: Boolean(data.data.hasMore),
         };
-        if (result.videos.length > 0) {
-          postsCache.set(cacheKey, {
-            ...result,
-            expiresAt: Date.now() + POSTS_CACHE_TTL_MS,
-          });
-          pruneCache(postsCache);
-        }
-        return result;
       }
     }
   } catch {
-    // Try POST fallback after slot wait
-  }
-
-  // Attempt 2: POST fallback with @username (after respecting 1 req/sec wait)
-  try {
-    await waitForTikwmSlot();
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-
-    const bodyParams = new URLSearchParams({
-      unique_id: username.startsWith('@') ? username : `@${username}`,
-      count: String(count),
-      cursor: String(cursor),
-    });
-
-    const res = await fetch('https://www.tikwm.com/api/user/posts', {
-      method: 'POST',
-      headers: {
-        ...API_HEADERS,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: bodyParams.toString(),
-      cache: 'no-store',
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeout);
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.code === 0 && data.data) {
-        const result = {
-          videos: Array.isArray(data.data.videos) ? data.data.videos : [],
-          cursor: data.data.cursor ? String(data.data.cursor) : null,
-          hasMore: Boolean(data.data.hasMore),
-        };
-        if (result.videos.length > 0) {
-          postsCache.set(cacheKey, {
-            ...result,
-            expiresAt: Date.now() + POSTS_CACHE_TTL_MS,
-          });
-          pruneCache(postsCache);
-        }
-        return result;
-      }
-    }
-  } catch {
-    // Fail
+    // Fall through
   }
 
   return { videos: [], cursor: null, hasMore: false };
@@ -478,10 +717,8 @@ async function fetchTikwmUserInfo(
   username: string
 ): Promise<{ user: TikTokUser; stats: TikTokStats } | null> {
   try {
-    await waitForTikwmSlot();
-
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 9000);
+    const timeout = setTimeout(() => controller.abort(), 6000);
 
     const res = await fetch(
       `https://www.tikwm.com/api/user/info?unique_id=${encodeURIComponent(username)}`,
@@ -494,20 +731,21 @@ async function fetchTikwmUserInfo(
 
     clearTimeout(timeout);
 
-    if (res.ok) {
-      const data = await res.json();
+    const contentType = res.headers.get('content-type') || '';
+    if (res.ok && contentType.includes('json')) {
+      const data = (await res.json()) as RawItem;
       if (data && data.code === 0 && data.data) {
-        const u = data.data.user || data.data;
-        const s = data.data.stats || {};
+        const u: RawItem = data.data.user || data.data;
+        const s: RawItem = data.data.stats || {};
 
         const parsedUser: TikTokUser = {
-          id: u.id || u.unique_id || username,
-          uniqueId: u.unique_id || username,
-          nickname: u.nickname || u.unique_id || username,
+          id: String(u.id || u.unique_id || username),
+          uniqueId: String(u.unique_id || username),
+          nickname: String(u.nickname || u.unique_id || username),
           avatar: normalizeDirectCdnUrl(u.avatarLarger || u.avatarMedium || u.avatar || ''),
-          signature: u.signature || '',
+          signature: String(u.signature || ''),
           verified: Boolean(u.verified),
-          secUid: u.secUid || '',
+          secUid: String(u.secUid || ''),
           status: u.secret || u.privateAccount ? 'private' : 'active',
         };
 
@@ -547,7 +785,6 @@ export async function GET(req: NextRequest) {
   const usernameParam = searchParams.get('username');
   const cursorParam = searchParams.get('cursor') || '0';
   const countParam = Math.min(35, Math.max(1, parseInt(searchParams.get('count') || '30', 10)));
-  const modeParam = searchParams.get('mode') || 'full';
 
   if (!usernameParam) {
     return NextResponse.json(
@@ -559,71 +796,65 @@ export async function GET(req: NextRequest) {
   const cleanUser = usernameParam.replace(/^@+/, '').trim().toLowerCase();
 
   try {
-    // Lightweight profile-only mode (0 TikWM API calls from server; HTML metadata only)
-    if (modeParam === 'profile') {
-      const scraped = await scrapeProfileHtml(cleanUser);
-      if (!scraped) {
-        return NextResponse.json(
-          { code: -1, msg: 'Profile HTML unavailable.' },
-          { status: 200 }
-        );
+    // Pagination request (SHOW MORE VIDEOS)
+    if (cursorParam && cursorParam !== '0') {
+      let cachedSec = secUidCache.get(cleanUser);
+      if (!cachedSec || cachedSec.expiresAt < Date.now()) {
+        const scraped = await scrapeProfileHtml(cleanUser);
+        if (scraped?.user?.secUid) {
+          cachedSec = {
+            secUid: scraped.user.secUid,
+            user: scraped.user,
+            expiresAt: Date.now() + SECUID_CACHE_TTL_MS,
+          };
+          secUidCache.set(cleanUser, cachedSec);
+        }
       }
 
-      const formattedFromHtml = Array.isArray(scraped.itemList)
-        ? scraped.itemList.map((item) => parseItem(item, scraped.user))
-        : [];
-
-      return NextResponse.json(
-        {
-          code: 0,
-          msg: 'success',
-          data: {
-            user: {
-              id: scraped.user.id,
-              unique_id: scraped.user.uniqueId,
-              nickname: scraped.user.nickname,
-              avatar: scraped.user.avatar,
-              signature: scraped.user.signature,
-              verified: scraped.user.verified,
-              status: scraped.user.status,
-            },
-            stats: scraped.stats,
-            videos: formattedFromHtml,
-            cursor: null,
-            hasMore: false,
-          },
-        },
-        {
-          status: 200,
-          headers: {
-            'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
-          },
-        }
-      );
-    }
-
-    // Pagination request (cursor > 0)
-    if (cursorParam && cursorParam !== '0') {
-      const postsResult = await fetchTikwmPosts(cleanUser, cursorParam, countParam);
-      const dummyUser: TikTokUser = {
+      const fallbackUser: TikTokUser = cachedSec?.user || {
         id: cleanUser,
         uniqueId: cleanUser,
         nickname: cleanUser,
         avatar: '',
         signature: '',
         verified: false,
-        secUid: '',
+        secUid: cachedSec?.secUid || '',
         status: 'active',
       };
 
-      const formattedVideos = postsResult.videos.map((item) => parseItem(item, dummyUser));
+      // If cursor looks like a millisecond timestamp (>= 1e12), use TikTok creator item_list first
+      if (cachedSec?.secUid && Number(cursorParam) >= 1_000_000_000_000) {
+        const creatorPage = await fetchCreatorItemList(
+          cachedSec.secUid,
+          cleanUser,
+          cursorParam,
+          countParam,
+          getUserSessionCookies(cleanUser)
+        );
+        if (creatorPage.videos.length > 0) {
+          return NextResponse.json(
+            {
+              code: 0,
+              msg: 'success',
+              data: {
+                videos: creatorPage.videos.map((item) => parseItem(item, fallbackUser)),
+                cursor: creatorPage.cursor,
+                hasMore: creatorPage.hasMore,
+              },
+            },
+            { status: 200 }
+          );
+        }
+      }
 
+      // Fallback pagination via TikWM
+      const postsResult = await fetchTikwmPosts(cleanUser, cursorParam, countParam);
       return NextResponse.json(
         {
           code: 0,
           msg: 'success',
           data: {
-            videos: formattedVideos,
+            videos: postsResult.videos.map((item) => parseItem(item, fallbackUser)),
             cursor: postsResult.cursor,
             hasMore: postsResult.hasMore,
           },
@@ -632,38 +863,130 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Full first load: Fetch TikTok profile HTML and TikWM posts in parallel (different domains, zero collision)
-    const [scraped, tikwmPosts] = await Promise.all([
-      scrapeProfileHtml(cleanUser),
-      fetchTikwmPosts(cleanUser, '0', countParam),
-    ]);
+    // Check short-lived cache for initial profile view
+    const cachedProfile = profileResponseCache.get(cleanUser);
+    if (cachedProfile && cachedProfile.expiresAt > Date.now()) {
+      return NextResponse.json(
+        {
+          code: 0,
+          msg: 'success',
+          data: cachedProfile.payload,
+        },
+        {
+          status: 200,
+          headers: {
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+          },
+        }
+      );
+    }
 
-    // Only call TikWM user/info sequentially if HTML scraping failed
-    const tikwmInfo = !scraped ? await fetchTikwmUserInfo(cleanUser) : null;
+    // Step 1: Scrape profile HTML + cookies + secUid
+    const scraped = await scrapeProfileHtml(cleanUser);
 
-    const resolvedUser: TikTokUser | null =
-      scraped?.user ||
-      tikwmInfo?.user ||
-      (tikwmPosts.videos.length > 0 && tikwmPosts.videos[0].author
-        ? {
-            id: tikwmPosts.videos[0].author.id || cleanUser,
-            uniqueId: tikwmPosts.videos[0].author.unique_id || cleanUser,
-            nickname: tikwmPosts.videos[0].author.nickname || cleanUser,
-            avatar: normalizeDirectCdnUrl(tikwmPosts.videos[0].author.avatar || ''),
-            signature: '',
-            verified: Boolean(tikwmPosts.videos[0].author.verified),
-            secUid: '',
-            status: 'active' as const,
+    let resolvedUser: TikTokUser | null = scraped?.user || null;
+    let resolvedStats: TikTokStats | null = scraped?.stats || null;
+    let cookieHeader = scraped?.cookieHeader || '';
+
+    if (resolvedUser?.status === 'private') {
+      return NextResponse.json(
+        {
+          code: 0,
+          msg: 'User profile is private.',
+          data: {
+            user: resolvedUser,
+            stats: resolvedStats,
+            videos: [],
+            cursor: null,
+            hasMore: false,
+          },
+        },
+        { status: 200 }
+      );
+    }
+
+    // Step 2: Fetch videos via Tier 1 (TikTok creator/item_list) -> Tier 2 (TikTok embed) -> Tier 3 (TikWM)
+    let rawItems: RawItem[] = [];
+    let nextCursor: string | null = null;
+    let hasMore = false;
+
+    if (resolvedUser?.secUid) {
+      const creatorResult = await fetchCreatorItemList(
+        resolvedUser.secUid,
+        cleanUser,
+        String(Date.now()),
+        countParam,
+        cookieHeader
+      );
+      if (creatorResult.videos.length > 0) {
+        rawItems = creatorResult.videos;
+        nextCursor = creatorResult.cursor;
+        hasMore = creatorResult.hasMore;
+        cookieHeader = creatorResult.cookieHeader;
+      }
+    }
+
+    // Tier 2: TikTok official creator embed page fallback
+    if (rawItems.length === 0) {
+      const embedResult = await fetchEmbedProfileVideos(cleanUser);
+      if (embedResult.videos.length > 0) {
+        rawItems = embedResult.videos;
+        if (!resolvedUser?.secUid && embedResult.secUid) {
+          const retryCreator = await fetchCreatorItemList(
+            embedResult.secUid,
+            cleanUser,
+            String(Date.now()),
+            countParam,
+            cookieHeader
+          );
+          if (retryCreator.videos.length > 0) {
+            rawItems = retryCreator.videos;
+            nextCursor = retryCreator.cursor;
+            hasMore = retryCreator.hasMore;
           }
-        : null);
+          if (resolvedUser) {
+            resolvedUser.secUid = embedResult.secUid;
+          }
+        }
+      }
+    }
 
-    const resolvedStats: TikTokStats = scraped?.stats ||
-      tikwmInfo?.stats || {
-        followerCount: null,
-        followingCount: null,
-        heartCount: null,
-        videoCount: tikwmPosts.videos.length,
-      };
+    // Tier 3: Scraped HTML itemList or TikWM fallback
+    if (rawItems.length === 0 && scraped?.itemList && scraped.itemList.length > 0) {
+      rawItems = scraped.itemList;
+    }
+
+    if (rawItems.length === 0) {
+      const [tikwmPosts, tikwmInfo] = await Promise.all([
+        fetchTikwmPosts(cleanUser, '0', countParam),
+        !resolvedUser ? fetchTikwmUserInfo(cleanUser) : Promise.resolve(null),
+      ]);
+
+      if (!resolvedUser && tikwmInfo) {
+        resolvedUser = tikwmInfo.user;
+        resolvedStats = tikwmInfo.stats;
+      }
+
+      if (tikwmPosts.videos.length > 0) {
+        rawItems = tikwmPosts.videos;
+        nextCursor = tikwmPosts.cursor;
+        hasMore = tikwmPosts.hasMore;
+
+        if (!resolvedUser && tikwmPosts.videos[0]?.author) {
+          const a = tikwmPosts.videos[0].author as RawItem;
+          resolvedUser = {
+            id: String(a.id || cleanUser),
+            uniqueId: String(a.unique_id || cleanUser),
+            nickname: String(a.nickname || cleanUser),
+            avatar: normalizeDirectCdnUrl(a.avatar || ''),
+            signature: '',
+            verified: Boolean(a.verified),
+            secUid: '',
+            status: 'active',
+          };
+        }
+      }
+    }
 
     if (!resolvedUser) {
       return NextResponse.json(
@@ -675,64 +998,55 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    if (resolvedUser.status === 'private') {
-      return NextResponse.json(
-        {
-          code: 0,
-          msg: 'User profile is private.',
-          data: {
-            user: {
-              id: resolvedUser.id,
-              unique_id: resolvedUser.uniqueId,
-              nickname: resolvedUser.nickname,
-              avatar: resolvedUser.avatar,
-              signature: resolvedUser.signature,
-              verified: resolvedUser.verified,
-              status: resolvedUser.status,
-            },
-            stats: resolvedStats,
-            videos: [],
-            cursor: null,
-            hasMore: false,
-          },
-        },
-        { status: 200 }
-      );
+    if (resolvedUser.secUid) {
+      secUidCache.set(cleanUser, {
+        secUid: resolvedUser.secUid,
+        user: resolvedUser,
+        expiresAt: Date.now() + SECUID_CACHE_TTL_MS,
+      });
     }
 
-    let rawItems: any[] = [];
-    if (tikwmPosts.videos && tikwmPosts.videos.length > 0) {
-      rawItems = tikwmPosts.videos;
-    } else if (scraped?.itemList && scraped.itemList.length > 0) {
-      rawItems = scraped.itemList;
-    }
+    const finalStats: TikTokStats = resolvedStats || {
+      followerCount: null,
+      followingCount: null,
+      heartCount: null,
+      videoCount: rawItems.length,
+    };
 
-    const formattedVideos = rawItems.map((item) => parseItem(item, resolvedUser));
+    const formattedVideos = rawItems.map((item) => parseItem(item, resolvedUser as TikTokUser));
+
+    const payload = {
+      user: resolvedUser,
+      stats: finalStats,
+      videos: formattedVideos,
+      cursor: nextCursor,
+      hasMore,
+    };
+
+    if (formattedVideos.length > 0) {
+      profileResponseCache.set(cleanUser, {
+        payload,
+        expiresAt: Date.now() + PROFILE_CACHE_TTL_MS,
+      });
+
+      if (profileResponseCache.size > 300) {
+        const now = Date.now();
+        for (const [k, v] of profileResponseCache.entries()) {
+          if (v.expiresAt < now) profileResponseCache.delete(k);
+        }
+      }
+    }
 
     return NextResponse.json(
       {
         code: 0,
         msg: 'success',
-        data: {
-          user: {
-            id: resolvedUser.id,
-            unique_id: resolvedUser.uniqueId,
-            nickname: resolvedUser.nickname,
-            avatar: resolvedUser.avatar,
-            signature: resolvedUser.signature,
-            verified: resolvedUser.verified,
-            status: resolvedUser.status,
-          },
-          stats: resolvedStats,
-          videos: formattedVideos,
-          cursor: tikwmPosts.cursor,
-          hasMore: tikwmPosts.hasMore,
-        },
+        data: payload,
       },
       {
         status: 200,
         headers: {
-          'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
         },
       }
     );

@@ -96,12 +96,12 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
+    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all">
       <div className="max-w-[1080px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         {/* Website Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 text-slate-900 select-none shrink-0 group"
+          className="flex items-center gap-2.5 text-slate-950 select-none shrink-0 group"
         >
           <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -112,24 +112,24 @@ export default function Navbar() {
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-sm sm:text-base tracking-tight text-slate-900 leading-none">
+            <span className="font-bold text-sm sm:text-base tracking-tight text-slate-950 leading-none">
               Tik Profiles Viewer
             </span>
-            <span className="text-[10px] text-slate-500 font-medium tracking-wide">
+            <span className="text-[10px] text-slate-600 font-semibold tracking-wide">
               TikProfilesViewer.com
             </span>
           </div>
         </Link>
 
-        {/* Nav Items aligned to the right, pill container removed */}
+        {/* Nav Items aligned to the right */}
         <nav className="hidden lg:flex items-center gap-6 ml-auto">
           {/* Home */}
           <Link
             href="/"
-            className={`text-sm font-medium transition-colors ${
+            className={`text-sm font-semibold transition-colors ${
               pathname === '/'
-                ? 'text-slate-950 font-semibold'
-                : 'text-slate-600 hover:text-slate-950'
+                ? 'text-slate-950 underline underline-offset-4 decoration-2 decoration-[#01ebe4]'
+                : 'text-slate-700 hover:text-slate-950'
             }`}
           >
             Home
@@ -138,10 +138,10 @@ export default function Navbar() {
           {/* About */}
           <Link
             href="/about-tiktok-profile-viewer"
-            className={`text-sm font-medium transition-colors ${
+            className={`text-sm font-semibold transition-colors ${
               pathname === '/about-tiktok-profile-viewer'
-                ? 'text-slate-950 font-semibold'
-                : 'text-slate-600 hover:text-slate-950'
+                ? 'text-slate-950 underline underline-offset-4 decoration-2 decoration-[#01ebe4]'
+                : 'text-slate-700 hover:text-slate-950'
             }`}
           >
             About
@@ -150,10 +150,10 @@ export default function Navbar() {
           {/* How to use */}
           <Link
             href="/how-to-use-tiktok-profile-viewer"
-            className={`text-sm font-medium transition-colors ${
+            className={`text-sm font-semibold transition-colors ${
               pathname === '/how-to-use-tiktok-profile-viewer'
-                ? 'text-slate-950 font-semibold'
-                : 'text-slate-600 hover:text-slate-950'
+                ? 'text-slate-950 underline underline-offset-4 decoration-2 decoration-[#01ebe4]'
+                : 'text-slate-700 hover:text-slate-950'
             }`}
           >
             How to use
@@ -167,10 +167,10 @@ export default function Navbar() {
                 setToolsDropdownOpen(!toolsDropdownOpen);
                 setLangDropdownOpen(false);
               }}
-              className={`text-sm font-medium px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer ${
+              className={`text-sm font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition-colors cursor-pointer ${
                 toolsDropdownOpen
                   ? 'bg-slate-100 text-slate-950'
-                  : 'text-slate-600 hover:text-slate-950'
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-50'
               }`}
             >
               <span>Tools</span>
@@ -188,10 +188,10 @@ export default function Navbar() {
                     key={tool.href}
                     href={tool.href}
                     onClick={() => setToolsDropdownOpen(false)}
-                    className="p-2 rounded-lg hover:bg-slate-50 text-slate-700 hover:text-slate-950 transition-colors"
+                    className="p-2.5 rounded-lg hover:bg-slate-100 text-slate-800 hover:text-slate-950 transition-colors"
                   >
-                    <div className="font-semibold text-xs text-slate-900">{tool.label}</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">{tool.desc}</div>
+                    <div className="font-bold text-xs text-slate-950">{tool.label}</div>
+                    <div className="text-[11px] text-slate-600 mt-0.5">{tool.desc}</div>
                   </Link>
                 ))}
               </div>
@@ -206,10 +206,10 @@ export default function Navbar() {
                 setLangDropdownOpen(!langDropdownOpen);
                 setToolsDropdownOpen(false);
               }}
-              className={`text-sm font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer border ${
+              className={`text-sm font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer border ${
                 langDropdownOpen
-                  ? 'bg-slate-50 border-slate-300 text-slate-950 shadow-xs'
-                  : 'border-slate-200 bg-white text-slate-700 hover:text-slate-950 hover:border-slate-300'
+                  ? 'bg-slate-100 border-slate-400 text-slate-950 shadow-xs'
+                  : 'border-slate-300 bg-white text-slate-800 hover:text-slate-950 hover:border-slate-400 hover:bg-slate-50'
               }`}
             >
               <span>{selectedLang}</span>
@@ -232,16 +232,16 @@ export default function Navbar() {
                         setSelectedLang(lang.name);
                         setLangDropdownOpen(false);
                       }}
-                      className={`w-full px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between text-left transition-colors cursor-pointer ${
+                      className={`w-full px-2.5 py-2 rounded-lg text-xs flex items-center justify-between text-left transition-colors cursor-pointer ${
                         isSelected
-                          ? 'bg-slate-100 text-slate-950 font-semibold'
-                          : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950'
+                          ? 'bg-slate-100 text-slate-950 font-bold'
+                          : 'text-slate-800 hover:bg-slate-50 hover:text-slate-950'
                       }`}
                     >
                       <span>
-                        {lang.name} <span className="text-slate-400 font-normal">({lang.native})</span>
+                        {lang.name} <span className="text-slate-500 font-normal">({lang.native})</span>
                       </span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-slate-900" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-slate-950" />}
                     </button>
                   );
                 })}
@@ -259,10 +259,10 @@ export default function Navbar() {
               setLangDropdownOpen(!langDropdownOpen);
               setMobileMenuOpen(false);
             }}
-            className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 flex items-center gap-1 cursor-pointer"
+            className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-800 flex items-center gap-1 cursor-pointer"
           >
             <span>{selectedLang}</span>
-            <ChevronDown className="w-3 h-3 text-slate-500" />
+            <ChevronDown className="w-3 h-3 text-slate-600" />
           </button>
 
           {/* Hamburger Menu Button */}
@@ -272,7 +272,7 @@ export default function Navbar() {
               setMobileMenuOpen(!mobileMenuOpen);
               setLangDropdownOpen(false);
             }}
-            className="p-2 rounded-lg bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
+            className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 hover:text-slate-950 transition-colors cursor-pointer"
             aria-label="Toggle Menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -283,7 +283,7 @@ export default function Navbar() {
       {/* Mobile Language Dropdown popup */}
       {langDropdownOpen && (
         <div className="lg:hidden border-b border-slate-200 bg-white px-4 py-3 shadow-lg">
-          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <p className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2">
             Select Language
           </p>
           <div className="grid grid-cols-2 gap-1.5">
@@ -297,8 +297,8 @@ export default function Navbar() {
                 }}
                 className={`px-3 py-2 rounded-lg text-xs text-left flex items-center justify-between ${
                   selectedLang === lang.name
-                    ? 'bg-slate-900 text-white font-medium'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                    ? 'bg-slate-900 text-white font-semibold'
+                    : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
                 }`}
               >
                 <span>{lang.name}</span>
@@ -311,38 +311,38 @@ export default function Navbar() {
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-slate-200 bg-white/95 backdrop-blur-xl px-4 py-4 flex flex-col gap-2.5 shadow-lg">
+        <div className="lg:hidden border-b border-slate-200 bg-white/95 backdrop-blur-xl px-4 py-4 flex flex-col gap-2 shadow-lg">
           <Link
             href="/"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2 rounded-lg text-sm font-medium text-slate-800 hover:bg-slate-100"
+            className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-900 hover:bg-slate-100"
           >
             Home
           </Link>
           <Link
             href="/about-tiktok-profile-viewer"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2 rounded-lg text-sm font-medium text-slate-800 hover:bg-slate-100"
+            className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-900 hover:bg-slate-100"
           >
             About
           </Link>
           <Link
             href="/how-to-use-tiktok-profile-viewer"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2 rounded-lg text-sm font-medium text-slate-800 hover:bg-slate-100"
+            className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-900 hover:bg-slate-100"
           >
             How to use
           </Link>
           <Link
             href="/creators"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2 rounded-lg text-sm font-medium text-slate-800 hover:bg-slate-100"
+            className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-900 hover:bg-slate-100"
           >
             Browse Top Creators
           </Link>
 
-          <div className="pt-2 border-t border-slate-100">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block px-3 mb-1">
+          <div className="pt-2 border-t border-slate-200">
+            <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block px-3 mb-1.5">
               Tools
             </span>
             <div className="flex flex-col gap-1">
@@ -351,10 +351,10 @@ export default function Navbar() {
                   key={tool.href}
                   href={tool.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 flex items-center justify-between"
+                  className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-800 hover:bg-slate-100 flex items-center justify-between gap-2"
                 >
                   <span>{tool.label}</span>
-                  <span className="text-[10px] text-slate-400">{tool.desc}</span>
+                  <span className="text-[11px] font-normal text-slate-600 truncate">{tool.desc}</span>
                 </Link>
               ))}
             </div>

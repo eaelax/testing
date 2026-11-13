@@ -58,14 +58,14 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
 
   return (
     <div className={`flex flex-col items-center justify-center my-3 select-none ${className}`}>
-      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">
+      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-[#5C6573] tracking-wider mb-1">
         <span>Sponsored</span>
-        <span className="text-slate-300">•</span>
-        <span className="font-mono text-[9px] text-slate-400">{ad.dimension}</span>
+        <span className="text-[#9CA3AF]">•</span>
+        <span className="font-mono text-[9px] text-[#5C6573]">{ad.dimension}</span>
       </div>
 
       <div
-        className={`relative overflow-hidden rounded-xl border border-slate-200/90 bg-white/70 backdrop-blur-xs flex items-center justify-center shadow-2xs ${dimClass}`}
+        className={`relative overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] flex items-center justify-center ${dimClass}`}
       >
         {ad.code ? (
           <div
@@ -74,9 +74,9 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
           />
         ) : (
           <div className="flex flex-col items-center justify-center p-4 text-center">
-            <span className="text-[11px] font-bold text-slate-700">{ad.name}</span>
-            <span className="text-[10px] text-slate-400 mt-0.5">
-              Configure this ad in <strong className="text-slate-600">/admintiktok</strong>
+            <span className="text-[11px] font-bold text-[#111827]">{ad.name}</span>
+            <span className="text-[10px] text-[#5C6573] mt-0.5">
+              Configure this ad in <strong className="text-[#4B5563]">/admintiktok</strong>
             </span>
           </div>
         )}

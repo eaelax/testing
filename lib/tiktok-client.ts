@@ -1,63 +1,112 @@
 /**
  * Zero-bandwidth client-side media and API controller.
- * Direct CDN streaming and direct client-side downloads using 'no-referrer' handling,
- * with automatic proxy fallback only when CDN tokens require session cookies.
+ * Fetches video feeds directly from the user's browser (residential IP) to avoid
+ * datacenter IP rate-limits and server bandwidth costs, with server fallbacks.
  */
+
+export interface TikTokVideoItem {
+  video_id: string;
+  id: string;
+  title: string;
+  duration: number;
+  cover: string;
+  origin_cover: string;
+  play: string;
+  wmplay: string;
+  music: string;
+  music_info: {
+    id: string;
+    title: string;
+    author: string;
+    play: string;
+    cover: string;
+  };
+  play_count: number;
+  digg_count: number;
+  comment_count: number;
+  share_count: number;
+  download_count: number;
+  create_time: number;
+  author: {
+    id: string;
+    unique_id: string;
+    nickname: string;
+    avatar: string;
+    signature: string;
+    verified: boolean;
+  };
+}
+
+export interface TikTokUserSummary {
+  id: string;
+  unique_id: string;
+  nickname: string;
+  avatar: string;
+  signature: string;
+  verified: boolean;
+  status: 'active' | 'private' | 'not_found';
+}
+
+export interface TikTokStatsSummary {
+  followerCount: number | null;
+  followingCount: number | null;
+  heartCount: number | null;
+  videoCount: number;
+}
 
 export interface TikTokProfileApiResponse {
   code: number;
   msg: string;
   data?: {
-    user: {
-      id: string;
-      unique_id: string;
-      nickname: string;
-      avatar: string;
-      signature: string;
-      verified: boolean;
-      status: 'active' | 'private' | 'not_found';
-    };
-    stats: {
-      followerCount: number | null;
-      followingCount: number | null;
-      heartCount: number | null;
-      videoCount: number;
-    };
-    videos: Array<{
-      video_id: string;
-      id: string;
-      title: string;
-      duration: number;
-      cover: string;
-      origin_cover: string;
-      play: string;
-      wmplay: string;
-      music: string;
-      music_info: {
-        id: string;
-        title: string;
-        author: string;
-        play: string;
-        cover: string;
-      };
-      play_count: number;
-      digg_count: number;
-      comment_count: number;
-      share_count: number;
-      download_count: number;
-      create_time: number;
-      author: {
-        id: string;
-        unique_id: string;
-        nickname: string;
-        avatar: string;
-        signature: string;
-        verified: boolean;
-      };
-    }>;
+    user: TikTokUserSummary;
+    stats: TikTokStatsSummary;
+    videos: TikTokVideoItem[];
     cursor: string | null;
     hasMore: boolean;
   };
+}
+
+interface RawObj {
+  [key: string]: unknown;
+}
+
+const profileCache = new Map<string, { data: TikTokProfileApiResponse; expiresAt: number }>();
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function asObj(val: unknown): RawObj {
+  return val && typeof val === 'object' ? (val as RawObj) : {};
+}
+
+function asStr(val: unknown, fallback = ''): string {
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number') return String(val);
+  return fallback;
+}
+
+function asNum(val: unknown, fallback = 0): number {
+  if (typeof val === 'number' && !Number.isNaN(val)) return val;
+  if (typeof val === 'string') {
+    const parsed = Number(val);
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+  return fallback;
+}
+
+export function normalizeMediaUrl(url?: string, base = 'https://www.tikwm.com'): string {
+  if (!url) return '';
+  let cleaned = url.replace(/\\u0026/g, '&').replace(/\\u002F/g, '/').trim();
+  if (!cleaned) return '';
+  if (cleaned.startsWith('//')) {
+    cleaned = `https:${cleaned}`;
+  } else if (cleaned.startsWith('/')) {
+    cleaned = `${base}${cleaned}`;
+  } else if (cleaned.startsWith('http://')) {
+    cleaned = cleaned.replace(/^http:\/\//i, 'https://');
+  }
+  return cleaned;
 }
 
 export function sanitizeUsername(rawInput: string): string {
@@ -69,29 +118,194 @@ export function sanitizeUsername(rawInput: string): string {
   return cleaned.replace(/^@+/, '').trim().toLowerCase();
 }
 
-export function requiresSessionProxy(cdnUrl: string): boolean {
-  if (!cdnUrl) return false;
-  return (
-    cdnUrl.includes('tk=tt_chain_token') ||
-    cdnUrl.includes('webapp-prime.tiktok.com')
-  );
+function mapTikwmVideo(raw: RawObj, fallbackUsername: string): TikTokVideoItem {
+  const authorObj = asObj(raw.author);
+  const musicObj = asObj(raw.music_info);
+
+  const uniqueId = asStr(authorObj.unique_id, fallbackUsername) || fallbackUsername;
+  const nickname = asStr(authorObj.nickname, uniqueId) || uniqueId;
+  const avatar = normalizeMediaUrl(asStr(authorObj.avatar));
+
+  const playUrl = normalizeMediaUrl(asStr(raw.hdplay) || asStr(raw.play) || asStr(raw.wmplay));
+  const wmPlayUrl = normalizeMediaUrl(asStr(raw.wmplay) || playUrl);
+  const musicPlayUrl = normalizeMediaUrl(asStr(musicObj.play) || asStr(raw.music));
+  const coverUrl = normalizeMediaUrl(asStr(raw.cover) || asStr(raw.origin_cover));
+  const originCoverUrl = normalizeMediaUrl(asStr(raw.origin_cover) || coverUrl);
+
+  const videoId = asStr(raw.video_id) || asStr(raw.id);
+
+  return {
+    video_id: videoId,
+    id: videoId,
+    title: asStr(raw.title),
+    duration: asNum(raw.duration),
+    cover: coverUrl,
+    origin_cover: originCoverUrl,
+    play: playUrl,
+    wmplay: wmPlayUrl,
+    music: musicPlayUrl,
+    music_info: {
+      id: asStr(musicObj.id),
+      title: asStr(musicObj.title, 'Original Sound'),
+      author: asStr(musicObj.author, nickname),
+      play: musicPlayUrl,
+      cover: normalizeMediaUrl(asStr(musicObj.cover)),
+    },
+    play_count: asNum(raw.play_count),
+    digg_count: asNum(raw.digg_count),
+    comment_count: asNum(raw.comment_count),
+    share_count: asNum(raw.share_count),
+    download_count: asNum(raw.download_count || raw.collect_count),
+    create_time: asNum(raw.create_time),
+    author: {
+      id: asStr(authorObj.id, uniqueId),
+      unique_id: uniqueId,
+      nickname,
+      avatar,
+      signature: '',
+      verified: Boolean(authorObj.verified),
+    },
+  };
 }
 
-export function buildProxyUrl(
-  targetUrl: string,
-  username?: string,
-  filename?: string,
-  isDownload?: boolean
-): string {
-  const params = new URLSearchParams({ url: targetUrl });
-  if (username) params.set('user', username);
-  if (filename) params.set('filename', filename);
-  if (isDownload) params.set('download', '1');
-  return `/api/proxy?${params.toString()}`;
+async function fetchTikwmJsonWithRetry(url: string): Promise<RawObj | null> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 9000);
+
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json, text/plain, */*',
+        },
+        referrerPolicy: 'no-referrer',
+        credentials: 'omit',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        if (attempt === 0) {
+          await sleep(1150);
+          continue;
+        }
+        return null;
+      }
+
+      const json = (await res.json()) as RawObj;
+      if (json && json.code === 0 && json.data) {
+        return json;
+      }
+
+      const msg = asStr(json?.msg).toLowerCase();
+      if (attempt === 0 && (msg.includes('limit') || msg.includes('second') || json?.code === -1)) {
+        await sleep(1150);
+        continue;
+      }
+
+      return json;
+    } catch {
+      if (attempt === 0) {
+        await sleep(500);
+        continue;
+      }
+      return null;
+    }
+  }
+  return null;
+}
+
+export async function fetchTikwmPostsClient(
+  username: string,
+  cursor = '0',
+  count = 30
+): Promise<{
+  videos: TikTokVideoItem[];
+  cursor: string | null;
+  hasMore: boolean;
+  userFromPosts: TikTokUserSummary | null;
+} | null> {
+  const url = `https://www.tikwm.com/api/user/posts?unique_id=${encodeURIComponent(
+    username
+  )}&count=${count}&cursor=${encodeURIComponent(cursor)}`;
+
+  const json = await fetchTikwmJsonWithRetry(url);
+  if (!json || json.code !== 0 || !json.data) {
+    return null;
+  }
+
+  const data = asObj(json.data);
+  const rawVideos = Array.isArray(data.videos) ? data.videos : [];
+  const videos = rawVideos.map((item) => mapTikwmVideo(asObj(item), username));
+
+  const nextCursor = data.cursor ? asStr(data.cursor) : null;
+  const hasMore = Boolean(data.hasMore && nextCursor);
+
+  let userFromPosts: TikTokUserSummary | null = null;
+  if (videos.length > 0 && videos[0].author) {
+    const a = videos[0].author;
+    userFromPosts = {
+      id: a.id || username,
+      unique_id: a.unique_id || username,
+      nickname: a.nickname || username,
+      avatar: a.avatar || '',
+      signature: '',
+      verified: a.verified,
+      status: 'active',
+    };
+  }
+
+  return {
+    videos,
+    cursor: nextCursor,
+    hasMore,
+    userFromPosts,
+  };
+}
+
+async function fetchTikwmUserInfoClient(
+  username: string
+): Promise<{ user: TikTokUserSummary; stats: TikTokStatsSummary } | null> {
+  const url = `https://www.tikwm.com/api/user/info?unique_id=${encodeURIComponent(username)}`;
+  const json = await fetchTikwmJsonWithRetry(url);
+  if (!json || json.code !== 0 || !json.data) {
+    return null;
+  }
+
+  const data = asObj(json.data);
+  const u = asObj(data.user || data);
+  const s = asObj(data.stats);
+
+  const uniqueId = asStr(u.unique_id || u.uniqueId, username);
+  const user: TikTokUserSummary = {
+    id: asStr(u.id, uniqueId),
+    unique_id: uniqueId,
+    nickname: asStr(u.nickname, uniqueId),
+    avatar: normalizeMediaUrl(asStr(u.avatarLarger || u.avatarMedium || u.avatar)),
+    signature: asStr(u.signature),
+    verified: Boolean(u.verified),
+    status: Boolean(u.secret || u.privateAccount) ? 'private' : 'active',
+  };
+
+  const stats: TikTokStatsSummary = {
+    followerCount:
+      s.followerCount !== undefined ? asNum(s.followerCount) : u.follower_count !== undefined ? asNum(u.follower_count) : null,
+    followingCount:
+      s.followingCount !== undefined ? asNum(s.followingCount) : u.following_count !== undefined ? asNum(u.following_count) : null,
+    heartCount:
+      s.heartCount !== undefined ? asNum(s.heartCount) : u.total_favorited !== undefined ? asNum(u.total_favorited) : null,
+    videoCount: asNum(s.videoCount || u.aweme_count),
+  };
+
+  return { user, stats };
 }
 
 /**
- * Fetch profile data from the cached serverless endpoint.
+ * Fetch profile info + videos using direct browser TikWM calls (residential IP, zero media bandwidth)
+ * combined with TikTok SSR profile metadata, falling back to /api/tiktok when needed.
  */
 export async function fetchProfileDirect(username: string): Promise<TikTokProfileApiResponse> {
   const clean = sanitizeUsername(username);
@@ -99,124 +313,260 @@ export async function fetchProfileDirect(username: string): Promise<TikTokProfil
     throw new Error('Please enter a valid TikTok username.');
   }
 
-  const response = await fetch(`/api/tiktok?username=${encodeURIComponent(clean)}`, {
+  const cached = profileCache.get(clean);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
+  // Run server-side HTML profile info scrape AND direct browser TikWM posts call in parallel
+  const [serverInfoRes, clientPosts] = await Promise.all([
+    fetch(`/api/tiktok?username=${encodeURIComponent(clean)}&infoOnly=1`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    })
+      .then((r) => r.json() as Promise<TikTokProfileApiResponse>)
+      .catch(() => null),
+    fetchTikwmPostsClient(clean, '0', 30),
+  ]);
+
+  let resolvedUser = serverInfoRes?.data?.user || clientPosts?.userFromPosts || null;
+  let resolvedStats = serverInfoRes?.data?.stats || null;
+
+  // If TikTok SSR didn't yield stats (or user), fetch TikWM user info directly after respecting 1 req/s limit
+  if ((!resolvedUser || !resolvedStats || resolvedStats.followerCount === null) && clientPosts) {
+    await sleep(1150);
+    const tikwmInfo = await fetchTikwmUserInfoClient(clean);
+    if (tikwmInfo) {
+      resolvedUser = {
+        ...tikwmInfo.user,
+        avatar: resolvedUser?.avatar || tikwmInfo.user.avatar,
+        signature: resolvedUser?.signature || tikwmInfo.user.signature,
+      };
+      resolvedStats = tikwmInfo.stats;
+    }
+  }
+
+  // If direct browser TikWM call succeeded and we have user info
+  if (clientPosts && resolvedUser) {
+    const finalStats: TikTokStatsSummary = resolvedStats || {
+      followerCount: null,
+      followingCount: null,
+      heartCount: null,
+      videoCount: clientPosts.videos.length,
+    };
+
+    const response: TikTokProfileApiResponse = {
+      code: 0,
+      msg: 'success',
+      data: {
+        user: resolvedUser,
+        stats: finalStats,
+        videos: clientPosts.videos,
+        cursor: clientPosts.cursor,
+        hasMore: clientPosts.hasMore,
+      },
+    };
+
+    if (clientPosts.videos.length > 0) {
+      profileCache.set(clean, { data: response, expiresAt: Date.now() + 120_000 });
+    }
+    return response;
+  }
+
+  // Fallback to full server route if browser couldn't reach TikWM directly (e.g. adblocker/firewall)
+  const fallbackRes = await fetch(`/api/tiktok?username=${encodeURIComponent(clean)}`, {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
+    headers: { Accept: 'application/json' },
     cache: 'no-store',
   });
 
-  const json: TikTokProfileApiResponse = await response.json();
-  return json;
+  const fallbackJson: TikTokProfileApiResponse = await fallbackRes.json();
+  if (fallbackJson.code === 0 && fallbackJson.data && fallbackJson.data.videos.length > 0) {
+    profileCache.set(clean, { data: fallbackJson, expiresAt: Date.now() + 120_000 });
+  }
+  return fallbackJson;
 }
 
 /**
- * Resolves a direct watermark-free CDN URL on demand when user watches or downloads.
+ * Paginates more videos directly from the browser first, falling back to /api/tiktok.
  */
-export async function resolvePlayableMedia(
+export async function fetchMoreVideosDirect(
+  username: string,
+  cursor: string,
+  count = 15
+): Promise<{ videos: TikTokVideoItem[]; cursor: string | null; hasMore: boolean }> {
+  const clean = sanitizeUsername(username);
+  if (!clean || !cursor) {
+    return { videos: [], cursor: null, hasMore: false };
+  }
+
+  const clientBatch = await fetchTikwmPostsClient(clean, cursor, count);
+  if (clientBatch && clientBatch.videos.length > 0) {
+    return {
+      videos: clientBatch.videos,
+      cursor: clientBatch.cursor,
+      hasMore: clientBatch.hasMore,
+    };
+  }
+
+  const res = await fetch(
+    `/api/tiktok?username=${encodeURIComponent(clean)}&cursor=${encodeURIComponent(cursor)}&count=${count}`,
+    {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    }
+  );
+  const data = (await res.json()) as TikTokProfileApiResponse;
+  if (data && data.code === 0 && data.data) {
+    return {
+      videos: data.data.videos || [],
+      cursor: data.data.cursor || null,
+      hasMore: Boolean(data.data.hasMore && data.data.cursor),
+    };
+  }
+
+  return { videos: [], cursor: null, hasMore: false };
+}
+
+/**
+ * Resolves a fresh watermark-free stream URL and MP3 audio URL directly in the browser,
+ * with /api/resolve as fallback.
+ */
+export async function resolveVideoStreamDirect(
   videoId: string,
   username: string
-): Promise<{ play: string; wmplay: string; music: string } | null> {
+): Promise<{ play: string; wmplay: string; music: string; cover: string } | null> {
   if (!videoId) return null;
+  const clean = sanitizeUsername(username) || 'tiktok';
+  const tiktokUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(
+    `https://www.tiktok.com/@${clean}/video/${videoId}`
+  )}`;
+
+  const json = await fetchTikwmJsonWithRetry(tiktokUrl);
+  if (json && json.code === 0 && json.data) {
+    const d = asObj(json.data);
+    const musicObj = asObj(d.music_info);
+    return {
+      play: normalizeMediaUrl(asStr(d.hdplay) || asStr(d.play) || asStr(d.wmplay)),
+      wmplay: normalizeMediaUrl(asStr(d.wmplay) || asStr(d.play)),
+      music: normalizeMediaUrl(asStr(musicObj.play) || asStr(d.music)),
+      cover: normalizeMediaUrl(asStr(d.cover) || asStr(d.origin_cover)),
+    };
+  }
+
   try {
     const res = await fetch(
-      `/api/resolve?id=${encodeURIComponent(videoId)}&username=${encodeURIComponent(username)}`
+      `/api/resolve?id=${encodeURIComponent(videoId)}&username=${encodeURIComponent(clean)}`,
+      { cache: 'no-store' }
     );
-    if (!res.ok) return null;
-    const data = (await res.json()) as {
-      success?: boolean;
-      play?: string;
-      wmplay?: string;
-      music?: string;
-    };
-    if (data?.success && (data.play || data.wmplay || data.music)) {
-      return {
-        play: data.play || '',
-        wmplay: data.wmplay || '',
-        music: data.music || '',
-      };
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.success) {
+        return {
+          play: normalizeMediaUrl(data.play),
+          wmplay: normalizeMediaUrl(data.wmplay),
+          music: normalizeMediaUrl(data.music),
+          cover: '',
+        };
+      }
     }
   } catch {
-    // Fall back to already-fetched stream URLs
+    // Ignore
   }
+
   return null;
 }
 
-function triggerBrowserAnchorDownload(href: string, filename: string, openBlank = false): void {
-  const link = document.createElement('a');
-  link.style.display = 'none';
-  link.href = href;
-  link.download = filename;
-  if (openBlank) {
-    link.target = '_blank';
-  }
-  link.rel = 'noreferrer noopener';
-  link.setAttribute('referrerpolicy', 'no-referrer');
-  document.body.appendChild(link);
-  link.click();
+function triggerBlobSave(blob: Blob, filename: string): void {
+  const objectUrl = window.URL.createObjectURL(blob);
+  const tempLink = document.createElement('a');
+  tempLink.style.display = 'none';
+  tempLink.href = objectUrl;
+  tempLink.download = filename;
+  tempLink.rel = 'noreferrer noopener';
+  document.body.appendChild(tempLink);
+  tempLink.click();
+
   setTimeout(() => {
-    if (link.parentNode) {
-      link.parentNode.removeChild(link);
+    if (tempLink.parentNode) {
+      tempLink.parentNode.removeChild(tempLink);
+    }
+    window.URL.revokeObjectURL(objectUrl);
+  }, 2000);
+}
+
+/**
+ * Executes direct client-side Blob download from CDN (zero server bandwidth).
+ * Falls back to /api/proxy ONLY when CDN blocks browser CORS.
+ */
+export async function executeDirectCdnDownload(cdnUrl: string, filename: string): Promise<void> {
+  const normalizedUrl = normalizeMediaUrl(cdnUrl);
+  if (!normalizedUrl) {
+    throw new Error('Media URL is unavailable for download.');
+  }
+
+  // Known TikTok Akamai audio host lacks CORS; swap to p16.tiktokcdn.com if matched
+  const corsFriendlyUrl = normalizedUrl.includes('p16-va-default.akamaized.net')
+    ? normalizedUrl.replace('p16-va-default.akamaized.net', 'p16.tiktokcdn.com')
+    : normalizedUrl;
+
+  // Attempt 1: Zero-bandwidth direct browser CORS fetch -> local Blob save
+  try {
+    const res = await fetch(corsFriendlyUrl, {
+      method: 'GET',
+      mode: 'cors',
+      referrerPolicy: 'no-referrer',
+      credentials: 'omit',
+    });
+
+    if (res.ok) {
+      const blob = await res.blob();
+      if (blob.size > 0) {
+        triggerBlobSave(blob, filename);
+        return;
+      }
+    }
+  } catch {
+    // Fall back to proxy if CDN blocks CORS
+  }
+
+  // Attempt 2: Proxy download fallback (guarantees file saves instead of opening a blocked tab)
+  const proxyDownloadUrl = `/api/proxy?url=${encodeURIComponent(
+    normalizedUrl
+  )}&filename=${encodeURIComponent(filename)}&download=1`;
+
+  try {
+    const proxyRes = await fetch(proxyDownloadUrl);
+    if (proxyRes.ok) {
+      const blob = await proxyRes.blob();
+      if (blob.size > 0) {
+        triggerBlobSave(blob, filename);
+        return;
+      }
+    }
+  } catch {
+    // Fall through to direct browser download link
+  }
+
+  const directLink = document.createElement('a');
+  directLink.style.display = 'none';
+  directLink.href = proxyDownloadUrl;
+  directLink.download = filename;
+  document.body.appendChild(directLink);
+  directLink.click();
+
+  setTimeout(() => {
+    if (directLink.parentNode) {
+      directLink.parentNode.removeChild(directLink);
     }
   }, 1500);
 }
 
 /**
- * Executes direct client-side download from CDN without routing bytes through the server
- * whenever possible, falling back to the session proxy only when CDN tokens block direct access.
- */
-export async function executeDirectCdnDownload(
-  cdnUrl: string,
-  filename: string,
-  fallbackProxyUrl?: string
-): Promise<void> {
-  if (!cdnUrl && !fallbackProxyUrl) {
-    throw new Error('Media URL is unavailable for download.');
-  }
-
-  // If the URL explicitly requires TikTok's session cookie (tt_chain_token), use proxy directly
-  if (cdnUrl && requiresSessionProxy(cdnUrl) && fallbackProxyUrl) {
-    triggerBrowserAnchorDownload(fallbackProxyUrl, filename, false);
-    return;
-  }
-
-  // Attempt 1: In-browser direct fetch using 'no-referrer' (0 server bandwidth)
-  if (cdnUrl) {
-    try {
-      const res = await fetch(cdnUrl, {
-        method: 'GET',
-        mode: 'cors',
-        referrerPolicy: 'no-referrer',
-        credentials: 'omit',
-      });
-
-      if (res.ok) {
-        const blob = await res.blob();
-        const objectUrl = window.URL.createObjectURL(blob);
-        triggerBrowserAnchorDownload(objectUrl, filename, false);
-        setTimeout(() => {
-          window.URL.revokeObjectURL(objectUrl);
-        }, 2000);
-        return;
-      }
-    } catch {
-      // Browser CORS blocked Blob fetch; try proxy attachment if available or direct anchor
-    }
-  }
-
-  // Attempt 2: Proxy attachment download if provided (ensures Content-Disposition: attachment)
-  if (fallbackProxyUrl) {
-    triggerBrowserAnchorDownload(fallbackProxyUrl, filename, false);
-    return;
-  }
-
-  // Attempt 3: Direct anchor trigger with no-referrer
-  triggerBrowserAnchorDownload(cdnUrl, filename, true);
-}
-
-/**
  * Prepares direct HTML5 video playback without server proxying.
+ * Does NOT set crossOrigin="anonymous" so non-CORS CDN streams play cleanly.
  */
 export function configureDirectPlayback(
   videoElement: HTMLVideoElement,
@@ -225,7 +575,7 @@ export function configureDirectPlayback(
   if (!videoElement || !directCdnUrl) return;
 
   videoElement.setAttribute('referrerpolicy', 'no-referrer');
-  videoElement.crossOrigin = 'anonymous';
-  videoElement.src = directCdnUrl;
+  videoElement.removeAttribute('crossorigin');
+  videoElement.src = normalizeMediaUrl(directCdnUrl);
   videoElement.preload = 'metadata';
 }

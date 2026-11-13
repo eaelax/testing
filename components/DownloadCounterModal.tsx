@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, CheckCircle2, Download, Loader2, Music, Film, Sparkles } from 'lucide-react';
 import { useSiteSettings, SiteSettings } from '@/lib/settings-store';
+import { executeDirectCdnDownload } from '@/lib/tiktok-client';
 import AdSlot from './AdSlot';
 
 interface DownloadCounterModalProps {
@@ -37,14 +38,7 @@ function ModalContent({
 
   const triggerDownload = () => {
     if (!downloadUrl) return;
-    const a = document.createElement('a');
-    a.href = downloadUrl;
-    a.download = fileName;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    executeDirectCdnDownload(downloadUrl, fileName).catch(() => {});
   };
 
   const handleManualDownloadClick = () => {
@@ -57,6 +51,8 @@ function ModalContent({
 
   useEffect(() => {
     let current = initialSeconds;
+    let closeTimer: ReturnType<typeof setTimeout> | null = null;
+
     const timer = setInterval(() => {
       current -= 1;
       setCounter(current);
@@ -64,29 +60,19 @@ function ModalContent({
       if (current <= 0) {
         clearInterval(timer);
         setIsReady(true);
-        // Trigger background browser download
         if (downloadUrl) {
-          try {
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = fileName;
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          } catch {
-            // Fallback
-          }
+          executeDirectCdnDownload(downloadUrl, fileName).catch(() => {});
         }
-        // As requested: Close modal automatically once file download starts on browser
-        setTimeout(() => {
+        closeTimer = setTimeout(() => {
           onClose();
         }, 1200);
       }
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      if (closeTimer) clearTimeout(closeTimer);
+    };
   }, [initialSeconds, downloadUrl, fileName, onClose]);
 
   const progressPercent = Math.min(

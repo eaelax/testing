@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, CheckCircle2, Download, Loader2, Music, Film, Sparkles } from 'lucide-react';
 import { useSiteSettings, SiteSettings } from '@/lib/settings-store';
 import { executeDirectCdnDownload } from '@/lib/tiktok-client';
@@ -10,7 +10,6 @@ interface DownloadCounterModalProps {
   isOpen: boolean;
   onClose: () => void;
   downloadUrl: string;
-  fallbackUrl?: string;
   fileName: string;
   mediaType: 'video' | 'audio' | 'avatar';
   title?: string;
@@ -19,7 +18,6 @@ interface DownloadCounterModalProps {
 function ModalContent({
   initialSeconds,
   downloadUrl,
-  fallbackUrl,
   fileName,
   mediaType,
   title,
@@ -28,7 +26,6 @@ function ModalContent({
 }: {
   initialSeconds: number;
   downloadUrl: string;
-  fallbackUrl?: string;
   fileName: string;
   mediaType: 'video' | 'audio' | 'avatar';
   title?: string;
@@ -37,19 +34,26 @@ function ModalContent({
 }) {
   const [counter, setCounter] = useState(initialSeconds);
   const [isReady, setIsReady] = useState(false);
-  const [hasClickedDownload, setHasClickedDownload] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [hasTriggeredDownload, setHasTriggeredDownload] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
-  const triggerDownload = () => {
-    if (!downloadUrl && !fallbackUrl) return;
-    executeDirectCdnDownload(downloadUrl, fileName, fallbackUrl).catch(() => {});
-  };
+  const runDownload = useCallback(async () => {
+    if (!downloadUrl) return;
+    setIsDownloading(true);
+    setDownloadError(null);
+    try {
+      await executeDirectCdnDownload(downloadUrl, fileName);
+      setHasTriggeredDownload(true);
+    } catch (err: unknown) {
+      setDownloadError(err instanceof Error ? err.message : 'Download failed. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [downloadUrl, fileName]);
 
-  const handleManualDownloadClick = () => {
-    triggerDownload();
-    setHasClickedDownload(true);
-    setTimeout(() => {
-      onClose();
-    }, 1200);
+  const handleManualDownloadClick = async () => {
+    await runDownload();
   };
 
   useEffect(() => {
@@ -61,17 +65,14 @@ function ModalContent({
       if (current <= 0) {
         clearInterval(timer);
         setIsReady(true);
-        if (downloadUrl || fallbackUrl) {
-          executeDirectCdnDownload(downloadUrl, fileName, fallbackUrl).catch(() => {});
+        if (downloadUrl) {
+          void runDownload();
         }
-        setTimeout(() => {
-          onClose();
-        }, 1200);
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [initialSeconds, downloadUrl, fallbackUrl, fileName, onClose]);
+  }, [initialSeconds, downloadUrl, runDownload]);
 
   const progressPercent = Math.min(
     100,
@@ -158,39 +159,59 @@ function ModalContent({
           <div className="flex flex-col items-center justify-center w-full max-w-md animate-in fade-in duration-300">
             {/* Success icon */}
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center mb-3 sm:mb-4 shadow-xs">
-              <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12" />
+              {isDownloading ? (
+                <Loader2 className="w-9 h-9 sm:w-10 sm:h-10 animate-spin text-[#01ebe4]" />
+              ) : (
+                <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12" />
+              )}
             </div>
 
             <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Download is Ready!
+              {isDownloading ? 'Saving File...' : 'Download is Ready!'}
             </h3>
 
             <p className="text-xs sm:text-sm text-slate-500 max-w-sm mt-1.5 leading-relaxed px-2">
-              {hasClickedDownload
-                ? 'Your file download has started. If it did not begin, click the button again.'
-                : 'Click the button below to download your clean file without watermarks.'}
+              {downloadError
+                ? downloadError
+                : isDownloading
+                ? 'Downloading stream directly to your device...'
+                : hasTriggeredDownload
+                ? 'Your file download has started. Click below if you want to save it again.'
+                : 'Click the button below to save your clean file without watermarks.'}
             </p>
 
-            {/* Prominent Download Button that stays until clicked */}
+            {/* Prominent Download Button */}
             <button
               type="button"
+              disabled={isDownloading || !downloadUrl}
               onClick={handleManualDownloadClick}
-              className="mt-4 sm:mt-5 w-full max-w-xs sm:max-w-sm py-3.5 px-6 rounded-xl bg-[#01ebe4] hover:bg-[#00d7d0] active:scale-[0.98] text-slate-950 font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md transition-all cursor-pointer"
+              className="mt-4 sm:mt-5 w-full max-w-xs sm:max-w-sm py-3.5 px-6 rounded-xl bg-[#01ebe4] hover:bg-[#00d7d0] active:scale-[0.98] disabled:opacity-60 text-slate-950 font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md transition-all cursor-pointer"
             >
-              <Download className="w-5 h-5 text-slate-950 shrink-0" />
-              <span>
-                {hasClickedDownload
-                  ? 'Download Triggered ✓ (Click to retry)'
-                  : mediaType === 'audio'
-                  ? 'Download MP3 Audio'
-                  : 'Download HD Video Now'}
-              </span>
+              {isDownloading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin text-slate-950 shrink-0" />
+                  <span>Downloading File...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-5 h-5 text-slate-950 shrink-0" />
+                  <span>
+                    {hasTriggeredDownload
+                      ? 'Download Again ✓'
+                      : mediaType === 'audio'
+                      ? 'Download MP3 Audio'
+                      : mediaType === 'avatar'
+                      ? 'Download Avatar Image'
+                      : 'Download HD Video Now'}
+                  </span>
+                </>
+              )}
             </button>
           </div>
         )}
       </div>
 
-      {/* Modal Ad Slot (Only renders if an ad is explicitly configured and enabled in Admin Panel) */}
+      {/* Modal Ad Slot */}
       <AdSlot placement="modal" className="w-full my-1 shrink-0" />
 
       {/* Bottom Metadata Info Card */}
@@ -213,7 +234,6 @@ export default function DownloadCounterModal({
   isOpen,
   onClose,
   downloadUrl,
-  fallbackUrl,
   fileName,
   mediaType,
   title,
@@ -231,7 +251,6 @@ export default function DownloadCounterModal({
       <ModalContent
         initialSeconds={initialSeconds}
         downloadUrl={downloadUrl}
-        fallbackUrl={fallbackUrl}
         fileName={fileName}
         mediaType={mediaType}
         title={title}

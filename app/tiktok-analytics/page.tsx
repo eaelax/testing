@@ -9,6 +9,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import { fetchProfileDirect } from '@/lib/tiktok-client';
 
 export default function TikTokAnalyticsPage() {
   // Manual Calculator state
@@ -62,16 +63,15 @@ export default function TikTokAnalyticsPage() {
     setAuditError(null);
 
     try {
-      const res = await fetch(`/api/tiktok?username=${encodeURIComponent(clean)}`);
-      const data = await res.json();
+      const data = await fetchProfileDirect(clean);
 
       if (!data || data.code !== 0 || !data.data) {
         throw new Error(data?.msg || 'Creator not found or account is private.');
       }
 
       const videos = data.data.videos || [];
-      const user = data.data.user || {};
-      const stats = data.data.stats || {};
+      const user = data.data.user;
+      const stats = data.data.stats;
 
       if (videos.length === 0) {
         throw new Error('User has no public videos available to analyze.');

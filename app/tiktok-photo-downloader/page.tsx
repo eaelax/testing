@@ -47,7 +47,7 @@ export default function PhotoDownloaderPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafbfc] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-[#111827]">
       <Navbar />
 
       <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -61,10 +61,10 @@ export default function PhotoDownloaderPage() {
 
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#111827] tracking-tight">
             TikTok Photo &amp; Slideshow Downloader
           </h1>
-          <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-2 leading-relaxed max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm md:text-base text-[#4B5563] mt-2 leading-relaxed max-w-xl mx-auto">
             Extract and download full-resolution pictures, photo carousels, and slideshow albums from TikTok without watermarks or compression.
           </p>
         </div>
@@ -76,15 +76,15 @@ export default function PhotoDownloaderPage() {
         />
 
         {/* FAQs */}
-        <section className="mt-12 pt-8 border-t border-slate-200 mb-10">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 text-center mb-6">
+        <section className="mt-12 pt-8 border-t border-[#E5E7EB] mb-10">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] text-center mb-6">
             Frequently Asked Questions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {faqSchema.mainEntity.map((faq, i) => (
-              <div key={i} className="p-4 sm:p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-                <h3 className="text-xs sm:text-sm font-bold text-slate-900 mb-1">{faq.name}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{faq.acceptedAnswer.text}</p>
+              <div key={i} className="p-4 sm:p-5 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB]">
+                <h3 className="text-xs sm:text-sm font-bold text-[#111827] mb-1">{faq.name}</h3>
+                <p className="text-xs text-[#4B5563] leading-relaxed">{faq.acceptedAnswer.text}</p>
               </div>
             ))}
           </div>

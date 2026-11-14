@@ -55,7 +55,7 @@ export default function WatermarkRemoverPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafbfc] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-[#111827]">
       <Navbar />
 
       <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -69,10 +69,10 @@ export default function WatermarkRemoverPage() {
 
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#111827] tracking-tight">
             TikTok Watermark Remover
           </h1>
-          <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-2 leading-relaxed max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm md:text-base text-[#4B5563] mt-2 leading-relaxed max-w-xl mx-auto">
             Extract pure, original HD MP4 videos without the bouncing TikTok watermark logo or end credit cards. 100% free with unlimited downloads.
           </p>
         </div>
@@ -84,34 +84,34 @@ export default function WatermarkRemoverPage() {
         />
 
         {/* 3 Step Explanation */}
-        <section className="mt-14 pt-8 border-t border-slate-200">
+        <section className="mt-14 pt-8 border-t border-[#E5E7EB]">
           <div className="text-center max-w-2xl mx-auto mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#111827]">
               Why Remove TikTok Watermarks?
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            <p className="text-xs sm:text-sm text-[#5C6573] mt-1">
               Repurpose short-form videos across all major platforms with maximum engagement.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-              <h3 className="font-bold text-sm sm:text-base text-slate-900 mb-1">Boost Instagram Reels Reach</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+            <div className="p-5 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB]">
+              <h3 className="font-bold text-sm sm:text-base text-[#111827] mb-1">Boost Instagram Reels Reach</h3>
+              <p className="text-xs text-[#4B5563] leading-relaxed">
                 Instagram officially penalizes clips with TikTok logos. Watermark-free clips receive full organic distribution.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-              <h3 className="font-bold text-sm sm:text-base text-slate-900 mb-1">YouTube Shorts Monetization</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+            <div className="p-5 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB]">
+              <h3 className="font-bold text-sm sm:text-base text-[#111827] mb-1">YouTube Shorts Monetization</h3>
+              <p className="text-xs text-[#4B5563] leading-relaxed">
                 Eligible for YouTube Shorts Creator Fund and Ads revenue without third-party brand marks.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-              <h3 className="font-bold text-sm sm:text-base text-slate-900 mb-1">Clean Portfolio Archiving</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+            <div className="p-5 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB]">
+              <h3 className="font-bold text-sm sm:text-base text-[#111827] mb-1">Clean Portfolio Archiving</h3>
+              <p className="text-xs text-[#4B5563] leading-relaxed">
                 Save clean master copies of your original creative work in original 1080p resolution.
               </p>
             </div>
@@ -119,15 +119,15 @@ export default function WatermarkRemoverPage() {
         </section>
 
         {/* FAQs */}
-        <section className="mt-12 pt-8 border-t border-slate-200 mb-10">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 text-center mb-6">
+        <section className="mt-12 pt-8 border-t border-[#E5E7EB] mb-10">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] text-center mb-6">
             Frequently Asked Questions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {faqSchema.mainEntity.map((faq, i) => (
-              <div key={i} className="p-4 sm:p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-                <h3 className="text-xs sm:text-sm font-bold text-slate-900 mb-1">{faq.name}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{faq.acceptedAnswer.text}</p>
+              <div key={i} className="p-4 sm:p-5 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB]">
+                <h3 className="text-xs sm:text-sm font-bold text-[#111827] mb-1">{faq.name}</h3>
+                <p className="text-xs text-[#4B5563] leading-relaxed">{faq.acceptedAnswer.text}</p>
               </div>
             ))}
           </div>

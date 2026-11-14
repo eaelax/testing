@@ -797,4 +797,298 @@ export default function TikTokProfileViewer({
               </span>
             </div>
 
-            <div className="h-15 rounded-xl px-3.5 py-2 bg-[#F8F9FA] border border-[#E5E7EB] f
+            <div className="h-15 rounded-xl px-3.5 py-2 bg-[#F8F9FA] border border-[#E5E7EB] flex flex-col justify-center">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#5C6573] leading-none mb-1">
+                Account
+              </span>
+              {authorProfile.verified ? (
+                <span className="text-xs sm:text-sm font-bold tracking-tight text-[#0F766E] leading-tight inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#F0FDFA] w-fit truncate">
+                  Verified
+                </span>
+              ) : (
+                <span className="text-xs sm:text-sm font-bold tracking-tight text-[#334155] leading-tight truncate">
+                  Public
+                </span>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Video Grid Section */}
+      {videos.length > 0 && !loading && (
+        <section className="w-full flex flex-col gap-3.5 my-2">
+          <AdSlot placement="above_grid" />
+          <div className="flex items-center justify-between border-b border-[#E5E7EB] pb-2.5">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-bold text-[#111827]">
+                Videos
+              </h3>
+              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md bg-[#F1F5F9] text-[#334155]">
+                {videos.length} loaded
+              </span>
+            </div>
+            <div className="text-xs font-medium text-[#5C6573]">
+              Click any video to watch and download
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3.5">
+            {videos.map((video, index) => {
+              const videoKey = String(video.video_id || video.id || index);
+              const coverImg = video.cover || video.origin_cover || '';
+              const duration = formatDuration(video.duration);
+              const isHighlighted = highlightedVideoKey === videoKey;
+
+              return (
+                <div
+                  key={videoKey}
+                  ref={(el) => {
+                    if (el) {
+                      videoCardRefs.current.set(videoKey, el);
+                    } else {
+                      videoCardRefs.current.delete(videoKey);
+                    }
+                  }}
+                  onClick={() => void openModal(video, videoKey)}
+                  className={`relative aspect-[9/16] rounded-xl overflow-hidden bg-[#111827] border cursor-pointer group transition-colors ${
+                    isHighlighted
+                      ? 'border-[#D61C47] ring-2 ring-[#D61C47] ring-offset-2'
+                      : 'border-[#E5E7EB] hover:border-[#9CA3AF]'
+                  }`}
+                >
+                  {coverImg ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={coverImg}
+                      alt={video.title || 'TikTok video'}
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                      data-step="0"
+                      className="w-full h-full object-cover bg-[#111827] pointer-events-none"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        const step = target.getAttribute('data-step') || '0';
+
+                        if (step === '0' && video.origin_cover && video.origin_cover !== coverImg) {
+                          target.setAttribute('data-step', '1');
+                          target.src = video.origin_cover;
+                          return;
+                        }
+
+                        if (step === '0' || step === '1') {
+                          target.setAttribute('data-step', '2');
+                          const rawCover = video.cover || video.origin_cover || '';
+                          if (rawCover && !rawCover.startsWith('/api/proxy')) {
+                            target.src = `/api/proxy?url=${encodeURIComponent(rawCover)}`;
+                            return;
+                          }
+                        }
+
+                        target.style.display = 'none';
+                      }}
+                    />
+                  ) : null}
+
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <div className="w-11 h-11 rounded-full bg-[#D61C47] text-[#FFFFFF] flex items-center justify-center ring-2 ring-white/40 transform transition-transform group-hover:scale-110">
+                      <Play className="w-4 h-4 fill-white text-white translate-x-0.5" />
+                    </div>
+                  </div>
+
+                  <div className="absolute inset-x-0 top-0 p-2 flex justify-between items-start pointer-events-none">
+                    <span
+                      style={{ backgroundColor: 'rgba(17, 24, 39, 0.85)' }}
+                      className="text-[11px] font-mono font-bold px-2 py-0.5 rounded text-[#FFFFFF]"
+                    >
+                      #{index + 1}
+                    </span>
+                    {duration && (
+                      <span
+                        style={{ backgroundColor: 'rgba(17, 24, 39, 0.85)' }}
+                        className="text-[11px] font-mono font-bold px-2 py-0.5 rounded text-[#FFFFFF]"
+                      >
+                        {duration}
+                      </span>
+                    )}
+                  </div>
+
+                  <div
+                    style={{ backgroundColor: 'rgba(17, 24, 39, 0.82)' }}
+                    className="absolute inset-x-0 bottom-0 px-2.5 py-2.5 flex flex-col gap-1.5 pointer-events-none"
+                  >
+                    <p className="text-[11px] sm:text-xs text-[#FFFFFF] line-clamp-2 font-semibold leading-tight">
+                      {video.title || 'Watch Video'}
+                    </p>
+
+                    <div className="grid grid-cols-3 items-center text-[11px] text-[#FFFFFF] font-mono font-bold pt-1.5 border-t border-white/20 w-full">
+                      <span className="flex items-center justify-start gap-1 text-[#FFFFFF] min-w-0" title={`${video.play_count || 0} views`}>
+                        <Play className="w-2.5 h-2.5 fill-white text-white shrink-0" />
+                        <span className="truncate">{formatNumber(video.play_count)}</span>
+                      </span>
+
+                      <span className="flex items-center justify-center gap-1 text-rose-200 min-w-0" title={`${video.digg_count || 0} likes`}>
+                        <Heart className="w-2.5 h-2.5 fill-rose-400 text-rose-400 shrink-0" />
+                        <span className="truncate">{formatNumber(video.digg_count)}</span>
+                      </span>
+
+                      <span className="flex items-center justify-end gap-1 text-slate-200 min-w-0" title={`${video.share_count || 0} shares`}>
+                        <Share2 className="w-2.5 h-2.5 text-slate-200 shrink-0" />
+                        <span className="truncate">{formatNumber(video.share_count)}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {hasMore && (
+            <div className="flex flex-col items-center justify-center pt-5 pb-2">
+              <button
+                type="button"
+                onClick={() => void handleShowMoreVideos()}
+                disabled={loadingMore}
+                className="px-7 py-3 rounded-xl bg-[#111827] hover:bg-[#1F2937] active:scale-[0.98] text-[#FFFFFF] font-bold text-xs sm:text-sm tracking-wide uppercase flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-[#FFFFFF]" />
+                    <span>Loading more videos...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>SHOW MORE VIDEOS</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+              <p className="text-xs text-[#5C6573] font-semibold mt-2">
+                Showing {videos.length} of {profileStats?.videoCount || 'all'} videos
+              </p>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Video Player Modal */}
+      {selectedVideo && (
+        <div
+          onClick={closeModal}
+          className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-md sm:max-w-lg bg-[#FFFFFF] rounded-2xl overflow-hidden border border-[#E5E7EB] flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200"
+          >
+            <button
+              type="button"
+              onClick={closeModal}
+              className="absolute top-2.5 right-2.5 z-30 w-8 h-8 rounded-full bg-[#111827]/85 hover:bg-[#111827] text-[#FFFFFF] ring-1 ring-white/25 flex items-center justify-center transition-all active:scale-95 cursor-pointer"
+              title="Close modal (Esc)"
+              aria-label="Close modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="relative bg-black flex items-center justify-center h-[46vh] sm:h-[50vh] max-h-[460px] min-h-[300px] w-full overflow-hidden shrink-0">
+              {videoResolving && (
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-black/75 text-[#FFFFFF]">
+                  <Loader2 className="w-7 h-7 animate-spin text-[#D61C47]" />
+                  <span className="text-xs font-semibold text-slate-100">Loading HD stream...</span>
+                </div>
+              )}
+              <video
+                ref={modalVideoRef}
+                src={activePlayUrl || undefined}
+                poster={selectedVideo.cover || selectedVideo.origin_cover || undefined}
+                controls
+                playsInline
+                autoPlay
+                preload="metadata"
+                onCanPlay={() => setVideoResolving(false)}
+                onError={() => void handleVideoPlayError()}
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            <div className="p-4 sm:p-5 flex flex-col gap-3 bg-[#FFFFFF] shrink-0">
+              <p className="text-xs sm:text-sm font-bold text-[#111827] line-clamp-2 leading-snug break-words">
+                {selectedVideo.title || 'TikTok Video'}
+              </p>
+
+              <div className="flex items-center justify-between text-xs text-[#111827] bg-[#F8F9FA] px-3.5 py-2.5 rounded-xl border border-[#E5E7EB] font-mono font-bold">
+                <span className="flex items-center gap-1.5 text-[#111827]">
+                  <Play className="w-3.5 h-3.5 fill-[#4B5563] text-[#4B5563]" />
+                  <span>{formatNumber(selectedVideo.play_count)}</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-[#BE123C]">
+                  <Heart className="w-3.5 h-3.5 fill-[#BE123C] text-[#BE123C]" />
+                  <span>{formatNumber(selectedVideo.digg_count)}</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-[#334155]">
+                  <Share2 className="w-3.5 h-3.5 text-[#334155]" />
+                  <span>{formatNumber(selectedVideo.share_count)}</span>
+                </span>
+                {selectedVideo.duration ? (
+                  <span className="text-[#5C6573]">{formatDuration(selectedVideo.duration)}</span>
+                ) : null}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+                <button
+                  type="button"
+                  disabled={downloadingVideo || downloadingAudio}
+                  onClick={() => void handleDownloadVideo()}
+                  className="w-full py-3 px-4 rounded-xl bg-[#D61C47] hover:bg-[#B9153B] active:scale-[0.99] text-[#FFFFFF] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {downloadingVideo ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-[#FFFFFF]" />
+                      <span>Preparing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      <span>Download HD Video</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={downloadingVideo || downloadingAudio}
+                  onClick={() => void handleDownloadAudio()}
+                  className="w-full py-3 px-4 rounded-xl bg-[#FFFFFF] hover:bg-[#F3F4F6] active:scale-[0.99] text-[#1F2937] border border-[#D1D5DB] hover:border-[#9CA3AF] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {downloadingAudio ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-[#1F2937]" />
+                      <span>Preparing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Music className="w-4 h-4 text-[#0F766E]" />
+                      <span>Download Audio (MP3)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!hasActiveResult && children}
+
+      <DownloadCounterModal
+        isOpen={counterModalOpen}
+        onClose={handleCloseCounterModal}
+        downloadUrl={counterModalData.url}
+        fileName={counterModalData.filename}
+        mediaType={counterModalData.mediaType}
+        title={counterModalData.title}
+      />
+    </div>
+  );
+}

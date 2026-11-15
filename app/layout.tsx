@@ -3,11 +3,11 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Tik Profiles Viewer - Free TikTok Profile Viewer & HD Downloader',
-  description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio on TikProfilesViewer.com.',
+  description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
   referrer: 'no-referrer',
   openGraph: {
     title: 'Tik Profiles Viewer - Free TikTok Profile Viewer & HD Downloader',
-    description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio on TikProfilesViewer.com.',
+    description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
     url: 'https://tikprofilesviewer.com',
     siteName: 'Tik Profiles Viewer',
     type: 'website',
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Tik Profiles Viewer - Free TikTok Profile Viewer & HD Downloader',
-    description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio on TikProfilesViewer.com.',
+    description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
   },
   icons: {
     icon: '/assets/aistudio/tik-profiles-viewer-logo_c4487561.png',
@@ -36,7 +36,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png" />
         <link rel="apple-touch-icon" href="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png" />
       </head>
-      <body className="min-h-screen bg-[#F3F4F6] text-[#111827] antialiased selection:bg-[#FDF2F4] selection:text-[#BE123C]">
+      <body className="min-h-screen bg-[#eef2f6] text-slate-900 antialiased selection:bg-rose-600/15 selection:text-rose-900">
         {children}
       </body>
     </html>

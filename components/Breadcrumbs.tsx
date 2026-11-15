@@ -40,13 +40,18 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <ol className="flex items-center flex-wrap gap-1.5 text-xs text-[#5C6573]">
+      <ol className="flex items-center flex-wrap gap-1.5 text-xs text-slate-600 font-medium">
         <li className="inline-flex items-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-1 hover:text-[#111827] transition-colors"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('tpv:reset-home'));
+              }
+            }}
+            className="inline-flex items-center gap-1 text-slate-700 hover:text-rose-600 transition-colors"
           >
-            <Home className="w-3.5 h-3.5 text-[#5C6573]" />
+            <Home className="w-3.5 h-3.5 text-slate-600" />
             <span>Home</span>
           </Link>
         </li>
@@ -54,15 +59,15 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
           const isLast = index === items.length - 1;
           return (
             <li key={index} className="inline-flex items-center gap-1.5">
-              <ChevronRight className="w-3 h-3 text-[#9CA3AF]" />
+              <ChevronRight className="w-3 h-3 text-slate-400" />
               {isLast || !item.href ? (
-                <span className="text-[#111827] font-medium truncate max-w-[200px] sm:max-w-none">
+                <span className="text-slate-950 font-semibold truncate max-w-[200px] sm:max-w-none">
                   {item.label}
                 </span>
               ) : (
                 <Link
                   href={item.href}
-                  className="hover:text-[#111827] transition-colors truncate max-w-[200px] sm:max-w-none"
+                  className="text-slate-700 hover:text-rose-600 transition-colors truncate max-w-[200px] sm:max-w-none"
                 >
                   {item.label}
                 </Link>

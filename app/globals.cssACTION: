@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  /* Light Surfaces & Backgrounds (Crisp, Eye-Friendly Contrast) */
+  --bg-page: #F5F7F9;
+  --bg-surface: #FFFFFF;
+  --bg-surface-subtle: #F0F4F7;
+  --bg-surface-hover: #E6ECF0;
+
+  /* High-Contrast Typography */
+  --text-primary: #010101;
+  --text-secondary: #2F363D;
+  --text-muted: #4D5660;
+  --text-on-accent: #FFFFFF;
+
+  /* Clean Borders for Container Separation */
+  --border-subtle: #DFE5EA;
+  --border-control: #CBD5DF;
+  --border-hover: #9AA5B1;
+
+  /* Brand Palette: TikTok Crimson (#EE1D52), Cyan (#69C9D0), Black (#010101), White (#FFFFFF) */
+  --accent-primary: #EE1D52;
+  --accent-primary-hover: #D41445;
+  --accent-primary-soft: #FFF0F4;
+  --accent-primary-text: #C4113F;
+
+  --accent-cyan: #69C9D0;
+  --accent-cyan-hover: #53B9C1;
+  --accent-cyan-soft: #ECFAFB;
+  --accent-cyan-text: #0A6C74;
+
+  --accent-dark: #010101;
+  --accent-dark-hover: #1D2126;
+}
+
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Compact, crisp scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F0F4F7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #BCC6CF;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8E9AA5;
+}

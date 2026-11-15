@@ -1,0 +1,1163 @@
+'use client';
+
+import { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Search,
+  Download,
+  Play,
+  Heart,
+  Share2,
+  X,
+  Loader2,
+  AlertCircle,
+  Music,
+  CheckCircle2,
+  ChevronDown,
+  Copy,
+  Check,
+  ExternalLink,
+  Film,
+} from 'lucide-react';
+import DownloadCounterModal from './DownloadCounterModal';
+import AdSlot from './AdSlot';
+import {
+  fetchProfileDirect,
+  fetchMoreVideosDirect,
+  resolveVideoStreamDirect,
+  sanitizeUsername,
+} from '@/lib/tiktok-client';
+
+export interface Author {
+  unique_id: string;
+  nickname: string;
+  avatar: string;
+  secUid?: string;
+  signature?: string;
+  verified?: boolean;
+  status?: 'active' | 'private' | 'not_found';
+}
+
+export interface TikTokVideo {
+  video_id?: string;
+  id?: string;
+  title: string;
+  cover: string;
+  origin_cover?: string;
+  play?: string;
+  wmplay?: string;
+  music?: string;
+  music_info?: {
+    id?: string;
+    title?: string;
+    play?: string;
+    author?: string;
+  };
+  play_count?: number;
+  digg_count?: number;
+  comment_count?: number;
+  share_count?: number;
+  download_count?: number;
+  duration?: number;
+  create_time?: number;
+  author?: Author;
+}
+
+export interface ProfileStats {
+  followerCount: number | null;
+  followingCount: number | null;
+  heartCount: number | null;
+  videoCount: number | null;
+}
+
+const FEATURED_SUGGESTIONS = [
+  { username: 'charlidamelio', name: "Charli D'Amelio" },
+  { username: 'khaby.lame', name: 'Khaby Lame' },
+  { username: 'mrbeast', name: 'MrBeast' },
+  { username: 'bellapoarch', name: 'Bella Poarch' },
+  { username: 'zachking', name: 'Zach King' },
+];
+
+function formatNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return '0';
+  if (num >= 1_000_000_000) {
+    return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, '') + 'B';
+  }
+  if (num >= 1_000_000) {
+    return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (num >= 10_000) {
+    return Math.round(num / 1_000) + 'K';
+  }
+  if (num >= 1_000) {
+    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return String(num);
+}
+
+function formatDuration(seconds?: number): string {
+  if (!seconds) return '';
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function isTikTokCookieCdn(url: string): boolean {
+  return /tiktok\.com|tiktokv\.com|tiktokcdn/i.test(url);
+}
+
+interface TikTokProfileViewerProps {
+  initialUsername?: string;
+  autoSearch?: boolean;
+  title?: string;
+  subtitle?: string;
+  children?: React.ReactNode;
+}
+
+export default function TikTokProfileViewer({
+  initialUsername = '',
+  autoSearch = false,
+  title,
+  subtitle,
+  children,
+}: TikTokProfileViewerProps) {
+  const [usernameInput, setUsernameInput] = useState(initialUsername);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [authorProfile, setAuthorProfile] = useState<Author | null>(null);
+  const [profileStats, setProfileStats] = useState<ProfileStats | null>(null);
+  const [videos, setVideos] = useState<TikTokVideo[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+
+  const [selectedVideo, setSelectedVideo] = useState<TikTokVideo | null>(null);
+  const [activePlayUrl, setActivePlayUrl] = useState<string>('');
+  const [videoResolving, setVideoResolving] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [downloadingVideo, setDownloadingVideo] = useState(false);
+  const [downloadingAudio, setDownloadingAudio] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [highlightedVideoKey, setHighlightedVideoKey] = useState<string | null>(null);
+
+  const [counterModalOpen, setCounterModalOpen] = useState(false);
+  const [counterModalData, setCounterModalData] = useState<{
+    url: string;
+    filename: string;
+    mediaType: 'video' | 'audio' | 'avatar';
+    title?: string;
+  }>({
+    url: '',
+    filename: '',
+    mediaType: 'video',
+    title: '',
+  });
+
+  const modalVideoRef = useRef<HTMLVideoElement | null>(null);
+  const playbackFallbackStepRef = useRef<number>(0);
+  const activeModalIdRef = useRef<string>('');
+  const activeCardKeyRef = useRef<string>('');
+  const lastDownloadedKeyRef = useRef<string>('');
+  const videoCardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const hasActiveResult = Boolean(authorProfile || videos.length > 0 || loading);
+
+  const handleCopyProfileLink = () => {
+    if (typeof window !== 'undefined' && authorProfile) {
+      navigator.clipboard.writeText(`https://tikprofilesviewer.com/profile/${authorProfile.unique_id}`);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
+  };
+
+  const handleDownloadAvatar = () => {
+    if (!authorProfile) return;
+    lastDownloadedKeyRef.current = '';
+    const avatarUrl =
+      authorProfile.avatar || `/api/avatar?username=${encodeURIComponent(authorProfile.unique_id)}`;
+    const filename = `${authorProfile.unique_id}-avatar.jpg`;
+    setCounterModalData({
+      url: avatarUrl,
+      filename,
+      mediaType: 'avatar',
+      title: `@${authorProfile.unique_id} Profile Photo`,
+    });
+    setCounterModalOpen(true);
+  };
+
+  const closeModal = useCallback(() => {
+    activeModalIdRef.current = '';
+    setSelectedVideo(null);
+    setActivePlayUrl('');
+    setVideoResolving(false);
+    setIsVideoPlaying(false);
+    setDownloadingVideo(false);
+    setDownloadingAudio(false);
+    playbackFallbackStepRef.current = 0;
+  }, []);
+
+  const handleResetHome = useCallback(() => {
+    closeModal();
+    setCounterModalOpen(false);
+    setUsernameInput('');
+    setLoading(false);
+    setLoadingMore(false);
+    setErrorMsg(null);
+    setAuthorProfile(null);
+    setProfileStats(null);
+    setVideos([]);
+    setNextCursor(null);
+    setHasMore(false);
+    setHighlightedVideoKey(null);
+    lastDownloadedKeyRef.current = '';
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [closeModal]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.addEventListener('tpv:reset-home', handleResetHome);
+    return () => {
+      window.removeEventListener('tpv:reset-home', handleResetHome);
+    };
+  }, [handleResetHome]);
+
+  const handleCloseCounterModal = useCallback(() => {
+    setCounterModalOpen(false);
+    closeModal();
+
+    const targetKey = lastDownloadedKeyRef.current;
+    if (targetKey) {
+      setHighlightedVideoKey(targetKey);
+      setTimeout(() => {
+        setHighlightedVideoKey((prev) => (prev === targetKey ? null : prev));
+      }, 1800);
+
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const cardEl = videoCardRefs.current.get(targetKey);
+          if (cardEl) {
+            const rect = cardEl.getBoundingClientRect();
+            const targetTop =
+              window.scrollY + rect.top - Math.max(84, (window.innerHeight - rect.height) / 2);
+            window.scrollTo({
+              top: Math.max(0, targetTop),
+              behavior: 'smooth',
+            });
+          }
+        }, 50);
+      });
+    }
+  }, [closeModal]);
+
+  useEffect(() => {
+    if (selectedVideo || counterModalOpen) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      if (modalVideoRef.current) {
+        modalVideoRef.current.setAttribute('referrerpolicy', 'no-referrer');
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [selectedVideo, counterModalOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (counterModalOpen) {
+          handleCloseCounterModal();
+        } else if (selectedVideo) {
+          closeModal();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedVideo, counterModalOpen, closeModal, handleCloseCounterModal]);
+
+  const handleSearch = useCallback(
+    async (usernameToSearch?: string) => {
+      const targetUser = sanitizeUsername(usernameToSearch !== undefined ? usernameToSearch : usernameInput);
+      if (!targetUser) {
+        setErrorMsg('Please enter a TikTok username.');
+        return;
+      }
+
+      setLoading(true);
+      setErrorMsg(null);
+      setNextCursor(null);
+      setHasMore(false);
+
+      try {
+        const result = await fetchProfileDirect(targetUser);
+
+        if (!result || result.code !== 0 || !result.data) {
+          const errorText = result?.msg || `User @${targetUser} was not found or is private.`;
+          setErrorMsg(errorText);
+          setAuthorProfile(null);
+          setProfileStats(null);
+          setVideos([]);
+          return;
+        }
+
+        const postVideos: TikTokVideo[] = result.data.videos || [];
+        const userObj = result.data.user;
+        const statsObj = result.data.stats;
+
+        const authorInfo: Author = {
+          unique_id: userObj?.unique_id || targetUser,
+          nickname: userObj?.nickname || targetUser,
+          avatar: userObj?.avatar || '',
+          secUid: userObj?.secUid || '',
+          signature: userObj?.signature || '',
+          verified: Boolean(userObj?.verified),
+          status: userObj?.status || 'active',
+        };
+
+        const stats: ProfileStats = {
+          followerCount: statsObj?.followerCount ?? null,
+          followingCount: statsObj?.followingCount ?? null,
+          heartCount: statsObj?.heartCount ?? null,
+          videoCount: statsObj?.videoCount ?? postVideos.length,
+        };
+
+        if (stats.heartCount === null && postVideos.length > 0) {
+          stats.heartCount = postVideos.reduce((acc, v) => acc + (Number(v.digg_count) || 0), 0);
+        }
+
+        setAuthorProfile(authorInfo);
+        setProfileStats(stats);
+        setVideos(postVideos);
+        setNextCursor(result.data.cursor || null);
+        setHasMore(Boolean(result.data.hasMore && result.data.cursor));
+
+        if (authorInfo.status === 'private') {
+          setErrorMsg(`@${targetUser} is a private TikTok account.`);
+        } else if (postVideos.length === 0) {
+          setErrorMsg(`@${targetUser} has no public videos available or the feed is temporarily unavailable.`);
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Failed to retrieve profile data.';
+        setErrorMsg(msg);
+        setAuthorProfile(null);
+        setProfileStats(null);
+        setVideos([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [usernameInput]
+  );
+
+  const searchedRef = useRef(false);
+  useEffect(() => {
+    if (autoSearch && initialUsername && !searchedRef.current) {
+      searchedRef.current = true;
+      const timer = setTimeout(() => {
+        void handleSearch(initialUsername);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [autoSearch, initialUsername, handleSearch]);
+
+  const handleShowMoreVideos = async () => {
+    if (!authorProfile?.unique_id || !nextCursor || loadingMore) return;
+    setLoadingMore(true);
+
+    try {
+      const batch = await fetchMoreVideosDirect(
+        authorProfile.unique_id,
+        nextCursor,
+        15,
+        authorProfile.secUid || ''
+      );
+
+      if (batch.videos.length > 0) {
+        setVideos((prev) => {
+          const seen = new Set(prev.map((v) => v.id || v.video_id));
+          const appended = [...prev];
+          for (const item of batch.videos) {
+            const key = item.id || item.video_id;
+            if (!seen.has(key)) {
+              appended.push(item);
+              seen.add(key);
+            }
+          }
+          return appended;
+        });
+
+        setNextCursor(batch.cursor);
+        setHasMore(batch.hasMore);
+      } else {
+        setHasMore(false);
+      }
+    } catch {
+      setHasMore(false);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const openModal = async (video: TikTokVideo, cardKey: string) => {
+    const videoId = String(video.video_id || video.id || '');
+    const authorUser = video.author?.unique_id || authorProfile?.unique_id || 'tiktok';
+    activeModalIdRef.current = videoId;
+    activeCardKeyRef.current = cardKey;
+    playbackFallbackStepRef.current = 0;
+
+    setIsVideoPlaying(false);
+    setSelectedVideo(video);
+    const existingUrl = video.play || video.wmplay || '';
+
+    if (!existingUrl || isTikTokCookieCdn(existingUrl)) {
+      setActivePlayUrl('');
+      setVideoResolving(true);
+
+      const resolved = await resolveVideoStreamDirect(videoId, authorUser);
+      if (activeModalIdRef.current !== videoId) return;
+
+      if (resolved?.play) {
+        const finalStream = resolved.needsProxy
+          ? `/api/proxy?url=${encodeURIComponent(resolved.play)}`
+          : resolved.play;
+
+        setActivePlayUrl(finalStream);
+        setSelectedVideo((prev) =>
+          prev
+            ? {
+                ...prev,
+                play: resolved.play,
+                wmplay: resolved.wmplay || prev.wmplay,
+                music: resolved.music || prev.music,
+                music_info: {
+                  ...prev.music_info,
+                  play: resolved.music || prev.music_info?.play,
+                },
+              }
+            : prev
+        );
+      } else if (existingUrl) {
+        setActivePlayUrl(`/api/proxy?url=${encodeURIComponent(existingUrl)}`);
+      }
+      setVideoResolving(false);
+    } else {
+      setActivePlayUrl(existingUrl);
+      setVideoResolving(false);
+    }
+
+    setTimeout(() => {
+      if (modalVideoRef.current) {
+        modalVideoRef.current.setAttribute('referrerpolicy', 'no-referrer');
+        modalVideoRef.current.load();
+        modalVideoRef.current.play().catch(() => {
+          setIsVideoPlaying(false);
+        });
+      }
+    }, 40);
+  };
+
+  const handleCustomPlayClick = () => {
+    if (!modalVideoRef.current) return;
+    modalVideoRef.current.play().catch(() => {});
+  };
+
+  const handleVideoPlayError = async () => {
+    if (!selectedVideo) return;
+    setIsVideoPlaying(false);
+    const step = playbackFallbackStepRef.current;
+    const videoId = String(selectedVideo.video_id || selectedVideo.id || '');
+    const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
+
+    if (step === 0) {
+      playbackFallbackStepRef.current = 1;
+      setVideoResolving(true);
+      const resolved = await resolveVideoStreamDirect(videoId, authorUser);
+      setVideoResolving(false);
+      if (activeModalIdRef.current !== videoId) return;
+
+      const candidate = resolved?.play || resolved?.wmplay || selectedVideo.wmplay || '';
+      if (candidate && candidate !== activePlayUrl) {
+        setActivePlayUrl(
+          resolved?.needsProxy ? `/api/proxy?url=${encodeURIComponent(candidate)}` : candidate
+        );
+        return;
+      }
+    }
+
+    if (step <= 1 && activePlayUrl && !activePlayUrl.startsWith('/api/proxy')) {
+      playbackFallbackStepRef.current = 2;
+      const rawUrl = selectedVideo.play || selectedVideo.wmplay || activePlayUrl;
+      if (rawUrl) {
+        setActivePlayUrl(`/api/proxy?url=${encodeURIComponent(rawUrl)}`);
+      }
+    }
+  };
+
+  const handleDownloadVideo = async () => {
+    if (!selectedVideo || downloadingVideo) return;
+    if (modalVideoRef.current) {
+      modalVideoRef.current.pause();
+    }
+    setDownloadingVideo(true);
+
+    const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
+    const videoId = String(selectedVideo.video_id || selectedVideo.id || Date.now());
+    const filename = `${authorUser}-${videoId}.mp4`;
+
+    let directVideoUrl = selectedVideo.play || selectedVideo.wmplay || '';
+    if (!directVideoUrl || isTikTokCookieCdn(directVideoUrl)) {
+      const resolved = await resolveVideoStreamDirect(videoId, authorUser);
+      if (resolved?.play) {
+        directVideoUrl = resolved.play;
+      }
+    }
+
+    if (directVideoUrl) {
+      lastDownloadedKeyRef.current = activeCardKeyRef.current || String(selectedVideo.video_id || selectedVideo.id || '');
+      setCounterModalData({
+        url: directVideoUrl,
+        filename,
+        mediaType: 'video',
+        title: selectedVideo.title,
+      });
+      setCounterModalOpen(true);
+    } else {
+      alert('Direct video stream URL is unavailable right now. Please try another video.');
+    }
+
+    setDownloadingVideo(false);
+  };
+
+  const handleDownloadAudio = async () => {
+    if (!selectedVideo || downloadingAudio) return;
+    if (modalVideoRef.current) {
+      modalVideoRef.current.pause();
+    }
+    setDownloadingAudio(true);
+
+    const authorUser = selectedVideo.author?.unique_id || authorProfile?.unique_id || 'tiktok';
+    const videoId = String(selectedVideo.video_id || selectedVideo.id || Date.now());
+    const filename = `${authorUser}-${videoId}.mp3`;
+
+    let directAudioUrl = selectedVideo.music_info?.play || selectedVideo.music || '';
+    if (!directAudioUrl) {
+      const resolved = await resolveVideoStreamDirect(videoId, authorUser);
+      directAudioUrl = resolved?.music || '';
+    }
+
+    if (directAudioUrl) {
+      lastDownloadedKeyRef.current = activeCardKeyRef.current || String(selectedVideo.video_id || selectedVideo.id || '');
+      setCounterModalData({
+        url: directAudioUrl,
+        filename,
+        mediaType: 'audio',
+        title: selectedVideo.title,
+      });
+      setCounterModalOpen(true);
+    } else {
+      alert('Direct audio stream URL is unavailable for this video.');
+    }
+
+    setDownloadingAudio(false);
+  };
+
+  const modalAuthorUser = selectedVideo?.author?.unique_id || authorProfile?.unique_id || 'creator';
+  const modalAuthorAvatar =
+    selectedVideo?.author?.avatar ||
+    authorProfile?.avatar ||
+    `/api/avatar?username=${encodeURIComponent(modalAuthorUser)}`;
+
+  return (
+    <div className="w-full flex flex-col items-center">
+      {(title || subtitle) && (
+        <div className="text-center max-w-xl mx-auto mb-4">
+          {title && (
+            <h1 className="text-xl sm:text-2xl font-black text-[#010101] tracking-tight">
+              {title}
+            </h1>
+          )}
+          {subtitle && (
+            <p className="text-xs sm:text-[13px] text-[#2F363D] mt-1 leading-relaxed">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Compact Search Input Box */}
+      <section className="w-full max-w-lg mx-auto mb-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void handleSearch();
+          }}
+          className="relative flex items-center bg-[#FFFFFF] border border-[#CBD5DF] rounded-xl p-1 shadow-sm focus-within:border-[#EE1D52] focus-within:ring-2 focus-within:ring-[#EE1D52]/15 transition-all"
+        >
+          <div className="flex items-center pl-2.5 pr-1 text-[#4D5660] select-none pointer-events-none">
+            <span className="font-bold text-sm text-[#4D5660]">@</span>
+          </div>
+
+          <input
+            type="text"
+            value={usernameInput}
+            onChange={(e) => setUsernameInput(e.target.value)}
+            placeholder="Search TikTok username (e.g. khaby.lame)"
+            disabled={loading}
+            className="w-full bg-transparent py-1.5 sm:py-2 px-1.5 text-xs sm:text-[13px] text-[#010101] font-medium placeholder:text-[#5C6573] focus:outline-none"
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="shrink-0 flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-[#EE1D52] hover:bg-[#D41445] active:scale-[0.98] text-[#FFFFFF] font-bold text-xs shadow-xs transition-all disabled:opacity-60 cursor-pointer"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FFFFFF]" />
+                <span className="hidden sm:inline">Searching...</span>
+              </>
+            ) : (
+              <>
+                <Search className="w-3.5 h-3.5 text-[#FFFFFF]" />
+                <span>Search</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        {!hasActiveResult && (
+          <div className="flex items-center justify-center gap-1.5 mt-2.5 flex-wrap">
+            <span className="text-[11px] text-[#4D5660] font-bold whitespace-nowrap">
+              Trending:
+            </span>
+            {FEATURED_SUGGESTIONS.map((item) => (
+              <button
+                key={item.username}
+                type="button"
+                onClick={() => {
+                  setUsernameInput(item.username);
+                  void handleSearch(item.username);
+                }}
+                className="text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-[#FFFFFF] border border-[#DFE5EA] text-[#010101] hover:text-[#C4113F] hover:bg-[#FFF0F4] hover:border-[#EE1D52]/50 transition-colors whitespace-nowrap cursor-pointer"
+              >
+                @{item.username}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="mt-2.5 p-3 rounded-xl bg-[#FFF0F4] border border-[#EE1D52]/40 text-[#010101] text-xs flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-[#EE1D52] shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-bold text-[#010101]">Profile lookup notice</p>
+              <p className="text-[#2F363D] text-xs mt-0.5">{errorMsg}</p>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Compact Profile Details Container */}
+      {authorProfile && (
+        <section className="w-full mb-5 bg-[#FFFFFF] border border-[#DFE5EA] rounded-xl p-4 sm:p-5 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3.5 sm:gap-4">
+            <div className="relative shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={authorProfile.avatar || `/api/avatar?username=${encodeURIComponent(authorProfile.unique_id)}`}
+                alt={authorProfile.nickname || authorProfile.unique_id}
+                referrerPolicy="no-referrer"
+                className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl object-cover border-2 border-[#69C9D0] bg-[#F0F4F7]"
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  const fallbackSrc = `/api/avatar?username=${encodeURIComponent(authorProfile.unique_id)}`;
+                  if (!target.src.includes('/api/avatar')) {
+                    target.src = fallbackSrc;
+                  }
+                }}
+              />
+            </div>
+
+            <div className="flex-1 min-w-0 w-full flex flex-col justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
+                  <h2 className="text-base sm:text-lg md:text-xl font-extrabold text-[#010101] tracking-tight">
+                    {authorProfile.nickname || authorProfile.unique_id}
+                  </h2>
+
+                  <div className="flex items-center gap-1 ml-0.5">
+                    <a
+                      href={`https://www.tiktok.com/@${authorProfile.unique_id}`}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      referrerPolicy="no-referrer"
+                      className="w-7 h-7 rounded-lg bg-[#F5F7F9] hover:bg-[#E6ECF0] border border-[#DFE5EA] text-[#010101] flex items-center justify-center transition-colors"
+                      title="Open TikTok Profile"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleCopyProfileLink}
+                      className="w-7 h-7 rounded-lg bg-[#F5F7F9] hover:bg-[#E6ECF0] border border-[#DFE5EA] text-[#010101] flex items-center justify-center transition-colors cursor-pointer"
+                      title="Copy Profile Link"
+                    >
+                      {copiedLink ? (
+                        <Check className="w-3.5 h-3.5 text-[#0A6C74]" />
+                      ) : (
+                        <Share2 className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center sm:justify-end gap-1.5 flex-nowrap shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleDownloadAvatar}
+                    className="h-8 px-2.5 sm:px-3 rounded-lg border border-[#CBD5DF] bg-[#F5F7F9] hover:bg-[#ECFAFB] hover:border-[#69C9D0] active:scale-[0.98] text-[#010101] text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all whitespace-nowrap cursor-pointer"
+                    title="Download profile avatar"
+                  >
+                    <Download className="w-3 h-3 text-[#010101]" />
+                    <span>Avatar</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyProfileLink}
+                    className="h-8 px-2.5 sm:px-3 rounded-lg border border-[#CBD5DF] bg-[#F5F7F9] hover:bg-[#ECFAFB] hover:border-[#69C9D0] active:scale-[0.98] text-[#010101] text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all whitespace-nowrap cursor-pointer"
+                    title="Copy profile link"
+                  >
+                    {copiedLink ? (
+                      <>
+                        <Check className="w-3 h-3 text-[#0A6C74]" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 text-[#010101]" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+
+                  <a
+                    href={`https://www.tiktok.com/@${authorProfile.unique_id}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    referrerPolicy="no-referrer"
+                    className="h-8 px-2.5 sm:px-3 rounded-lg border border-[#010101] bg-[#010101] hover:bg-[#1D2126] active:scale-[0.98] text-[#FFFFFF] text-[11px] sm:text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all whitespace-nowrap"
+                    title="Open TikTok profile"
+                  >
+                    <ExternalLink className="w-3 h-3 text-[#69C9D0]" />
+                    <span>TikTok</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-1 flex flex-col gap-1 text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-[#2F363D] flex-wrap">
+                  <span className="font-mono text-[#010101] font-bold">
+                    @{authorProfile.unique_id}
+                  </span>
+                  <span className="text-[#9AA5B1]">•</span>
+                  <span className="text-[#4D5660] font-medium">TikTok Public Creator</span>
+                  {authorProfile.verified && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ECFAFB] border border-[#69C9D0] text-[#0A6C74] text-[10px] font-bold">
+                      <CheckCircle2 className="w-3 h-3 text-[#0A6C74] shrink-0" />
+                      <span>Verified</span>
+                    </span>
+                  )}
+                </div>
+
+                {authorProfile.signature && (
+                  <p className="text-xs text-[#2F363D] line-clamp-2 leading-relaxed mt-0.5 max-w-xl">
+                    {authorProfile.signature}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-[#DFE5EA] my-3" />
+
+          {/* Compact High-Contrast Metrics Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 items-stretch">
+            <div className="h-13 rounded-lg px-3 py-1.5 bg-[#ECFAFB] border border-[#69C9D0]/70 flex flex-col justify-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A6C74] leading-none mb-1">
+                Status
+              </span>
+              <span className="text-xs font-extrabold tracking-tight text-[#010101] leading-tight flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#0A6C74] animate-pulse shrink-0" />
+                <span>{authorProfile.status === 'private' ? 'Private' : 'Active'}</span>
+              </span>
+            </div>
+
+            <div className="h-13 rounded-lg px-3 py-1.5 bg-[#F5F7F9] border border-[#DFE5EA] flex flex-col justify-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#4D5660] leading-none mb-1">
+                Followers
+              </span>
+              <span className="text-sm font-extrabold text-[#010101] font-mono tracking-tight leading-tight truncate">
+                {formatNumber(profileStats?.followerCount)}
+              </span>
+            </div>
+
+            <div className="h-13 rounded-lg px-3 py-1.5 bg-[#FFF0F4] border border-[#EE1D52]/35 flex flex-col justify-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#C4113F] leading-none mb-1">
+                Total Likes
+              </span>
+              <span className="text-sm font-extrabold text-[#010101] font-mono tracking-tight leading-tight truncate">
+                {formatNumber(profileStats?.heartCount)}
+              </span>
+            </div>
+
+            <div className="h-13 rounded-lg px-3 py-1.5 bg-[#F5F7F9] border border-[#DFE5EA] flex flex-col justify-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#4D5660] leading-none mb-1">
+                Following
+              </span>
+              <span className="text-sm font-extrabold text-[#010101] font-mono tracking-tight leading-tight truncate">
+                {formatNumber(profileStats?.followingCount)}
+              </span>
+            </div>
+
+            <div className="h-13 rounded-lg px-3 py-1.5 bg-[#F5F7F9] border border-[#DFE5EA] flex flex-col justify-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#4D5660] leading-none mb-1">
+                Videos
+              </span>
+              <span className="text-sm font-extrabold text-[#010101] font-mono tracking-tight leading-tight truncate">
+                {formatNumber(profileStats?.videoCount ?? videos.length)}
+              </span>
+            </div>
+
+            <div className="h-13 rounded-lg px-3 py-1.5 bg-[#010101] border border-[#010101] flex flex-col justify-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#69C9D0] leading-none mb-1">
+                Account
+              </span>
+              <span className="text-xs font-extrabold tracking-tight text-[#FFFFFF] leading-tight truncate">
+                {authorProfile.verified ? 'Verified' : 'Public'}
+              </span>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Compact Video Grid Section */}
+      {videos.length > 0 && !loading && (
+        <section className="w-full flex flex-col gap-3 my-1.5">
+          <AdSlot placement="above_grid" />
+          <div className="flex items-center justify-between border-b border-[#DFE5EA] pb-2">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-extrabold text-[#010101]">
+                Videos
+              </h3>
+              <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-[#010101] text-[#FFFFFF]">
+                {videos.length} loaded
+              </span>
+            </div>
+            <div className="text-[11px] font-semibold text-[#4D5660]">
+              Click any video to watch and download
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+            {videos.map((video, index) => {
+              const videoKey = String(video.video_id || video.id || index);
+              const coverImg = video.cover || video.origin_cover || '';
+              const duration = formatDuration(video.duration);
+              const isHighlighted = highlightedVideoKey === videoKey;
+
+              return (
+                <div
+                  key={videoKey}
+                  ref={(el) => {
+                    if (el) {
+                      videoCardRefs.current.set(videoKey, el);
+                    } else {
+                      videoCardRefs.current.delete(videoKey);
+                    }
+                  }}
+                  onClick={() => void openModal(video, videoKey)}
+                  className={`relative aspect-[9/16] rounded-lg overflow-hidden bg-[#010101] border cursor-pointer shadow-xs group transition-all ${
+                    isHighlighted
+                      ? 'border-[#EE1D52] ring-2 ring-[#EE1D52] ring-offset-2'
+                      : 'border-[#DFE5EA] hover:border-[#EE1D52] hover:shadow-md'
+                  }`}
+                >
+                  {coverImg ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={coverImg}
+                      alt={video.title || 'TikTok video'}
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                      data-step="0"
+                      className="w-full h-full object-cover bg-[#010101] pointer-events-none"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        const step = target.getAttribute('data-step') || '0';
+
+                        if (step === '0' && video.origin_cover && video.origin_cover !== coverImg) {
+                          target.setAttribute('data-step', '1');
+                          target.src = video.origin_cover;
+                          return;
+                        }
+
+                        if (step === '0' || step === '1') {
+                          target.setAttribute('data-step', '2');
+                          const rawCover = video.cover || video.origin_cover || '';
+                          if (rawCover && !rawCover.startsWith('/api/proxy')) {
+                            target.src = `/api/proxy?url=${encodeURIComponent(rawCover)}`;
+                            return;
+                          }
+                        }
+
+                        target.style.display = 'none';
+                      }}
+                    />
+                  ) : null}
+
+                  {/* Compact Play Button on Hover */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-[#010101]/35 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <div className="w-10 h-10 rounded-xl bg-[#EE1D52]/95 text-[#FFFFFF] flex items-center justify-center shadow-lg ring-2 ring-[#FFFFFF]/65 transform transition-transform group-hover:scale-105">
+                      <Play className="w-4 h-4 fill-[#FFFFFF] text-[#FFFFFF] translate-x-0.5" />
+                    </div>
+                  </div>
+
+                  <div className="absolute inset-x-0 top-0 p-1.5 flex justify-between items-start bg-gradient-to-b from-[#010101]/75 via-[#010101]/25 to-transparent pointer-events-none">
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#010101]/85 text-[#FFFFFF]">
+                      #{index + 1}
+                    </span>
+                    {duration && (
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#010101]/85 text-[#FFFFFF]">
+                        {duration}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="absolute inset-x-0 bottom-0 px-2 py-2 bg-gradient-to-t from-[#010101]/95 via-[#010101]/75 to-transparent flex flex-col gap-1 pointer-events-none">
+                    <p className="text-[11px] text-[#FFFFFF] line-clamp-2 font-semibold leading-tight">
+                      {video.title || 'Watch Video'}
+                    </p>
+
+                    <div className="grid grid-cols-3 items-center text-[10px] text-[#FFFFFF] font-mono font-bold pt-1 border-t border-[#FFFFFF]/25 w-full">
+                      <span className="flex items-center justify-start gap-1 text-[#FFFFFF] min-w-0" title={`${video.play_count || 0} views`}>
+                        <Play className="w-2.5 h-2.5 fill-[#FFFFFF] text-[#FFFFFF] shrink-0" />
+                        <span className="truncate">{formatNumber(video.play_count)}</span>
+                      </span>
+
+                      <span className="flex items-center justify-center gap-1 text-[#FFFFFF] min-w-0" title={`${video.digg_count || 0} likes`}>
+                        <Heart className="w-2.5 h-2.5 fill-[#EE1D52] text-[#EE1D52] shrink-0" />
+                        <span className="truncate">{formatNumber(video.digg_count)}</span>
+                      </span>
+
+                      <span className="flex items-center justify-end gap-1 text-[#FFFFFF] min-w-0" title={`${video.share_count || 0} shares`}>
+                        <Share2 className="w-2.5 h-2.5 text-[#69C9D0] shrink-0" />
+                        <span className="truncate">{formatNumber(video.share_count)}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {hasMore && (
+            <div className="flex flex-col items-center justify-center pt-4 pb-1">
+              <button
+                type="button"
+                onClick={() => void handleShowMoreVideos()}
+                disabled={loadingMore}
+                className="px-6 py-2.5 rounded-lg bg-[#010101] hover:bg-[#EE1D52] active:scale-[0.98] text-[#FFFFFF] font-bold text-xs tracking-wide uppercase flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FFFFFF]" />
+                    <span>Loading more videos...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>SHOW MORE VIDEOS</span>
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </>
+                )}
+              </button>
+              <p className="text-[11px] text-[#4D5660] font-semibold mt-1.5">
+                Showing {videos.length} of {profileStats?.videoCount || 'all'} videos
+              </p>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Video Player Modal - Compact Studio Frame matching Counter Modal Dimensions */}
+      {selectedVideo && (
+        <div
+          onClick={closeModal}
+          className="fixed inset-0 z-50 bg-[#010101]/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-[400px] sm:max-w-[430px] h-[540px] sm:h-[580px] max-h-[90vh] bg-[#FFFFFF] rounded-2xl overflow-hidden shadow-2xl border border-[#CBD5DF] flex flex-col justify-between animate-in fade-in zoom-in-95 duration-200"
+          >
+            {/* Dark Modal Header */}
+            <div className="bg-[#010101] text-[#FFFFFF] px-3.5 py-2.5 border-b border-[#2F363D] flex items-center justify-between gap-2.5 shrink-0">
+              <div className="flex items-center gap-2 min-w-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={modalAuthorAvatar}
+                  alt={modalAuthorUser}
+                  referrerPolicy="no-referrer"
+                  className="w-6 h-6 rounded-full object-cover border border-[#69C9D0] bg-[#1D2126] shrink-0"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (!target.src.includes('/api/avatar')) {
+                      target.src = `/api/avatar?username=${encodeURIComponent(modalAuthorUser)}`;
+                    }
+                  }}
+                />
+                <div className="min-w-0 flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-[#FFFFFF] truncate">
+                    @{modalAuthorUser}
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#69C9D0]/20 border border-[#69C9D0]/50 text-[#69C9D0] text-[10px] font-bold uppercase tracking-wider shrink-0">
+                    <Film className="w-2.5 h-2.5" />
+                    <span>HD</span>
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeModal}
+                className="w-7 h-7 rounded-full bg-[#FFFFFF]/15 hover:bg-[#EE1D52] text-[#FFFFFF] flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0"
+                title="Close modal (Esc)"
+                aria-label="Close modal"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Cinema Video Viewport */}
+            <div className="relative flex-1 min-h-0 bg-[#010101] flex items-center justify-center w-full overflow-hidden">
+              {videoResolving && (
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[#010101]/85 text-[#FFFFFF]">
+                  <Loader2 className="w-7 h-7 animate-spin text-[#EE1D52]" />
+                  <span className="text-xs font-semibold text-[#FFFFFF]">Loading HD stream...</span>
+                </div>
+              )}
+
+              {!isVideoPlaying && !videoResolving && (
+                <button
+                  type="button"
+                  onClick={handleCustomPlayClick}
+                  aria-label="Play video"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-13 h-13 rounded-xl bg-[#EE1D52]/95 hover:bg-[#D41445] text-[#FFFFFF] ring-4 ring-[#FFFFFF]/30 shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                >
+                  <Play className="w-6 h-6 fill-[#FFFFFF] text-[#FFFFFF] translate-x-0.5" />
+                </button>
+              )}
+
+              <video
+                ref={modalVideoRef}
+                src={activePlayUrl || undefined}
+                poster={selectedVideo.cover || selectedVideo.origin_cover || undefined}
+                controls
+                playsInline
+                autoPlay
+                preload="metadata"
+                onPlay={() => setIsVideoPlaying(true)}
+                onPause={() => setIsVideoPlaying(false)}
+                onEnded={() => setIsVideoPlaying(false)}
+                onCanPlay={() => setVideoResolving(false)}
+                onError={() => void handleVideoPlayError()}
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            {/* Compact Bottom Info & Action Panel */}
+            <div className="p-3.5 sm:p-4 flex flex-col gap-2.5 bg-[#FFFFFF] border-t border-[#DFE5EA] shrink-0">
+              <p className="text-xs font-bold text-[#010101] line-clamp-2 leading-snug break-words">
+                {selectedVideo.title || 'TikTok Video'}
+              </p>
+
+              <div className="flex items-center justify-between text-[11px] text-[#010101] bg-[#F5F7F9] px-3 py-2 rounded-lg border border-[#DFE5EA] font-mono font-bold">
+                <span className="flex items-center gap-1 text-[#010101]">
+                  <Play className="w-3 h-3 fill-[#010101] text-[#010101]" />
+                  <span>{formatNumber(selectedVideo.play_count)}</span>
+                </span>
+                <span className="flex items-center gap-1 text-[#C4113F]">
+                  <Heart className="w-3 h-3 fill-[#EE1D52] text-[#EE1D52]" />
+                  <span>{formatNumber(selectedVideo.digg_count)}</span>
+                </span>
+                <span className="flex items-center gap-1 text-[#0A6C74]">
+                  <Share2 className="w-3 h-3 text-[#0A6C74]" />
+                  <span>{formatNumber(selectedVideo.share_count)}</span>
+                </span>
+                {selectedVideo.duration ? (
+                  <span className="text-[#4D5660]">{formatDuration(selectedVideo.duration)}</span>
+                ) : null}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+                <button
+                  type="button"
+                  disabled={downloadingVideo || downloadingAudio}
+                  onClick={() => void handleDownloadVideo()}
+                  className="w-full py-2.5 px-3.5 rounded-lg bg-[#EE1D52] hover:bg-[#D41445] active:scale-[0.99] text-[#FFFFFF] font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {downloadingVideo ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FFFFFF]" />
+                      <span>Preparing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download HD Video</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={downloadingVideo || downloadingAudio}
+                  onClick={() => void handleDownloadAudio()}
+                  className="w-full py-2.5 px-3.5 rounded-lg bg-[#010101] hover:bg-[#1D2126] active:scale-[0.99] text-[#FFFFFF] font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {downloadingAudio ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FFFFFF]" />
+                      <span>Preparing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Music className="w-3.5 h-3.5 text-[#69C9D0]" />
+                      <span>Download Audio (MP3)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!hasActiveResult && children}
+
+      <DownloadCounterModal
+        isOpen={counterModalOpen}
+        onClose={handleCloseCounterModal}
+        downloadUrl={counterModalData.url}
+        fileName={counterModalData.filename}
+        mediaType={counterModalData.mediaType}
+        title={counterModalData.title}
+      />
+    </div>
+  );
+}

@@ -29,7 +29,7 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-[#111827]">
+    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
       <Navbar />
 
       <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -42,10 +42,10 @@ export default function CategoriesPage() {
 
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-10">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#111827] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight">
             Explore TikTok by Category
           </h1>
-          <p className="text-sm sm:text-base text-[#4B5563] mt-2 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-700 mt-2 leading-relaxed">
             Browse creators and videos by their content topic.
           </p>
         </div>
@@ -56,27 +56,27 @@ export default function CategoriesPage() {
             <Link
               key={cat.slug}
               href={`/category/${cat.slug}`}
-              className="group p-6 rounded-xl bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#9CA3AF] transition-colors flex flex-col justify-between"
+              className="group p-6 rounded-xl bg-white border border-slate-300/80 hover:border-[#e11d48]/60 hover:shadow-md transition-all flex flex-col justify-between shadow-xs"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FDF2F4] flex items-center justify-center text-[#BE123C] group-hover:bg-[#D61C47] group-hover:text-[#FFFFFF] transition-colors">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center group-hover:bg-[#e11d48] transition-all">
                     <Play className="w-5 h-5 fill-current translate-x-0.5" />
                   </div>
-                  <span className="text-xs font-mono font-medium px-2.5 py-1 rounded-full bg-[#F8F9FA] text-[#5C6573] border border-[#E5E7EB]">
+                  <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800">
                     {cat.creatorUsernames.length} Creators
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-[#111827] transition-colors">
+                <h3 className="text-lg font-bold text-slate-950 group-hover:text-[#e11d48] transition-colors">
                   {cat.name}
                 </h3>
-                <p className="text-xs sm:text-sm text-[#4B5563] mt-2 line-clamp-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-700 mt-2 line-clamp-2 leading-relaxed">
                   {cat.shortDescription}
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-[#E5E7EB] flex items-center justify-between text-xs text-[#111827] font-medium">
+              <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-900 group-hover:text-[#e11d48] font-bold transition-colors">
                 <span>Browse {cat.name}</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </div>

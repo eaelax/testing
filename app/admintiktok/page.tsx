@@ -62,10 +62,10 @@ const SAMPLE_TEMPLATES = {
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>`,
-  banner: `<div style="background:#111827;color:#fff;border-radius:10px;padding:14px;text-align:center;">
-  <span style="font-size:10px;background:#D61C47;color:#fff;padding:2px 8px;border-radius:4px;font-weight:700;">SPONSORED</span>
+  banner: `<div style="background:#0f172a;color:#fff;border-radius:10px;padding:14px;text-align:center;">
+  <span style="font-size:10px;background:#01ebe4;color:#000;padding:2px 8px;border-radius:4px;font-weight:700;">SPONSORED</span>
   <h4 style="margin:6px 0 2px;font-size:13px;font-weight:700;">Download TikTok Videos in Full 4K Quality</h4>
-  <p style="margin:0;font-size:11px;color:#D1D5DB;">Fast, unlimited, no watermark.</p>
+  <p style="margin:0;font-size:11px;color:#94a3b8;">Fast, unlimited, no watermark.</p>
 </div>`,
 };
 
@@ -83,6 +83,7 @@ export default function AdminTikTokPage() {
   const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
 
   useEffect(() => {
+    // Check session authentication on client mount
     const timer = setTimeout(() => {
       if (typeof window !== 'undefined') {
         const isAuth = sessionStorage.getItem(ADMIN_STORAGE_KEY) === 'true';
@@ -110,12 +111,14 @@ export default function AdminTikTokPage() {
     setIsAuthenticated(false);
   };
 
+  // Handle Save
   const handleSave = () => {
     saveSettings(localSettings);
     setSavedToast(true);
     setTimeout(() => setSavedToast(false), 2500);
   };
 
+  // Reset to Defaults
   const handleReset = () => {
     if (confirm('Are you sure you want to reset all settings to defaults?')) {
       setLocalSettings(DEFAULT_SETTINGS);
@@ -125,6 +128,7 @@ export default function AdminTikTokPage() {
     }
   };
 
+  // Add new ad
   const handleAddAd = () => {
     const newAd: AdPlacement = {
       id: `ad-${Date.now()}`,
@@ -141,6 +145,7 @@ export default function AdminTikTokPage() {
     }));
   };
 
+  // Delete ad
   const handleDeleteAd = (id: string) => {
     setLocalSettings((prev) => ({
       ...prev,
@@ -148,6 +153,7 @@ export default function AdminTikTokPage() {
     }));
   };
 
+  // Update specific ad
   const handleUpdateAd = (id: string, updates: Partial<AdPlacement>) => {
     setLocalSettings((prev) => ({
       ...prev,
@@ -157,8 +163,8 @@ export default function AdminTikTokPage() {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F3F4F6]">
-        <div className="w-8 h-8 rounded-full border-2 border-[#D61C47] border-t-transparent animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#eef2f6]">
+        <div className="w-8 h-8 rounded-full border-2 border-slate-950 border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -166,26 +172,26 @@ export default function AdminTikTokPage() {
   // Password Protection Gate
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-[#111827]">
+      <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
         <Navbar />
 
         <main className="flex-1 max-w-md w-full mx-auto px-4 py-16 flex flex-col items-center justify-center">
-          <div className="w-full bg-[#FFFFFF] rounded-2xl border border-[#E5E7EB] p-6 sm:p-8">
-            <div className="w-12 h-12 rounded-xl bg-[#111827] text-[#FFFFFF] flex items-center justify-center mb-4 mx-auto">
+          <div className="w-full bg-white rounded-2xl border border-slate-300/80 shadow-xl p-6 sm:p-8">
+            <div className="w-12 h-12 rounded-xl bg-slate-950 text-white flex items-center justify-center mb-4 mx-auto shadow-sm">
               <Lock className="w-6 h-6" />
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-black text-center text-[#111827] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-center text-slate-950 tracking-tight">
               Admin Access Protected
             </h1>
 
-            <p className="text-xs sm:text-sm text-center text-[#4B5563] mt-1.5 leading-relaxed">
+            <p className="text-xs sm:text-sm text-center text-slate-700 mt-1.5 leading-relaxed">
               Enter the administrator password to access Tik Profiles Viewer settings and ad controls.
             </p>
 
             <form onSubmit={handleLogin} className="mt-6 flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                   Admin Password
                 </label>
                 <input
@@ -195,12 +201,12 @@ export default function AdminTikTokPage() {
                   placeholder="Enter administrator password..."
                   required
                   autoFocus
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] text-[#111827] text-sm focus:outline-none focus:border-[#D61C47] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-950 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-transparent transition-all"
                 />
               </div>
 
               {authError && (
-                <div className="p-3 rounded-xl bg-[#FDF2F4] border border-[#FECDD3] text-[#BE123C] text-xs flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-xs font-medium flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 shrink-0" />
                   <span>{authError}</span>
                 </div>
@@ -208,15 +214,15 @@ export default function AdminTikTokPage() {
 
               <button
                 type="submit"
-                className="w-full py-3 px-4 rounded-xl bg-[#D61C47] hover:bg-[#B9153B] active:scale-[0.98] text-[#FFFFFF] font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl bg-slate-950 hover:bg-black active:scale-[0.98] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
               >
                 <Unlock className="w-4 h-4" />
                 <span>Unlock Admin Panel</span>
               </button>
 
               <div className="text-center pt-2">
-                <span className="text-[11px] text-[#5C6573]">
-                  Default password: <code className="bg-[#F8F9FA] border border-[#E5E7EB] px-1.5 py-0.5 rounded font-mono text-[#111827] font-bold">{ADMIN_PASSWORD_DEFAULT}</code>
+                <span className="text-[11px] text-slate-600">
+                  Default password: <code className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded font-mono text-slate-900 font-bold">{ADMIN_PASSWORD_DEFAULT}</code>
                 </span>
               </div>
             </form>
@@ -229,24 +235,24 @@ export default function AdminTikTokPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-[#111827]">
+    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
       <Navbar />
 
       <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumbs items={[{ label: 'Admin Control Panel' }]} />
 
         {/* Top Header with Logout */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6 pb-6 border-b border-[#E5E7EB]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6 pb-6 border-b border-slate-300/80">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-[#111827] text-[#FFFFFF]">
+              <span className="p-1.5 rounded-lg bg-slate-950 text-white">
                 <Settings className="w-5 h-5" />
               </span>
-              <h1 className="text-2xl sm:text-3xl font-black text-[#111827] tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
                 Website Admin Panel
               </h1>
             </div>
-            <p className="text-xs sm:text-sm text-[#4B5563] mt-1">
+            <p className="text-xs sm:text-sm text-slate-700 mt-1">
               Configure ads code &amp; placements and customize the download modal countdown.
             </p>
           </div>
@@ -255,7 +261,7 @@ export default function AdminTikTokPage() {
             <button
               type="button"
               onClick={handleReset}
-              className="px-3.5 py-2 rounded-xl border border-[#D1D5DB] bg-[#FFFFFF] hover:bg-[#F3F4F6] text-[#1F2937] font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset Defaults</span>
@@ -264,7 +270,7 @@ export default function AdminTikTokPage() {
             <button
               type="button"
               onClick={handleSave}
-              className="px-4 py-2 rounded-xl bg-[#D61C47] hover:bg-[#B9153B] active:scale-[0.98] text-[#FFFFFF] font-bold text-xs sm:text-sm flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="px-4 py-2 rounded-xl bg-slate-950 hover:bg-black active:scale-[0.98] text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Save Changes</span>
@@ -273,7 +279,7 @@ export default function AdminTikTokPage() {
             <button
               type="button"
               onClick={handleLogout}
-              className="px-3.5 py-2 rounded-xl border border-[#FECDD3] bg-[#FDF2F4] hover:bg-[#FCE7EB] text-[#BE123C] font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="px-3.5 py-2 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
               title="Log out of admin session"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -284,21 +290,21 @@ export default function AdminTikTokPage() {
 
         {/* Save Toast */}
         {savedToast && (
-          <div className="my-4 p-3.5 rounded-xl bg-[#F0FDFA] border border-[#99F6E4]/70 text-[#0F766E] text-xs sm:text-sm font-semibold flex items-center gap-2 animate-in fade-in duration-200">
-            <Check className="w-4 h-4 text-[#0F766E] shrink-0" />
+          <div className="my-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs animate-in fade-in duration-200">
+            <Check className="w-4 h-4 text-emerald-700 shrink-0" />
             <span>Settings saved successfully! The live website is updated.</span>
           </div>
         )}
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 mt-6 border-b border-[#E5E7EB] overflow-x-auto pb-px">
+        <div className="flex items-center gap-2 mt-6 border-b border-slate-300/80 overflow-x-auto pb-px">
           <button
             type="button"
             onClick={() => setActiveTab('counter')}
-            className={`px-4 py-2.5 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
+            className={`px-4 py-2.5 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'counter'
-                ? 'border-[#D61C47] text-[#111827]'
-                : 'border-transparent text-[#5C6573] hover:text-[#111827]'
+                ? 'border-slate-950 text-slate-950'
+                : 'border-transparent text-slate-600 hover:text-slate-950'
             }`}
           >
             <Clock className="w-4 h-4" />
@@ -308,15 +314,15 @@ export default function AdminTikTokPage() {
           <button
             type="button"
             onClick={() => setActiveTab('ads')}
-            className={`px-4 py-2.5 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
+            className={`px-4 py-2.5 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'ads'
-                ? 'border-[#D61C47] text-[#111827]'
-                : 'border-transparent text-[#5C6573] hover:text-[#111827]'
+                ? 'border-slate-950 text-slate-950'
+                : 'border-transparent text-slate-600 hover:text-slate-950'
             }`}
           >
             <Layout className="w-4 h-4" />
             <span>Ads Placements &amp; Codes</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#F1F5F9] text-[#334155] font-mono">
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-mono">
               {localSettings.ads.length}
             </span>
           </button>
@@ -324,10 +330,10 @@ export default function AdminTikTokPage() {
           <button
             type="button"
             onClick={() => setActiveTab('general')}
-            className={`px-4 py-2.5 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
+            className={`px-4 py-2.5 font-bold text-xs sm:text-sm border-b-2 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'general'
-                ? 'border-[#D61C47] text-[#111827]'
-                : 'border-transparent text-[#5C6573] hover:text-[#111827]'
+                ? 'border-slate-950 text-slate-950'
+                : 'border-transparent text-slate-600 hover:text-slate-950'
             }`}
           >
             <Megaphone className="w-4 h-4" />
@@ -338,12 +344,12 @@ export default function AdminTikTokPage() {
         {/* TAB 1: Counter & Modal Settings */}
         {activeTab === 'counter' && (
           <div className="mt-6 space-y-6">
-            <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E5E7EB] space-y-5">
+            <div className="p-6 rounded-2xl bg-white border border-slate-300/80 shadow-xs space-y-5">
               <div>
-                <h3 className="text-base font-bold text-[#111827]">
+                <h3 className="text-base font-bold text-slate-950">
                   Download Counter Duration (Seconds)
                 </h3>
-                <p className="text-xs text-[#4B5563] mt-0.5 leading-relaxed">
+                <p className="text-xs text-slate-700 mt-0.5 leading-relaxed">
                   How many seconds the countdown circle waits before the file download starts in the browser.
                 </p>
               </div>
@@ -361,11 +367,11 @@ export default function AdminTikTokPage() {
                       downloadCounterSeconds: parseInt(e.target.value, 10) || 5,
                     }))
                   }
-                  className="w-64 h-2 bg-[#E5E7EB] rounded-lg appearance-none cursor-pointer accent-[#D61C47]"
+                  className="w-64 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-950"
                 />
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F8F9FA] border border-[#E5E7EB] font-mono font-bold text-[#111827] text-sm">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 font-mono font-bold text-slate-950 text-sm">
                   <span>{localSettings.downloadCounterSeconds}</span>
-                  <span className="text-xs text-[#5C6573]">sec</span>
+                  <span className="text-xs text-slate-600">sec</span>
                 </div>
               </div>
 
@@ -381,10 +387,10 @@ export default function AdminTikTokPage() {
                         downloadCounterSeconds: sec,
                       }))
                     }
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                       localSettings.downloadCounterSeconds === sec
-                        ? 'bg-[#111827] text-[#FFFFFF] border-[#111827]'
-                        : 'bg-[#FFFFFF] hover:bg-[#F3F4F6] text-[#1F2937] border-[#D1D5DB]'
+                        ? 'bg-slate-950 text-white'
+                        : 'bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-800'
                     }`}
                   >
                     {sec} seconds
@@ -394,14 +400,14 @@ export default function AdminTikTokPage() {
             </div>
 
             {/* Modal Text Customization */}
-            <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E5E7EB] space-y-4">
-              <h3 className="text-base font-bold text-[#111827]">
+            <div className="p-6 rounded-2xl bg-white border border-slate-300/80 shadow-xs space-y-4">
+              <h3 className="text-base font-bold text-slate-950">
                 Modal Custom Messages
               </h3>
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
                     Waiting / Preparing Message
                   </label>
                   <input
@@ -413,12 +419,12 @@ export default function AdminTikTokPage() {
                         downloadPreparingText: e.target.value,
                       }))
                     }
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] text-xs sm:text-sm font-medium text-[#111827] focus:outline-none focus:border-[#D61C47]"
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-950 text-xs sm:text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
                     Ready Message
                   </label>
                   <input
@@ -430,7 +436,7 @@ export default function AdminTikTokPage() {
                         downloadSuccessText: e.target.value,
                       }))
                     }
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] text-xs sm:text-sm font-medium text-[#111827] focus:outline-none focus:border-[#D61C47]"
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-950 text-xs sm:text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950"
                   />
                 </div>
               </div>
@@ -440,7 +446,7 @@ export default function AdminTikTokPage() {
                 <button
                   type="button"
                   onClick={() => setTestModalOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-[#FFFFFF] border border-[#D1D5DB] hover:bg-[#F3F4F6] active:scale-[0.98] text-[#1F2937] text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded-xl bg-slate-100 border border-slate-300 hover:bg-slate-200 active:scale-[0.98] text-slate-900 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Preview Download Modal with current settings</span>
@@ -455,10 +461,10 @@ export default function AdminTikTokPage() {
           <div className="mt-6 space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-bold text-[#111827]">
+                <h3 className="text-base font-bold text-slate-950">
                   Active Ad Slots &amp; Banners
                 </h3>
-                <p className="text-xs text-[#4B5563] mt-0.5">
+                <p className="text-xs text-slate-700 mt-0.5">
                   Insert Google AdSense, direct banner HTML, or ad network scripts. Placements with empty code are automatically hidden.
                 </p>
               </div>
@@ -466,7 +472,7 @@ export default function AdminTikTokPage() {
               <button
                 type="button"
                 onClick={handleAddAd}
-                className="px-3.5 py-2 rounded-xl bg-[#111827] hover:bg-[#1F2937] text-[#FFFFFF] text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                className="px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-black text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Ad Placement</span>
@@ -478,9 +484,9 @@ export default function AdminTikTokPage() {
               {localSettings.ads.map((ad) => (
                 <div
                   key={ad.id}
-                  className="p-5 sm:p-6 rounded-2xl bg-[#FFFFFF] border border-[#E5E7EB] space-y-4"
+                  className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-300/80 shadow-xs space-y-4"
                 >
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB]">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
                     <div className="flex items-center gap-2.5">
                       <input
                         type="checkbox"
@@ -489,19 +495,19 @@ export default function AdminTikTokPage() {
                           handleUpdateAd(ad.id, { enabled: e.target.checked })
                         }
                         id={`toggle-${ad.id}`}
-                        className="w-4 h-4 rounded text-[#D61C47] accent-[#D61C47] cursor-pointer"
+                        className="w-4 h-4 rounded text-slate-950 accent-slate-950 cursor-pointer"
                       />
                       <label
                         htmlFor={`toggle-${ad.id}`}
-                        className="text-sm font-bold text-[#111827] cursor-pointer"
+                        className="text-sm font-bold text-slate-950 cursor-pointer"
                       >
                         {ad.name}
                       </label>
                       <span
-                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                           ad.enabled
-                            ? 'bg-[#F0FDFA] text-[#0F766E] border-[#99F6E4]/70'
-                            : 'bg-[#F8F9FA] text-[#5C6573] border-[#E5E7EB]'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            : 'bg-slate-100 text-slate-600 border border-slate-300'
                         }`}
                       >
                         {ad.enabled ? 'Enabled' : 'Disabled'}
@@ -511,7 +517,7 @@ export default function AdminTikTokPage() {
                     <button
                       type="button"
                       onClick={() => handleDeleteAd(ad.id)}
-                      className="text-xs text-[#BE123C] hover:text-[#9F1239] flex items-center gap-1 cursor-pointer"
+                      className="text-xs font-bold text-rose-700 hover:text-rose-900 flex items-center gap-1 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Delete</span>
@@ -521,7 +527,7 @@ export default function AdminTikTokPage() {
                   {/* Form fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-[11px] font-bold text-[#111827] uppercase tracking-wider mb-1">
+                      <label className="block text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-1">
                         Placement Location
                       </label>
                       <select
@@ -531,7 +537,7 @@ export default function AdminTikTokPage() {
                             placement: e.target.value as AdPlacement['placement'],
                           })
                         }
-                        className="w-full px-3 py-2 rounded-xl border border-[#D1D5DB] text-xs font-medium bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D61C47]"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium text-slate-950 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950"
                       >
                         {PLACEMENT_OPTIONS.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -542,7 +548,7 @@ export default function AdminTikTokPage() {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-bold text-[#111827] uppercase tracking-wider mb-1">
+                      <label className="block text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-1">
                         Dimensions
                       </label>
                       <select
@@ -552,7 +558,7 @@ export default function AdminTikTokPage() {
                             dimension: e.target.value as AdPlacement['dimension'],
                           })
                         }
-                        className="w-full px-3 py-2 rounded-xl border border-[#D1D5DB] text-xs font-medium bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D61C47]"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium text-slate-950 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950"
                       >
                         {DIMENSION_OPTIONS.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -563,7 +569,7 @@ export default function AdminTikTokPage() {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-bold text-[#111827] uppercase tracking-wider mb-1">
+                      <label className="block text-[11px] font-bold text-slate-800 uppercase tracking-wider mb-1">
                         Slot Name / Label
                       </label>
                       <input
@@ -572,7 +578,7 @@ export default function AdminTikTokPage() {
                         onChange={(e) =>
                           handleUpdateAd(ad.id, { name: e.target.value })
                         }
-                        className="w-full px-3 py-2 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] text-xs font-medium text-[#111827] focus:outline-none focus:border-[#D61C47]"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium text-slate-950 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950"
                       />
                     </div>
                   </div>
@@ -580,7 +586,7 @@ export default function AdminTikTokPage() {
                   {/* Code editor textarea */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="block text-[11px] font-bold text-[#111827] uppercase tracking-wider">
+                      <label className="block text-[11px] font-bold text-slate-800 uppercase tracking-wider">
                         HTML / JavaScript Ad Code
                       </label>
                       <div className="flex items-center gap-2">
@@ -589,17 +595,17 @@ export default function AdminTikTokPage() {
                           onClick={() =>
                             handleUpdateAd(ad.id, { code: SAMPLE_TEMPLATES.adsense })
                           }
-                          className="text-[10px] text-[#BE123C] hover:underline cursor-pointer"
+                          className="text-[10px] font-semibold text-sky-700 hover:underline cursor-pointer"
                         >
                           Insert AdSense template
                         </button>
-                        <span className="text-[#D1D5DB]">•</span>
+                        <span className="text-slate-400">•</span>
                         <button
                           type="button"
                           onClick={() =>
                             handleUpdateAd(ad.id, { code: SAMPLE_TEMPLATES.banner })
                           }
-                          className="text-[10px] text-[#BE123C] hover:underline cursor-pointer"
+                          className="text-[10px] font-semibold text-sky-700 hover:underline cursor-pointer"
                         >
                           Insert HTML banner template
                         </button>
@@ -612,7 +618,7 @@ export default function AdminTikTokPage() {
                         handleUpdateAd(ad.id, { code: e.target.value })
                       }
                       placeholder="Paste ad script, Google AdSense tag, or HTML banner here..."
-                      className="w-full px-3 py-2 rounded-xl border border-[#D1D5DB] font-mono text-xs text-[#111827] focus:outline-none focus:border-[#D61C47] bg-[#F9FAFB]"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-xs text-slate-950 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 bg-slate-50"
                     />
                   </div>
                 </div>
@@ -624,14 +630,14 @@ export default function AdminTikTokPage() {
         {/* TAB 3: General & Brand */}
         {activeTab === 'general' && (
           <div className="mt-6 space-y-6">
-            <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E5E7EB] space-y-4">
-              <h3 className="text-base font-bold text-[#111827]">
+            <div className="p-6 rounded-2xl bg-white border border-slate-300/80 shadow-xs space-y-4">
+              <h3 className="text-base font-bold text-slate-950">
                 Brand &amp; Domain Information
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
                     Web Service Name
                   </label>
                   <input
@@ -643,12 +649,12 @@ export default function AdminTikTokPage() {
                         siteName: e.target.value,
                       }))
                     }
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] text-xs sm:text-sm font-medium text-[#111827] focus:outline-none focus:border-[#D61C47]"
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-950 text-xs sm:text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
                     Domain Name
                   </label>
                   <input
@@ -660,21 +666,21 @@ export default function AdminTikTokPage() {
                         domainName: e.target.value,
                       }))
                     }
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] text-xs sm:text-sm font-medium text-[#111827] focus:outline-none focus:border-[#D61C47]"
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-950 text-xs sm:text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Custom Head Code */}
-            <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E5E7EB] space-y-3">
+            {/* Custom Head Code (e.g. Analytics, Meta Verification) */}
+            <div className="p-6 rounded-2xl bg-white border border-slate-300/80 shadow-xs space-y-3">
               <div className="flex items-center gap-2">
-                <Code2 className="w-4 h-4 text-[#4B5563]" />
-                <h3 className="text-base font-bold text-[#111827]">
+                <Code2 className="w-4 h-4 text-slate-800" />
+                <h3 className="text-base font-bold text-slate-950">
                   Custom Head Scripts &amp; Analytics
                 </h3>
               </div>
-              <p className="text-xs text-[#4B5563] leading-relaxed">
+              <p className="text-xs text-slate-700 leading-relaxed">
                 Add Google Tag Manager, Google Analytics, or verification meta tags.
               </p>
               <textarea
@@ -687,7 +693,7 @@ export default function AdminTikTokPage() {
                   }))
                 }
                 placeholder="<!-- Paste Google Tag Manager or Google Analytics code here -->"
-                className="w-full px-3 py-2 rounded-xl border border-[#D1D5DB] font-mono text-xs text-[#111827] focus:outline-none focus:border-[#D61C47] bg-[#F9FAFB]"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-xs text-slate-950 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 bg-slate-50"
               />
             </div>
           </div>

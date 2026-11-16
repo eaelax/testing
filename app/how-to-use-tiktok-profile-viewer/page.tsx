@@ -73,10 +73,10 @@ export default function HowToUsePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
@@ -85,39 +85,39 @@ export default function HowToUsePage() {
         <Breadcrumbs items={[{ label: 'How to Use Tik Profiles Viewer' }]} />
 
         {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto my-8">
-          <h1 className="text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-tight">
+        <div className="text-center max-w-2xl mx-auto my-5">
+          <h1 className="text-[length:var(--h1-size)] font-black text-[var(--ink-primary)] tracking-tight leading-tight">
             How to Use Tik Profiles Viewer
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-slate-700 mt-4 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-2.5 leading-relaxed">
             Follow this simple guide to search any public TikTok profile, stream videos without stutter, and download watermark-free HD videos on TikProfilesViewer.com.
           </p>
         </div>
 
         {/* 3-Step Visual Mockup Cards */}
-        <div className="my-8">
+        <div className="my-6">
           <HowToUseSteps />
         </div>
 
         {/* In-depth Steps Guide */}
-        <div className="space-y-5 my-10">
+        <div className="space-y-3.5 my-7">
           {/* Step 1 */}
           <div
             id="step-1"
-            className="p-6 sm:p-8 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col sm:flex-row gap-5 items-start"
+            className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col sm:flex-row gap-4 items-start"
           >
-            <div className="w-12 h-12 rounded-xl bg-slate-950 text-white font-black text-base flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] font-black text-sm flex items-center justify-center shrink-0">
               1
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-1.5">
               <div className="flex items-center gap-2">
-                <Search className="w-4 h-4 text-[#e11d48]" />
-                <h2 className="text-base sm:text-lg font-bold text-slate-950">
+                <Search className="w-4 h-4 text-[var(--accent-primary-text)]" />
+                <h2 className="text-sm sm:text-base font-bold text-[var(--ink-primary)]">
                   Search Any TikTok Username
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                Go to the homepage and locate the search bar. Enter any public TikTok username (for example, <code className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-slate-950 font-mono text-xs">khaby.lame</code> or <code className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-slate-950 font-mono text-xs">@charlidamelio</code>). Then click the <strong className="text-[#e11d48]">Search</strong> button.
+              <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                Go to the homepage and locate the search bar. Enter any public TikTok username (for example, <code className="bg-[var(--surface-canvas)] border border-[var(--border-subtle)] px-1.5 py-0.5 rounded text-[var(--ink-primary)] font-mono text-xs">khaby.lame</code> or <code className="bg-[var(--surface-canvas)] border border-[var(--border-subtle)] px-1.5 py-0.5 rounded text-[var(--ink-primary)] font-mono text-xs">@charlidamelio</code>). Then click the <strong className="text-[var(--accent-primary-text)]">Search</strong> button.
               </p>
             </div>
           </div>
@@ -125,20 +125,20 @@ export default function HowToUsePage() {
           {/* Step 2 */}
           <div
             id="step-2"
-            className="p-6 sm:p-8 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col sm:flex-row gap-5 items-start"
+            className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col sm:flex-row gap-4 items-start"
           >
-            <div className="w-12 h-12 rounded-xl bg-slate-950 text-white font-black text-base flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] font-black text-sm flex items-center justify-center shrink-0">
               2
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-1.5">
               <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-purple-700" />
-                <h2 className="text-base sm:text-lg font-bold text-slate-950">
+                <Eye className="w-4 h-4 text-[var(--accent-cyan-text)]" />
+                <h2 className="text-sm sm:text-base font-bold text-[var(--ink-primary)]">
                   Inspect Profile Details and Live Stats
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                The profile container displays the creator’s verified badge, bio, account status, follower count, total likes, following count, and total videos. You can also click <strong className="text-slate-950">Avatar</strong> to save the creator’s high-resolution profile photo.
+              <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                The profile container displays the creator’s verified badge, bio, account status, follower count, total likes, following count, and total videos. You can also click <strong className="text-[var(--ink-primary)]">Avatar</strong> to save the creator’s high-resolution profile photo.
               </p>
             </div>
           </div>
@@ -146,19 +146,19 @@ export default function HowToUsePage() {
           {/* Step 3 */}
           <div
             id="step-3"
-            className="p-6 sm:p-8 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col sm:flex-row gap-5 items-start"
+            className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col sm:flex-row gap-4 items-start"
           >
-            <div className="w-12 h-12 rounded-xl bg-slate-950 text-white font-black text-base flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] font-black text-sm flex items-center justify-center shrink-0">
               3
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-1.5">
               <div className="flex items-center gap-2">
-                <Play className="w-4 h-4 text-[#e11d48]" />
-                <h2 className="text-base sm:text-lg font-bold text-slate-950">
+                <Play className="w-4 h-4 text-[var(--accent-primary-text)]" />
+                <h2 className="text-sm sm:text-base font-bold text-[var(--ink-primary)]">
                   Hover to Preview &amp; Click to Play
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
                 Move your cursor over any video card to see the play button, and click any card to launch the video player modal. Check the view count, likes, and shares separated clearly on each card.
               </p>
             </div>
@@ -167,20 +167,20 @@ export default function HowToUsePage() {
           {/* Step 4 */}
           <div
             id="step-4"
-            className="p-6 sm:p-8 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col sm:flex-row gap-5 items-start"
+            className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col sm:flex-row gap-4 items-start"
           >
-            <div className="w-12 h-12 rounded-xl bg-slate-950 text-white font-black text-base flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] font-black text-sm flex items-center justify-center shrink-0">
               4
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-1.5">
               <div className="flex items-center gap-2">
-                <ChevronDown className="w-4 h-4 text-sky-700" />
-                <h2 className="text-base sm:text-lg font-bold text-slate-950">
+                <ChevronDown className="w-4 h-4 text-[var(--accent-cyan-text)]" />
+                <h2 className="text-sm sm:text-base font-bold text-[var(--ink-primary)]">
                   Click SHOW MORE VIDEOS to Fetch All Videos
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                The player initially displays the first batch of videos. Click the <strong className="text-slate-950 uppercase">SHOW MORE VIDEOS</strong> button at the bottom of the grid to load 15 more videos. You can continue clicking as many times as you like until every video from the account has been loaded.
+              <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                The player initially displays the first batch of videos. Click the <strong className="text-[var(--ink-primary)] uppercase">SHOW MORE VIDEOS</strong> button at the bottom of the grid to load 15 more videos. You can continue clicking as many times as you like until every video from the account has been loaded.
               </p>
             </div>
           </div>
@@ -188,65 +188,65 @@ export default function HowToUsePage() {
           {/* Step 5 */}
           <div
             id="step-5"
-            className="p-6 sm:p-8 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col sm:flex-row gap-5 items-start"
+            className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col sm:flex-row gap-4 items-start"
           >
-            <div className="w-12 h-12 rounded-xl bg-slate-950 text-white font-black text-base flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] font-black text-sm flex items-center justify-center shrink-0">
               5
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-1.5">
               <div className="flex items-center gap-2">
-                <Download className="w-4 h-4 text-emerald-700" />
-                <h2 className="text-base sm:text-lg font-bold text-slate-950">
+                <Download className="w-4 h-4 text-[var(--accent-cyan-text)]" />
+                <h2 className="text-sm sm:text-base font-bold text-[var(--ink-primary)]">
                   Download Watermark-Free HD Video or MP3 Audio
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                Inside the player modal, click <strong className="text-slate-950">Download HD Video</strong> to save the original MP4 video without any TikTok watermark logo. If you only want the background music or voice sound, click <strong className="text-slate-950">Download Audio (MP3)</strong> to save it directly to your device.
+              <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                Inside the player modal, click <strong className="text-[var(--ink-primary)]">Download HD Video</strong> to save the original MP4 video without any TikTok watermark logo. If you only want the background music or voice sound, click <strong className="text-[var(--ink-primary)]">Download Audio (MP3)</strong> to save it directly to your device.
               </p>
             </div>
           </div>
         </div>
 
         {/* Helpful Tips Section */}
-        <section className="bg-white rounded-xl border border-slate-300/80 p-6 sm:p-8 shadow-xs my-8">
-          <div className="flex items-center gap-2 mb-4">
-            <HelpCircle className="w-5 h-5 text-[#e11d48]" />
-            <h2 className="text-base sm:text-lg font-bold text-slate-950">
+        <section className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border-subtle)] p-5 sm:p-6 my-6">
+          <div className="flex items-center gap-2 mb-3.5">
+            <HelpCircle className="w-4 h-4 text-[var(--accent-primary-text)]" />
+            <h2 className="text-sm sm:text-base font-bold text-[var(--ink-primary)]">
               Helpful Tips for Best Experience
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm text-slate-700">
-            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong className="text-slate-950">No @ symbol needed:</strong> You can type the username with or without the @ sign. Both work equally fast.</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-[var(--ink-secondary)]">
+            <div className="p-3.5 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[var(--accent-cyan-text)] shrink-0 mt-0.5" />
+              <span><strong className="text-[var(--ink-primary)]">No @ symbol needed:</strong> You can type the username with or without the @ sign. Both work equally fast.</span>
             </div>
-            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong className="text-slate-950">Works on iPhone and Android:</strong> Videos will download directly to your Files or Downloads folder without special apps.</span>
+            <div className="p-3.5 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[var(--accent-cyan-text)] shrink-0 mt-0.5" />
+              <span><strong className="text-[var(--ink-primary)]">Works on iPhone and Android:</strong> Videos will download directly to your Files or Downloads folder without special apps.</span>
             </div>
-            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong className="text-slate-950">Full Screen Video:</strong> Use the fullscreen toggle in the bottom right of the video player to watch videos in full size.</span>
+            <div className="p-3.5 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[var(--accent-cyan-text)] shrink-0 mt-0.5" />
+              <span><strong className="text-[var(--ink-primary)]">Full Screen Video:</strong> Use the fullscreen toggle in the bottom right of the video player to watch videos in full size.</span>
             </div>
-            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong className="text-slate-950">Trending Profiles:</strong> Use the quick links right beneath the search bar to jump to popular creators in one click.</span>
+            <div className="p-3.5 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[var(--accent-cyan-text)] shrink-0 mt-0.5" />
+              <span><strong className="text-[var(--ink-primary)]">Trending Profiles:</strong> Use the quick links right beneath the search bar to jump to popular creators in one click.</span>
             </div>
           </div>
         </section>
 
         {/* CTA */}
-        <div className="p-8 sm:p-10 rounded-2xl bg-slate-950 text-white text-center flex flex-col items-center gap-4 my-8 shadow-md border border-slate-800">
-          <h2 className="text-xl sm:text-2xl font-bold">
+        <div className="p-6 sm:p-7 rounded-xl bg-[var(--accent-dark)] text-[var(--accent-contrast)] text-center flex flex-col items-center gap-3 my-6 border border-[var(--accent-dark)]">
+          <h2 className="text-lg sm:text-xl font-bold">
             Try Tik Profiles Viewer Now
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-lg">
+          <p className="text-xs sm:text-sm text-[var(--accent-contrast)]/85 max-w-lg">
             Search any public TikTok account, stream videos instantly, and save HD videos without watermarks.
           </p>
           <Link
             href="/"
-            className="px-6 py-2.5 rounded-xl bg-[#e11d48] hover:bg-[#be123c] text-white font-bold text-xs sm:text-sm shadow-sm transition-all"
+            className="h-9 px-5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)] font-bold text-xs inline-flex items-center justify-center transition-all"
           >
             Start Viewing Profiles
           </Link>

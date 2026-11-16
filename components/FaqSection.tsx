@@ -42,7 +42,6 @@ const FAQS: FaqItem[] = [
 ];
 
 export default function FaqSection() {
-  // All questions closed by default
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggleIndex = (index: number) => {
@@ -50,72 +49,68 @@ export default function FaqSection() {
   };
 
   return (
-    <section id="faq" className="w-full mt-14 pt-10 border-t border-slate-300/80 scroll-mt-20">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-        {/* Left Column: Heading, Subtitle & Contact Us Button */}
+    <section id="faq" className="w-full mt-10 pt-8 border-t border-[var(--border-subtle)] scroll-mt-16">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        {/* Left Column */}
         <div className="lg:col-span-5 flex flex-col items-start">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight leading-[1.1]">
-            Frequently
-            <br />
-            Asked
-            <br />
-            Questions
+          <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight leading-tight">
+            Frequently Asked Questions
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-700 mt-4 leading-relaxed max-w-sm">
+          <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] mt-2.5 leading-relaxed max-w-sm">
             Find answers to frequently asked questions about viewing profiles and saving watermark-free media.
           </p>
 
           <a
             href="mailto:support@tikprofilesviewer.com"
-            className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-[#e11d48] active:scale-[0.98] text-white text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer"
+            className="mt-4 h-9 inline-flex items-center gap-2 px-4 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] text-[var(--accent-contrast)] text-xs font-bold transition-all cursor-pointer"
           >
-            <Mail className="w-4 h-4 text-white" />
+            <Mail className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
             <span>Contact us</span>
           </a>
         </div>
 
-        {/* Right Column: Accordion Cards Stack */}
-        <div className="lg:col-span-7 flex flex-col space-y-2.5 sm:space-y-3">
+        {/* Right Column: Accordion Stack */}
+        <div className="lg:col-span-7 flex flex-col space-y-2">
           {FAQS.map((item, index) => {
             const isOpen = openIndex === index;
 
             return (
               <div
                 key={index}
-                className={`rounded-2xl bg-white border shadow-xs transition-all overflow-hidden ${
+                className={`rounded-xl bg-[var(--surface-elevated)] border transition-colors overflow-hidden ${
                   isOpen
-                    ? 'border-[#e11d48]/60 shadow-sm'
-                    : 'border-slate-300/80 hover:border-slate-400'
+                    ? 'border-[var(--accent-primary)]'
+                    : 'border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => toggleIndex(index)}
-                  className="w-full px-5 py-3.5 text-left flex items-center justify-between gap-4 cursor-pointer focus:outline-none group"
+                  className="w-full px-4 py-3 text-start flex items-center justify-between gap-3 cursor-pointer focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[var(--focus-ring)] group"
                   aria-expanded={isOpen}
                 >
-                  <span className="text-sm sm:text-base font-bold text-slate-950 tracking-tight">
+                  <span className="text-xs sm:text-[13px] font-bold text-[var(--ink-primary)] tracking-tight">
                     {item.question}
                   </span>
 
                   <div
-                    className={`w-7 h-7 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                    className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                       isOpen
-                        ? 'bg-[#e11d48] border-[#e11d48] text-white'
-                        : 'bg-slate-100 group-hover:bg-slate-200 border-slate-300 text-slate-800'
+                        ? 'bg-[var(--accent-primary-hover)] border-[var(--accent-primary-hover)] text-[var(--accent-contrast)]'
+                        : 'bg-[var(--surface-canvas)] group-hover:bg-[var(--accent-cyan-soft)] border-[var(--border-strong)] text-[var(--ink-primary)]'
                     }`}
                   >
                     {isOpen ? (
-                      <X className="w-3.5 h-3.5 text-white" />
+                      <X className="w-3 h-3 text-[var(--accent-contrast)]" />
                     ) : (
-                      <Plus className="w-3.5 h-3.5 text-slate-800" />
+                      <Plus className="w-3 h-3 text-[var(--ink-primary)]" />
                     )}
                   </div>
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 pb-4 pt-3 text-xs sm:text-sm text-slate-700 leading-relaxed border-t border-slate-200 bg-slate-50/70">
+                  <div className="px-4 pb-3.5 pt-2.5 text-xs text-[var(--ink-secondary)] leading-relaxed border-t border-[var(--border-subtle)] bg-[var(--surface-canvas)]">
                     <p>{item.answer}</p>
                   </div>
                 )}

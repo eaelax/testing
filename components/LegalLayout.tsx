@@ -40,10 +40,10 @@ export default function LegalLayout({
   children,
 }: LegalLayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Breadcrumbs
           items={[
             { label: 'Legal Center', href: '/terms-of-service' },
@@ -51,67 +51,65 @@ export default function LegalLayout({
           ]}
         />
 
-        {/* Page Header */}
-        <header className="mt-6 pb-8 border-b border-slate-300/80">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight leading-tight">
+        {/* Compact Page Header */}
+        <header className="mt-4 pb-5 border-b border-[var(--border-subtle)]">
+          <h1 className="text-[length:var(--h1-size)] font-black text-[var(--ink-primary)] tracking-tight leading-tight">
             {title}
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-700 mt-2 leading-relaxed max-w-3xl">
+          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-1.5 leading-relaxed max-w-2xl">
             {subtitle}
           </p>
 
-          <div className="flex items-center gap-4 mt-4 text-xs text-slate-600 font-mono font-semibold">
+          <div className="flex items-center gap-3 mt-3 text-[11px] text-[var(--ink-muted)] font-mono font-semibold">
             <span>Effective: November 2026</span>
             <span>•</span>
             <span>Last reviewed: {lastUpdated}</span>
           </div>
         </header>
 
-        {/* Executive Summary Card */}
-        <div className="my-8 p-5 sm:p-6 rounded-2xl bg-white border border-slate-300/80 shadow-xs">
-          <div className="flex items-center gap-2 text-slate-950 font-bold text-sm mb-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-700" />
+        {/* Compact Executive Summary Card */}
+        <div className="my-5 p-4 sm:p-5 rounded-xl bg-[var(--accent-cyan-soft)] border border-[var(--accent-cyan)]">
+          <div className="flex items-center gap-2 text-[var(--ink-primary)] font-bold text-xs sm:text-sm mb-1">
+            <ShieldCheck className="w-4 h-4 text-[var(--accent-cyan-text)] shrink-0" />
             <span>Key Summary</span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+          <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
             {summary}
           </p>
         </div>
 
-        {/* Content Layout with Legal Sidebar on Desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Content Layout with Compact Legal Sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Main Legal Text */}
-          <article className="lg:col-span-8 bg-white p-6 sm:p-8 md:p-10 rounded-2xl border border-slate-300/80 shadow-xs space-y-8 text-sm sm:text-base leading-relaxed text-slate-800">
+          <article className="lg:col-span-8 bg-[var(--surface-elevated)] p-5 sm:p-6 md:p-7 rounded-xl border border-[var(--border-subtle)] space-y-6 text-xs sm:text-sm leading-relaxed text-[var(--ink-secondary)]">
             {children}
 
-            {/* Official Support & Inquiries Box */}
-            <div className="pt-8 border-t border-slate-200 mt-10">
-              <h3 className="text-base font-bold text-slate-950 mb-2">
+            {/* Official Support Box */}
+            <div className="pt-6 border-t border-[var(--border-subtle)] mt-8">
+              <h3 className="text-sm font-bold text-[var(--ink-primary)] mb-1.5">
                 Questions or Official Requests?
               </h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mb-4">
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed mb-3">
                 If you have questions regarding this policy, or wish to submit an inquiry, request content review, or report a concern, please contact our legal team directly.
               </p>
-              <div className="flex items-center gap-3">
-                <a
-                  href="mailto:legal@tikprofilesviewer.com"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-[#e11d48] text-white text-xs font-bold shadow-xs transition-colors"
-                >
-                  <Mail className="w-3.5 h-3.5 text-white" />
-                  <span>legal@tikprofilesviewer.com</span>
-                </a>
-              </div>
+              <a
+                href="mailto:legal@tikprofilesviewer.com"
+                className="h-9 inline-flex items-center gap-2 px-3.5 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)] text-xs font-bold transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
+                <span>legal@tikprofilesviewer.com</span>
+              </a>
             </div>
           </article>
 
-          {/* Sidebar Navigation */}
-          <aside className="lg:col-span-4 flex flex-col gap-5 sticky top-24">
-            <div className="p-5 rounded-2xl bg-white border border-slate-300/80 shadow-xs">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-950 mb-3">
+          {/* Compact Sidebar Navigation */}
+          <aside className="lg:col-span-4 flex flex-col gap-4 lg:sticky lg:top-20">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+              <h3 className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ink-primary)] mb-2.5">
                 All Legal Documents
               </h3>
-              <nav className="flex flex-col space-y-1">
+              <nav aria-label="Legal Documents" className="flex flex-col space-y-1">
                 {LEGAL_PAGES.map((page) => {
                   const isActive = currentPath === page.href;
                   const Icon = page.icon;
@@ -119,25 +117,29 @@ export default function LegalLayout({
                     <Link
                       key={page.href}
                       href={page.href}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors ${
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors ${
                         isActive
-                          ? 'bg-[#e11d48] text-white shadow-2xs'
-                          : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                          ? 'bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)]'
+                          : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]'
                       }`}
                     >
                       <div className="flex items-center gap-2 truncate">
                         <Icon className="w-3.5 h-3.5 shrink-0" />
                         <span className="truncate">{page.title}</span>
                       </div>
-                      <ChevronRight className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                      <ChevronRight
+                        className={`w-3.5 h-3.5 shrink-0 rtl:rotate-180 ${
+                          isActive ? 'text-[var(--accent-contrast)]' : 'text-[var(--ink-muted)]'
+                        }`}
+                      />
                     </Link>
                   );
                 })}
               </nav>
             </div>
 
-            <div className="p-4 rounded-xl bg-white border border-slate-300/80 text-xs text-slate-700 leading-relaxed shadow-2xs">
-              <span className="font-bold text-slate-950 block mb-1">Independent Notice</span>
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-xs text-[var(--ink-secondary)] leading-relaxed">
+              <span className="font-bold text-[var(--ink-primary)] block mb-1">Independent Notice</span>
               Tik Profiles Viewer operates independently on TikProfilesViewer.com and is not associated with, sponsored by, or affiliated with TikTok Inc., ByteDance Ltd., or any of their affiliates.
             </div>
           </aside>

@@ -1,57 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  /* Semantic Surfaces (Eye-Friendly Light Canvas + Crisp White Containers) */
+  /* Core Semantic Surfaces (#FFFFFF elevated on soft #F5F7F9 canvas for eye comfort) */
   --surface-canvas: #F5F7F9;
   --surface-elevated: #FFFFFF;
-  --surface-sunken: #EEF2F6;
+  --surface-sunken: #EDF1F5;
   --surface-interactive: #E6ECF0;
 
-  /* Semantic Ink (WCAG AA/AAA High Contrast) */
+  /* High-Contrast Ink Tokens (#010101 primary + accessible slate grays) */
   --ink-primary: #010101;
   --ink-secondary: #2F363D;
   --ink-muted: #4D5660;
 
-  /* Borders & Interactive Boundaries */
+  /* Crisp 1px Hairline Borders */
   --border-subtle: #DFE5EA;
-  --border-strong: #8D99A6;
-  --focus-ring: #EE1D52;
+  --border-strong: #CBD5DF;
+  --border-hover: #9AA5B1;
 
-  /* Primary Brand Crimson (#EE1D52) */
+  /* Brand Primary Accent (#EE1D52 Crimson) */
   --accent-primary: #EE1D52;
   --accent-primary-hover: #D41445;
   --accent-primary-text: #C4113F;
   --accent-soft: #FFF0F4;
   --accent-contrast: #FFFFFF;
 
-  /* Secondary Brand Cyan (#69C9D0) — Paired with #010101 or #0A6C74 for High Contrast */
+  /* Brand Secondary Accent (#69C9D0 Cyan) */
   --accent-cyan: #69C9D0;
   --accent-cyan-hover: #53B9C1;
   --accent-cyan-soft: #ECFAFB;
   --accent-cyan-text: #0A6C74;
 
-  /* Structural Dark Action (#010101) */
+  /* Brand Structural Dark (#010101) */
   --accent-dark: #010101;
   --accent-dark-hover: #1D2126;
 
-  /* Semantic Status & Disabled States */
+  /* Semantic Status & Interactive States */
   --status-success: #0A6C74;
-  --status-success-bg: #ECFAFB;
-  --status-success-border: #69C9D0;
-  --status-warning: #92400E;
-  --status-warning-bg: #FEF3C7;
-  --status-warning-border: #D97706;
+  --status-warning: #B45309;
   --status-danger: #C4113F;
-  --status-danger-bg: #FFF0F4;
-  --status-danger-border: #EE1D52;
+  --focus-ring: #EE1D52;
   --state-disabled-bg: #E6ECF0;
-  --state-disabled-ink: #5C6570;
+  --state-disabled-ink: #5C6573;
 
-  /* Compact Layout & Typography Proportions */
-  --container-max: 980px;
-  --h1-size: clamp(1.65rem, 2.8vw, 2.25rem);
+  /* Compact Proportional Typography Ceiling */
+  --h1-size: clamp(1.75rem, 2.5vw, 2.125rem);
 
-  /* Compatibility Token Aliases */
+  /* Legacy Alias Tokens Mapped to New Palette */
   --bg-page: var(--surface-canvas);
   --bg-surface: var(--surface-elevated);
   --bg-surface-subtle: var(--surface-sunken);
@@ -61,8 +55,11 @@
   --text-muted: var(--ink-muted);
   --text-on-accent: var(--accent-contrast);
   --border-control: var(--border-strong);
-  --border-hover: var(--ink-muted);
-  --accent-primary-soft: var(--accent-soft);
+  --teal-soft: var(--accent-cyan-soft);
+  --teal-text: var(--accent-cyan-text);
+  --slate-soft: var(--surface-sunken);
+  --slate-text: var(--ink-secondary);
+  --shadow-none: none;
 }
 
 html {
@@ -78,18 +75,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
-
-/* Compact high-contrast scrollbar */
+/* Compact Scrollbar */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--surface-sunken);
+  background: var(--surface-canvas);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -98,5 +91,5 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--ink-muted);
+  background: var(--border-hover);
 }

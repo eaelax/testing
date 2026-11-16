@@ -36,7 +36,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png" />
         <link rel="apple-touch-icon" href="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png" />
       </head>
-      <body className="min-h-screen bg-[#eef2f6] text-slate-900 antialiased selection:bg-rose-600/15 selection:text-rose-900">
+      <body className="min-h-screen bg-[var(--surface-canvas)] text-[var(--ink-primary)] antialiased overflow-x-hidden selection:bg-[var(--accent-soft)] selection:text-[var(--ink-primary)]">
         {children}
       </body>
     </html>

@@ -50,10 +50,10 @@ export default function AudioDownloaderPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -61,42 +61,41 @@ export default function AudioDownloaderPage() {
 
         <Breadcrumbs items={[{ label: 'TikTok Audio MP3 Downloader' }]} />
 
-        {/* Hero Section */}
-        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight">
+        {/* Compact Hero Section */}
+        <div className="text-center max-w-xl mx-auto mb-5">
+          <h1 className="text-[length:var(--h1-size)] font-black text-[var(--ink-primary)] tracking-tight leading-tight">
             TikTok MP3 Audio Downloader
           </h1>
-          <p className="text-xs sm:text-sm md:text-base text-slate-700 mt-2 leading-relaxed max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-1.5 leading-relaxed">
             Extract and download MP3 music tracks and voice audio from any TikTok video for free.
           </p>
         </div>
 
-        {/* Interactive Downloader with empty input until user types */}
         <TikTokProfileViewer
           initialUsername=""
           autoSearch={false}
         />
 
         {/* Audio Features Section */}
-        <section className="mt-14 pt-8 border-t border-slate-300/80">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-2">
-              <h3 className="text-sm sm:text-base font-bold text-slate-950">Clean Sound Quality</h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <section className="mt-10 pt-8 border-t border-[var(--border-subtle)]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
+              <h2 className="text-sm font-bold text-[var(--ink-primary)]">Clean Sound Quality</h2>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                 Enjoy clear sound reproduction. Music and voice are preserved with original audio clarity.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-2">
-              <h3 className="text-sm sm:text-base font-bold text-slate-950">Original Voice &amp; Music</h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
+              <h2 className="text-sm font-bold text-[var(--ink-primary)]">Original Voice &amp; Music</h2>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                 Works on official TikTok songs, user voiceovers, podcast clips, and comedy sounds.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-2">
-              <h3 className="text-sm sm:text-base font-bold text-slate-950">One-Click Save</h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
+              <h2 className="text-sm font-bold text-[var(--ink-primary)]">One-Click Save</h2>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                 Save audio directly without downloading the full video. Save space and time on your device.
               </p>
             </div>
@@ -104,18 +103,21 @@ export default function AudioDownloaderPage() {
         </section>
 
         {/* Audio FAQs */}
-        <section className="mt-12 pt-8 border-t border-slate-300/80 mb-10">
-          <div className="text-center max-w-2xl mx-auto mb-6">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950">
+        <section className="mt-9 pt-7 border-t border-[var(--border-subtle)] mb-8">
+          <div className="text-center max-w-xl mx-auto mb-5">
+            <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)]">
               TikTok Audio FAQs
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {faqSchema.mainEntity.map((item, idx) => (
-              <div key={idx} className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-1.5">
-                <h3 className="text-xs sm:text-sm font-bold text-slate-950">{item.name}</h3>
-                <p className="text-xs text-slate-700 leading-relaxed">
+              <div
+                key={idx}
+                className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1"
+              >
+                <h3 className="text-xs sm:text-[13px] font-bold text-[var(--ink-primary)]">{item.name}</h3>
+                <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                   {item.acceptedAnswer.text}
                 </p>
               </div>

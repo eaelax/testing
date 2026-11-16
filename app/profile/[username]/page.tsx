@@ -101,10 +101,10 @@ export default async function CreatorProfilePage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-5 sm:py-6">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
@@ -114,7 +114,6 @@ export default async function CreatorProfilePage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
 
-        {/* Breadcrumb Navigation */}
         <Breadcrumbs
           items={[
             { label: 'Creators', href: '/creators' },
@@ -122,7 +121,6 @@ export default async function CreatorProfilePage({ params }: Props) {
           ]}
         />
 
-        {/* Interactive TikTok Viewer Pre-Loaded with this Username */}
         <TikTokProfileViewer
           initialUsername={decodedUsername}
           autoSearch={true}

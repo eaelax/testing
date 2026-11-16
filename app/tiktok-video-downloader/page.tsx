@@ -74,10 +74,10 @@ export default function VideoDownloaderPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
@@ -89,60 +89,59 @@ export default function VideoDownloaderPage() {
 
         <Breadcrumbs items={[{ label: 'TikTok Video Downloader' }]} />
 
-        {/* Hero Section */}
-        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight">
+        {/* Compact Hero Section */}
+        <div className="text-center max-w-xl mx-auto mb-5">
+          <h1 className="text-[length:var(--h1-size)] font-black text-[var(--ink-primary)] tracking-tight leading-tight">
             TikTok Video Downloader
           </h1>
-          <p className="text-xs sm:text-sm md:text-base text-slate-700 mt-2 leading-relaxed max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-1.5 leading-relaxed">
             Download TikTok videos in original HD MP4 format without watermarks for free.
           </p>
         </div>
 
-        {/* Interactive Downloader with empty input until user types */}
         <TikTokProfileViewer
           initialUsername=""
           autoSearch={false}
         />
 
         {/* How It Works 3-Step Guide */}
-        <section className="mt-14 pt-8 border-t border-slate-300/80">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950">
+        <section className="mt-10 pt-8 border-t border-[var(--border-subtle)]">
+          <div className="text-center max-w-xl mx-auto mb-6">
+            <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)]">
               How to Download TikTok Videos
             </h2>
-            <p className="text-xs sm:text-sm text-slate-700 mt-1">
+            <p className="text-xs text-[var(--ink-secondary)] mt-1">
               Save your favorite videos in three easy steps.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#e11d48] text-white font-bold flex items-center justify-center text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-2">
+              <div className="w-7 h-7 rounded-lg bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)] font-bold flex items-center justify-center text-xs tabular-nums">
                 1
               </div>
-              <h3 className="text-sm sm:text-base font-bold text-slate-950">Enter Username</h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <h3 className="text-sm font-bold text-[var(--ink-primary)]">Enter Username</h3>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                 Type the username of any public TikTok creator in the search bar.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#e11d48] text-white font-bold flex items-center justify-center text-xs">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-2">
+              <div className="w-7 h-7 rounded-lg bg-[var(--accent-cyan)] text-[var(--ink-primary)] font-bold flex items-center justify-center text-xs tabular-nums">
                 2
               </div>
-              <h3 className="text-sm sm:text-base font-bold text-slate-950">Pick a Video</h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <h3 className="text-sm font-bold text-[var(--ink-primary)]">Pick a Video</h3>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                 Click any video thumbnail from the grid to open the video player.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#e11d48] text-white font-bold flex items-center justify-center text-xs">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-2">
+              <div className="w-7 h-7 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] font-bold flex items-center justify-center text-xs tabular-nums">
                 3
               </div>
-              <h3 className="text-sm sm:text-base font-bold text-slate-950">Download Video</h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <h3 className="text-sm font-bold text-[var(--ink-primary)]">Download Video</h3>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                 Click Download HD Video to save the clean MP4 file directly to your device.
               </p>
             </div>
@@ -150,18 +149,21 @@ export default function VideoDownloaderPage() {
         </section>
 
         {/* FAQs */}
-        <section className="mt-12 pt-8 border-t border-slate-300/80 mb-10">
-          <div className="text-center max-w-2xl mx-auto mb-6">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950">
+        <section className="mt-9 pt-7 border-t border-[var(--border-subtle)] mb-8">
+          <div className="text-center max-w-xl mx-auto mb-5">
+            <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)]">
               Frequently Asked Questions
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {faqSchema.mainEntity.map((item, idx) => (
-              <div key={idx} className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-1.5">
-                <h3 className="text-xs sm:text-sm font-bold text-slate-950">{item.name}</h3>
-                <p className="text-xs text-slate-700 leading-relaxed">
+              <div
+                key={idx}
+                className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1"
+              >
+                <h3 className="text-xs sm:text-[13px] font-bold text-[var(--ink-primary)]">{item.name}</h3>
+                <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                   {item.acceptedAnswer.text}
                 </p>
               </div>

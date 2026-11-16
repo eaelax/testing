@@ -29,10 +29,10 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
@@ -40,45 +40,45 @@ export default function CategoriesPage() {
 
         <Breadcrumbs items={[{ label: 'Categories' }]} />
 
-        {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight">
+        {/* Compact Hero Section */}
+        <div className="text-center max-w-2xl mx-auto mb-7">
+          <h1 className="text-[length:var(--h1-size)] font-black text-[var(--ink-primary)] tracking-tight leading-tight">
             Explore TikTok by Category
           </h1>
-          <p className="text-sm sm:text-base text-slate-700 mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-1.5 leading-relaxed">
             Browse creators and videos by their content topic.
           </p>
         </div>
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        {/* Compact Categories Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           {CATEGORIES.map((cat) => (
             <Link
               key={cat.slug}
               href={`/category/${cat.slug}`}
-              className="group p-6 rounded-xl bg-white border border-slate-300/80 hover:border-[#e11d48]/60 hover:shadow-md transition-all flex flex-col justify-between shadow-xs"
+              className="group p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] transition-all flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center group-hover:bg-[#e11d48] transition-all">
-                    <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] flex items-center justify-center group-hover:bg-[var(--accent-primary-hover)] transition-colors">
+                    <Play className="w-4 h-4 fill-current translate-x-0.5" />
                   </div>
-                  <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800">
+                  <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-[var(--accent-cyan-soft)] border border-[var(--accent-cyan)] text-[var(--accent-cyan-text)] tabular-nums">
                     {cat.creatorUsernames.length} Creators
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-950 group-hover:text-[#e11d48] transition-colors">
+                <h2 className="text-sm sm:text-base font-bold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors">
                   {cat.name}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-700 mt-2 line-clamp-2 leading-relaxed">
+                </h2>
+                <p className="text-xs text-[var(--ink-secondary)] mt-1.5 line-clamp-2 leading-relaxed">
                   {cat.shortDescription}
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-900 group-hover:text-[#e11d48] font-bold transition-colors">
+              <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] font-bold transition-colors">
                 <span>Browse {cat.name}</span>
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform rtl:rotate-180" />
               </div>
             </Link>
           ))}

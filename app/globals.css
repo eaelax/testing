@@ -1,44 +1,102 @@
 @import "tailwindcss";
 
 :root {
-  /* Backgrounds & Surfaces (Flat, Tonal Layering) */
-  --bg-page: #F3F4F6;
-  --bg-surface: #FFFFFF;
-  --bg-surface-subtle: #F8F9FA;
-  --bg-surface-hover: #F1F3F5;
+  /* Semantic Surfaces (Eye-Friendly Light Canvas + Crisp White Containers) */
+  --surface-canvas: #F5F7F9;
+  --surface-elevated: #FFFFFF;
+  --surface-sunken: #EEF2F6;
+  --surface-interactive: #E6ECF0;
 
-  /* Typography */
-  --text-primary: #111827;
-  --text-secondary: #4B5563;
-  --text-muted: #5C6573;
-  --text-on-accent: #FFFFFF;
+  /* Semantic Ink (WCAG AA/AAA High Contrast) */
+  --ink-primary: #010101;
+  --ink-secondary: #2F363D;
+  --ink-muted: #4D5660;
 
-  /* Hairline Borders (No thick/hard borders) */
-  --border-subtle: #E5E7EB;
-  --border-control: #D1D5DB;
-  --border-hover: #9CA3AF;
+  /* Borders & Interactive Boundaries */
+  --border-subtle: #DFE5EA;
+  --border-strong: #8D99A6;
+  --focus-ring: #EE1D52;
 
-  /* Primary Brand Action (TikTok Crimson) */
-  --accent-primary: #D61C47;
-  --accent-primary-hover: #B9153B;
-  --accent-primary-soft: #FDF2F4;
-  --accent-primary-text: #BE123C;
+  /* Primary Brand Crimson (#EE1D52) */
+  --accent-primary: #EE1D52;
+  --accent-primary-hover: #D41445;
+  --accent-primary-text: #C4113F;
+  --accent-soft: #FFF0F4;
+  --accent-contrast: #FFFFFF;
 
-  /* Secondary / Structural Dark Action */
-  --accent-dark: #111827;
-  --accent-dark-hover: #1F2937;
+  /* Secondary Brand Cyan (#69C9D0) — Paired with #010101 or #0A6C74 for High Contrast */
+  --accent-cyan: #69C9D0;
+  --accent-cyan-hover: #53B9C1;
+  --accent-cyan-soft: #ECFAFB;
+  --accent-cyan-text: #0A6C74;
 
-  /* Supporting Semantic Accents (Tools, Verified, Status) */
-  --teal-soft: #F0FDFA;
-  --teal-text: #0F766E;
-  --slate-soft: #F1F5F9;
-  --slate-text: #334155;
+  /* Structural Dark Action (#010101) */
+  --accent-dark: #010101;
+  --accent-dark-hover: #1D2126;
 
-  /* Strictly Flat UI */
-  --shadow-none: none;
+  /* Semantic Status & Disabled States */
+  --status-success: #0A6C74;
+  --status-success-bg: #ECFAFB;
+  --status-success-border: #69C9D0;
+  --status-warning: #92400E;
+  --status-warning-bg: #FEF3C7;
+  --status-warning-border: #D97706;
+  --status-danger: #C4113F;
+  --status-danger-bg: #FFF0F4;
+  --status-danger-border: #EE1D52;
+  --state-disabled-bg: #E6ECF0;
+  --state-disabled-ink: #5C6570;
+
+  /* Compact Layout & Typography Proportions */
+  --container-max: 980px;
+  --h1-size: clamp(1.65rem, 2.8vw, 2.25rem);
+
+  /* Compatibility Token Aliases */
+  --bg-page: var(--surface-canvas);
+  --bg-surface: var(--surface-elevated);
+  --bg-surface-subtle: var(--surface-sunken);
+  --bg-surface-hover: var(--surface-interactive);
+  --text-primary: var(--ink-primary);
+  --text-secondary: var(--ink-secondary);
+  --text-muted: var(--ink-muted);
+  --text-on-accent: var(--accent-contrast);
+  --border-control: var(--border-strong);
+  --border-hover: var(--ink-muted);
+  --accent-primary-soft: var(--accent-soft);
+}
+
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--bg-page);
-  color: var(--text-primary);
+  background-color: var(--surface-canvas);
+  color: var(--ink-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Compact high-contrast scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-sunken);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-muted);
 }

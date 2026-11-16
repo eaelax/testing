@@ -15,7 +15,7 @@ const LANGUAGES = [
   { code: 'zh', name: 'Chinese', native: '中文' },
   { code: 'pt', name: 'Portuguese', native: 'Português' },
   { code: 'he', name: 'Hebrew', native: 'עברית' },
-  { code: 'hi', name: 'Hindu', native: 'हिन्दी' },
+  { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
 ];
 
 const TOOLS = [
@@ -90,7 +90,6 @@ export default function Navbar() {
     }
   };
 
-  // Close dropdowns on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (toolsRef.current && !toolsRef.current.contains(event.target as Node)) {
@@ -100,20 +99,31 @@ export default function Navbar() {
         setLangDropdownOpen(false);
       }
     }
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setToolsDropdownOpen(false);
+        setLangDropdownOpen(false);
+        setMobileMenuOpen(false);
+      }
+    }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-300/80 shadow-xs transition-all">
-      <div className="max-w-[1080px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 w-full bg-[var(--surface-elevated)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] transition-colors">
+      <div className="max-w-[980px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-2.5">
         {/* Website Logo */}
         <Link
           href="/"
           onClick={handleGoHome}
-          className="flex items-center gap-2.5 text-slate-950 select-none shrink-0 group"
+          className="flex items-center gap-2 text-[var(--ink-primary)] select-none shrink-0 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] rounded-md"
         >
-          <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-slate-100 border border-slate-200">
+          <div className="w-7 h-7 rounded-md overflow-hidden shrink-0 flex items-center justify-center bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png"
@@ -122,49 +132,46 @@ export default function Navbar() {
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-sm sm:text-base tracking-tight text-slate-950 group-hover:text-rose-600 transition-colors leading-none">
+            <span className="font-extrabold text-[13px] sm:text-sm tracking-tight text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors leading-none">
               Tik Profiles Viewer
             </span>
-            <span className="text-[10px] text-slate-600 font-semibold tracking-wide">
+            <span className="text-[10px] text-[var(--ink-muted)] font-semibold tracking-wide mt-0.5 leading-none">
               TikProfilesViewer.com
             </span>
           </div>
         </Link>
 
-        {/* Nav Items aligned to the right */}
-        <nav className="hidden lg:flex items-center gap-6 ml-auto">
-          {/* Home */}
+        {/* Desktop Nav Items */}
+        <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-5 ms-auto">
           <Link
             href="/"
             onClick={handleGoHome}
-            className={`text-sm font-semibold transition-colors ${
+            className={`text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] rounded ${
               pathname === '/'
-                ? 'text-slate-950 underline underline-offset-4 decoration-2 decoration-[#e11d48]'
-                : 'text-slate-700 hover:text-rose-600'
+                ? 'text-[var(--ink-primary)] underline underline-offset-4 decoration-2 decoration-[var(--accent-primary)]'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)]'
             }`}
           >
             Home
           </Link>
 
-          {/* About */}
           <Link
             href="/about-tiktok-profile-viewer"
-            className={`text-sm font-semibold transition-colors ${
+            className={`text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] rounded ${
               pathname === '/about-tiktok-profile-viewer'
-                ? 'text-slate-950 underline underline-offset-4 decoration-2 decoration-[#e11d48]'
-                : 'text-slate-700 hover:text-rose-600'
+                ? 'text-[var(--ink-primary)] underline underline-offset-4 decoration-2 decoration-[var(--accent-primary)]'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)]'
             }`}
           >
             About
           </Link>
 
-          {/* How to use */}
           <Link
             href="/how-to-use-tiktok-profile-viewer"
-            className={`text-sm font-semibold transition-colors ${
+            className={`text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] rounded ${
               pathname === '/how-to-use-tiktok-profile-viewer'
-                ? 'text-slate-950 underline underline-offset-4 decoration-2 decoration-[#e11d48]'
-                : 'text-slate-700 hover:text-rose-600'
+                ? 'text-[var(--ink-primary)] underline underline-offset-4 decoration-2 decoration-[var(--accent-primary)]'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)]'
             }`}
           >
             How to use
@@ -174,14 +181,15 @@ export default function Navbar() {
           <div className="relative" ref={toolsRef}>
             <button
               type="button"
+              aria-expanded={toolsDropdownOpen}
               onClick={() => {
                 setToolsDropdownOpen(!toolsDropdownOpen);
                 setLangDropdownOpen(false);
               }}
-              className={`text-sm font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors cursor-pointer ${
+              className={`h-9 text-[13px] font-semibold px-3 rounded-lg flex items-center gap-1 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
                 toolsDropdownOpen
-                  ? 'bg-slate-900 text-white'
-                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                  ? 'bg-[var(--accent-dark)] text-[var(--accent-contrast)]'
+                  : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-sunken)]'
               }`}
             >
               <span>Tools</span>
@@ -193,16 +201,16 @@ export default function Navbar() {
             </button>
 
             {toolsDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 max-h-[420px] overflow-y-auto rounded-xl bg-white border border-slate-300 shadow-xl p-1.5 z-50 flex flex-col gap-0.5">
+              <div className="absolute top-full start-0 mt-1.5 w-64 sm:w-72 max-h-[380px] overflow-y-auto rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-strong)] shadow-lg p-1.5 z-50 flex flex-col gap-0.5">
                 {TOOLS.map((tool) => (
                   <Link
                     key={tool.href}
                     href={tool.href}
                     onClick={() => setToolsDropdownOpen(false)}
-                    className="p-2.5 rounded-lg hover:bg-rose-50 text-slate-800 hover:text-rose-700 transition-colors"
+                    className="px-2.5 py-2 rounded-md hover:bg-[var(--accent-soft)] text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] transition-colors"
                   >
-                    <div className="font-bold text-xs text-slate-950">{tool.label}</div>
-                    <div className="text-[11px] text-slate-600 mt-0.5">{tool.desc}</div>
+                    <div className="font-bold text-xs">{tool.label}</div>
+                    <div className="text-[11px] text-[var(--ink-muted)] mt-0.5">{tool.desc}</div>
                   </Link>
                 ))}
               </div>
@@ -213,14 +221,15 @@ export default function Navbar() {
           <div className="relative" ref={langRef}>
             <button
               type="button"
+              aria-expanded={langDropdownOpen}
               onClick={() => {
                 setLangDropdownOpen(!langDropdownOpen);
                 setToolsDropdownOpen(false);
               }}
-              className={`text-sm font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer border ${
+              className={`h-9 text-xs font-semibold px-3 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
                 langDropdownOpen
-                  ? 'bg-slate-900 border-slate-900 text-white shadow-xs'
-                  : 'border-slate-300 bg-slate-50 text-slate-800 hover:text-slate-950 hover:border-slate-400 hover:bg-slate-100'
+                  ? 'bg-[var(--accent-dark)] border-[var(--accent-dark)] text-[var(--accent-contrast)]'
+                  : 'border-[var(--border-strong)] bg-[var(--surface-canvas)] text-[var(--ink-primary)] hover:border-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-soft)]'
               }`}
             >
               <span>{selectedLang}</span>
@@ -232,7 +241,7 @@ export default function Navbar() {
             </button>
 
             {langDropdownOpen && (
-              <div className="absolute top-full right-0 mt-2 w-52 rounded-xl bg-white border border-slate-300 shadow-xl p-1.5 z-50 flex flex-col gap-0.5">
+              <div className="absolute top-full end-0 mt-1.5 w-48 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-strong)] shadow-lg p-1.5 z-50 flex flex-col gap-0.5">
                 {LANGUAGES.map((lang) => {
                   const isSelected = selectedLang === lang.name;
                   return (
@@ -243,19 +252,19 @@ export default function Navbar() {
                         setSelectedLang(lang.name);
                         setLangDropdownOpen(false);
                       }}
-                      className={`w-full px-2.5 py-2 rounded-lg text-xs flex items-center justify-between text-left transition-colors cursor-pointer ${
+                      className={`w-full px-2.5 py-1.5 rounded-md text-xs flex items-center justify-between text-start transition-colors cursor-pointer ${
                         isSelected
-                          ? 'bg-rose-50 text-rose-700 font-bold'
-                          : 'text-slate-800 hover:bg-slate-100 hover:text-slate-950'
+                          ? 'bg-[var(--accent-cyan-soft)] text-[var(--ink-primary)] font-bold border border-[var(--accent-cyan)]'
+                          : 'text-[var(--ink-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--ink-primary)]'
                       }`}
                     >
                       <span>
                         {lang.name}{' '}
-                        <span className={isSelected ? 'text-rose-600 font-normal' : 'text-slate-600 font-normal'}>
+                        <span className="text-[var(--ink-muted)] font-normal">
                           ({lang.native})
                         </span>
                       </span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-rose-600" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-[var(--accent-primary-text)]" />}
                     </button>
                   );
                 })}
@@ -264,40 +273,39 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Mobile Actions: Language & Hamburger */}
-        <div className="flex lg:hidden items-center gap-2">
-          {/* Quick Language Toggle on Mobile */}
+        {/* Mobile Actions */}
+        <div className="flex lg:hidden items-center gap-1.5">
           <button
             type="button"
             onClick={() => {
               setLangDropdownOpen(!langDropdownOpen);
               setMobileMenuOpen(false);
             }}
-            className="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 text-xs font-semibold text-slate-900 flex items-center gap-1 cursor-pointer hover:bg-slate-100"
+            className="h-9 px-2.5 rounded-lg border border-[var(--border-strong)] bg-[var(--surface-canvas)] text-xs font-semibold text-[var(--ink-primary)] flex items-center gap-1 cursor-pointer hover:bg-[var(--accent-cyan-soft)] hover:border-[var(--accent-cyan)]"
           >
             <span>{selectedLang}</span>
-            <ChevronDown className="w-3 h-3 text-slate-700" />
+            <ChevronDown className="w-3 h-3 text-[var(--ink-muted)]" />
           </button>
 
-          {/* Hamburger Menu Button */}
           <button
             type="button"
             onClick={() => {
               setMobileMenuOpen(!mobileMenuOpen);
               setLangDropdownOpen(false);
             }}
-            className="p-2 rounded-xl bg-slate-100 border border-slate-300 text-slate-900 hover:bg-slate-200 transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-strong)] text-[var(--ink-primary)] hover:bg-[var(--surface-interactive)] transition-colors cursor-pointer flex items-center justify-center"
             aria-label="Toggle Menu"
+            aria-expanded={mobileMenuOpen}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Language Dropdown popup */}
+      {/* Mobile Language Dropdown */}
       {langDropdownOpen && (
-        <div className="lg:hidden border-b border-slate-300 bg-white px-4 py-3 shadow-lg">
-          <p className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2">
+        <div className="lg:hidden border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-4 py-2.5 shadow-md">
+          <p className="text-[11px] font-bold text-[var(--ink-muted)] uppercase tracking-wider mb-1.5">
             Select Language
           </p>
           <div className="grid grid-cols-2 gap-1.5">
@@ -309,14 +317,14 @@ export default function Navbar() {
                   setSelectedLang(lang.name);
                   setLangDropdownOpen(false);
                 }}
-                className={`px-3 py-2 rounded-lg text-xs text-left flex items-center justify-between border ${
+                className={`h-9 px-2.5 rounded-md text-xs text-start flex items-center justify-between border cursor-pointer ${
                   selectedLang === lang.name
-                    ? 'bg-[#e11d48] border-[#e11d48] text-white font-semibold'
-                    : 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100'
+                    ? 'bg-[var(--accent-primary-hover)] border-[var(--accent-primary-hover)] text-[var(--accent-contrast)] font-semibold'
+                    : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-primary)] hover:bg-[var(--accent-cyan-soft)]'
                 }`}
               >
                 <span>{lang.name}</span>
-                {selectedLang === lang.name && <Check className="w-3 h-3 text-white" />}
+                {selectedLang === lang.name && <Check className="w-3 h-3 text-[var(--accent-contrast)]" />}
               </button>
             ))}
           </div>
@@ -325,50 +333,50 @@ export default function Navbar() {
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-slate-300 bg-white/98 backdrop-blur-xl px-4 py-4 flex flex-col gap-2 shadow-lg">
+        <div className="lg:hidden border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-4 py-3 flex flex-col gap-1.5 shadow-md max-h-[80vh] overflow-y-auto">
           <Link
             href="/"
             onClick={handleGoHome}
-            className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-900 hover:bg-rose-50 hover:text-rose-700"
+            className="px-2.5 py-2 rounded-md text-[13px] font-semibold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
           >
             Home
           </Link>
           <Link
             href="/about-tiktok-profile-viewer"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-900 hover:bg-rose-50 hover:text-rose-700"
+            className="px-2.5 py-2 rounded-md text-[13px] font-semibold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
           >
             About
           </Link>
           <Link
             href="/how-to-use-tiktok-profile-viewer"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-900 hover:bg-rose-50 hover:text-rose-700"
+            className="px-2.5 py-2 rounded-md text-[13px] font-semibold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
           >
             How to use
           </Link>
           <Link
             href="/creators"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-900 hover:bg-rose-50 hover:text-rose-700"
+            className="px-2.5 py-2 rounded-md text-[13px] font-semibold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
           >
             Browse Top Creators
           </Link>
 
-          <div className="pt-2 border-t border-slate-200">
-            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block px-3 mb-1.5">
+          <div className="pt-2 border-t border-[var(--border-subtle)]">
+            <span className="text-[11px] font-bold text-[var(--ink-muted)] uppercase tracking-wider block px-2.5 mb-1">
               Tools
             </span>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               {TOOLS.map((tool) => (
                 <Link
                   key={tool.href}
                   href={tool.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-800 hover:bg-rose-50 hover:text-rose-700 flex items-center justify-between gap-2"
+                  className="px-2.5 py-2 rounded-md text-xs font-semibold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)] flex items-center justify-between gap-2"
                 >
                   <span>{tool.label}</span>
-                  <span className="text-[11px] font-normal text-slate-600 truncate">{tool.desc}</span>
+                  <span className="text-[11px] font-normal text-[var(--ink-muted)] truncate">{tool.desc}</span>
                 </Link>
               ))}
             </div>

@@ -17,7 +17,6 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
   useEffect(() => {
     if (!ad || !ad.code || !containerRef.current) return;
 
-    // Check if the code contains <script> tags and execute them safely
     const container = containerRef.current;
     container.innerHTML = ad.code;
 
@@ -33,7 +32,6 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
     }
   }, [ad]);
 
-  // Only render if ad exists, is enabled, and has real custom ad code
   if (
     !ad ||
     !ad.enabled ||
@@ -44,28 +42,27 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
     return null;
   }
 
-  // Dimension sizing classes
   const dimensionClasses: Record<AdPlacement['dimension'], string> = {
     '728x90': 'w-[728px] max-w-full h-[90px]',
     '300x250': 'w-[300px] max-w-full h-[250px]',
     '336x280': 'w-[336px] max-w-full h-[280px]',
     '320x100': 'w-[320px] max-w-full h-[100px]',
     '300x600': 'w-[300px] max-w-full h-[600px]',
-    responsive: 'w-full min-h-[60px]',
+    responsive: 'w-full min-h-[56px]',
   };
 
   const dimClass = dimensionClasses[ad.dimension] || 'w-full';
 
   return (
-    <div className={`flex flex-col items-center justify-center my-3 select-none ${className}`}>
-      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-[#5C6573] tracking-wider mb-1">
-        <span>Sponsored</span>
-        <span className="text-[#9CA3AF]">•</span>
-        <span className="font-mono text-[9px] text-[#5C6573]">{ad.dimension}</span>
+    <div className={`flex flex-col items-center justify-center my-2.5 select-none ${className}`}>
+      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-[var(--ink-muted)] tracking-wider mb-1">
+        <span>Advertisement</span>
+        <span className="text-[var(--border-strong)]">•</span>
+        <span className="font-mono text-[9px] text-[var(--ink-muted)]">{ad.dimension}</span>
       </div>
 
       <div
-        className={`relative overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] flex items-center justify-center ${dimClass}`}
+        className={`relative overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex items-center justify-center ${dimClass}`}
       >
         {ad.code ? (
           <div
@@ -73,10 +70,10 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
             className="w-full h-full flex items-center justify-center overflow-hidden"
           />
         ) : (
-          <div className="flex flex-col items-center justify-center p-4 text-center">
-            <span className="text-[11px] font-bold text-[#111827]">{ad.name}</span>
-            <span className="text-[10px] text-[#5C6573] mt-0.5">
-              Configure this ad in <strong className="text-[#4B5563]">/admintiktok</strong>
+          <div className="flex flex-col items-center justify-center p-3 text-center">
+            <span className="text-[11px] font-bold text-[var(--ink-primary)]">{ad.name}</span>
+            <span className="text-[10px] text-[var(--ink-muted)] mt-0.5">
+              Configure this ad in <strong className="text-[var(--ink-primary)]">/admintiktok</strong>
             </span>
           </div>
         )}

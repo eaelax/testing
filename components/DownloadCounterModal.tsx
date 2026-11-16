@@ -91,20 +91,23 @@ function ModalContent({
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={mediaType === 'audio' ? 'Clean Audio Downloader' : 'Watermark-Free HD Downloader'}
       onClick={(e) => e.stopPropagation()}
-      className="relative w-full max-w-[460px] sm:max-w-[500px] h-[630px] sm:h-[670px] max-h-[92vh] bg-white rounded-3xl border border-slate-700/40 shadow-2xl flex flex-col justify-between overflow-hidden animate-in fade-in zoom-in-95 duration-200 select-none"
+      className="relative w-full max-w-[400px] sm:max-w-[430px] h-[540px] sm:h-[580px] max-h-[90vh] bg-[var(--surface-elevated)] rounded-xl border border-[var(--border-strong)] shadow-2xl flex flex-col justify-between overflow-hidden animate-in fade-in zoom-in-95 duration-200 select-none"
     >
-      {/* Matching Dark Studio Modal Header */}
-      <div className="w-full bg-slate-950 text-white px-4 py-3.5 border-b border-slate-800 flex items-center justify-between gap-3 shrink-0">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-7 h-7 rounded-full bg-rose-600/20 border border-rose-500/40 flex items-center justify-center shrink-0">
+      {/* High-Contrast Dark Header */}
+      <div className="w-full bg-[var(--accent-dark)] text-[var(--accent-contrast)] px-3.5 py-3 border-b border-[var(--ink-secondary)] flex items-center justify-between gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-6 h-6 rounded-full bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/60 flex items-center justify-center shrink-0">
             {mediaType === 'audio' ? (
-              <Music className="w-3.5 h-3.5 text-rose-400" />
+              <Music className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
             ) : (
-              <Film className="w-3.5 h-3.5 text-rose-400" />
+              <Film className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
             )}
           </div>
-          <span className="text-xs sm:text-sm font-bold text-white truncate">
+          <span className="text-xs sm:text-[13px] font-bold text-[var(--accent-contrast)] truncate">
             {mediaType === 'audio' ? 'Clean Audio Downloader' : 'Watermark-Free HD Downloader'}
           </span>
         </div>
@@ -112,26 +115,25 @@ function ModalContent({
         <button
           type="button"
           onClick={onClose}
-          className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#e11d48] text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0"
+          className="w-7 h-7 rounded-full bg-[var(--accent-contrast)]/15 hover:bg-[var(--accent-primary)] text-[var(--accent-contrast)] flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-cyan)]"
           aria-label="Close"
           title="Close and return to videos"
         >
-          <X className="w-4 h-4" />
+          <X className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Center Body: Countdown OR Ready State */}
-      <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-center p-5 sm:p-6 text-center overflow-y-auto">
+      {/* Center Body */}
+      <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-center p-4 sm:p-5 text-center overflow-y-auto bg-[var(--surface-elevated)]">
         {!isReady ? (
-          <div className="flex flex-col items-center justify-center w-full max-w-md">
-            {/* Circular Progress & Countdown Number */}
-            <div className="relative w-32 h-32 sm:w-36 sm:h-36 mb-5 flex items-center justify-center">
+          <div className="flex flex-col items-center justify-center w-full max-w-sm">
+            <div className="relative w-28 h-28 sm:w-32 sm:h-32 mb-4 flex items-center justify-center">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                 <circle
                   cx="50"
                   cy="50"
                   r="42"
-                  className="stroke-slate-200"
+                  className="stroke-[var(--border-subtle)]"
                   strokeWidth="7"
                   fill="transparent"
                 />
@@ -139,7 +141,7 @@ function ModalContent({
                   cx="50"
                   cy="50"
                   r="42"
-                  className="stroke-[#e11d48] transition-all duration-1000 ease-linear"
+                  className="stroke-[var(--accent-primary)] transition-all duration-1000 ease-linear"
                   strokeWidth="7"
                   strokeDasharray={264}
                   strokeDashoffset={264 - (264 * progressPercent) / 100}
@@ -148,41 +150,40 @@ function ModalContent({
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl sm:text-5xl font-black text-slate-950 font-mono tracking-tight leading-none">
+                <span className="text-3xl sm:text-4xl font-black text-[var(--ink-primary)] font-mono tabular-nums tracking-tight leading-none">
                   {counter}
                 </span>
-                <span className="text-[10px] sm:text-xs text-slate-600 font-bold uppercase tracking-wider mt-1">
+                <span className="text-[10px] text-[var(--ink-muted)] font-bold uppercase tracking-wider mt-1">
                   Seconds
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-extrabold text-slate-950 mb-1.5">
-              <Loader2 className="w-4 h-4 animate-spin text-[#e11d48]" />
+            <div className="flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold text-[var(--ink-primary)] mb-1">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--accent-primary-text)]" />
               <span>Preparing {mediaType.toUpperCase()} Stream</span>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-700 max-w-sm leading-relaxed px-2">
+            <p className="text-xs text-[var(--ink-secondary)] max-w-xs leading-relaxed px-2">
               {settings.downloadPreparingText ||
                 'Fetching original high quality stream and removing watermarks in background...'}
             </p>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center w-full max-w-md animate-in fade-in duration-300">
-            {/* Success icon */}
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300 flex items-center justify-center mb-4 shadow-xs">
+          <div className="flex flex-col items-center justify-center w-full max-w-sm animate-in fade-in duration-300">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)] flex items-center justify-center mb-3.5">
               {isDownloading ? (
-                <Loader2 className="w-9 h-9 sm:w-10 sm:h-10 animate-spin text-[#e11d48]" />
+                <Loader2 className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-[var(--accent-primary-text)]" />
               ) : (
-                <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12" />
+                <CheckCircle2 className="w-8 h-8 sm:w-9 sm:h-9 text-[var(--accent-cyan-text)]" />
               )}
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+            <h3 className="text-lg sm:text-xl font-black text-[var(--ink-primary)] tracking-tight">
               {isDownloading ? 'Saving File...' : 'Download is Ready!'}
             </h3>
 
-            <p className="text-xs sm:text-sm text-slate-700 max-w-sm mt-1.5 leading-relaxed px-2">
+            <p className="text-xs text-[var(--ink-secondary)] max-w-xs mt-1 leading-relaxed px-2">
               {downloadError
                 ? downloadError
                 : isDownloading
@@ -192,22 +193,21 @@ function ModalContent({
                 : 'Click the button below to save your clean file without watermarks.'}
             </p>
 
-            {/* Primary Download Button */}
-            <div className="mt-6 w-full max-w-xs sm:max-w-sm flex flex-col gap-2.5">
+            <div className="mt-4 w-full max-w-xs flex flex-col gap-2">
               <button
                 type="button"
                 disabled={isDownloading || !downloadUrl}
                 onClick={handleManualDownloadClick}
-                className="w-full py-3.5 px-6 rounded-xl bg-[#e11d48] hover:bg-[#be123c] active:scale-[0.98] disabled:opacity-60 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer"
+                className="w-full h-10 px-4 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] disabled:cursor-not-allowed text-[var(--accent-contrast)] font-bold text-xs sm:text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 {isDownloading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin text-white shrink-0" />
+                    <Loader2 className="w-4 h-4 animate-spin text-[var(--accent-contrast)] shrink-0" />
                     <span>Downloading File...</span>
                   </>
                 ) : (
                   <>
-                    <Download className="w-5 h-5 text-white shrink-0" />
+                    <Download className="w-4 h-4 text-[var(--accent-contrast)] shrink-0" />
                     <span>
                       {hasTriggeredDownload
                         ? 'Download Again'
@@ -224,7 +224,7 @@ function ModalContent({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-3 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                className="w-full h-9 px-4 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] active:scale-[0.98] text-[var(--accent-contrast)] font-bold text-xs transition-all cursor-pointer"
               >
                 Back to Profile Videos
               </button>
@@ -232,19 +232,18 @@ function ModalContent({
           </div>
         )}
 
-        {/* Modal Ad Slot */}
-        <AdSlot placement="modal" className="w-full mt-4 mb-0 shrink-0" />
+        <AdSlot placement="modal" className="w-full mt-3 mb-0 shrink-0" />
       </div>
 
-      {/* Bottom Metadata Info Card */}
-      <div className="w-full px-4 py-3 bg-slate-100 border-t border-slate-200 text-[11px] sm:text-xs text-slate-800 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-1.5 truncate max-w-[240px] sm:max-w-[320px] text-left">
-          <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-          <span className="truncate font-mono font-semibold text-slate-900">
+      {/* Bottom Metadata Info Bar */}
+      <div className="w-full px-3.5 py-2.5 bg-[var(--surface-canvas)] border-t border-[var(--border-subtle)] text-[11px] text-[var(--ink-primary)] flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-1.5 truncate max-w-[210px] sm:max-w-[260px] text-start">
+          <Sparkles className="w-3.5 h-3.5 text-[var(--accent-primary-text)] shrink-0" />
+          <span className="truncate font-mono font-semibold text-[var(--ink-primary)]">
             {fileName || title || 'tiktok_clean_media'}
           </span>
         </div>
-        <span className="font-extrabold text-emerald-900 shrink-0 uppercase tracking-wider text-[10px] ml-2 bg-emerald-100 px-2.5 py-0.5 rounded-md border border-emerald-300">
+        <span className="font-extrabold text-[var(--ink-primary)] shrink-0 uppercase tracking-wider text-[10px] ms-2 bg-[var(--accent-cyan)] px-2 py-0.5 rounded">
           No Watermark HD
         </span>
       </div>
@@ -268,7 +267,7 @@ export default function DownloadCounterModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4"
+      className="fixed inset-0 z-50 bg-[var(--accent-dark)]/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
     >
       <ModalContent
         initialSeconds={initialSeconds}

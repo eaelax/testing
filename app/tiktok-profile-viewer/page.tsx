@@ -50,10 +50,10 @@ export default function ProfileViewerPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -61,42 +61,42 @@ export default function ProfileViewerPage() {
 
         <Breadcrumbs items={[{ label: 'TikTok Profile Viewer' }]} />
 
-        {/* Hero Section */}
-        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight">
+        {/* Compact Hero Section */}
+        <div className="text-center max-w-xl mx-auto mb-5">
+          <h1 className="text-[length:var(--h1-size)] font-black text-[var(--ink-primary)] tracking-tight leading-tight">
             Anonymous TikTok Profile Viewer
           </h1>
-          <p className="text-xs sm:text-sm md:text-base text-slate-700 mt-2 leading-relaxed max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-1.5 leading-relaxed">
             Search any public TikTok creator, see their follower stats, and watch videos anonymously without an account.
           </p>
         </div>
 
-        {/* Interactive Viewer with empty input until user types */}
+        {/* Interactive Viewer */}
         <TikTokProfileViewer
           initialUsername=""
           autoSearch={false}
         />
 
         {/* Privacy Features */}
-        <section className="mt-14 pt-8 border-t border-slate-300/80">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-2">
-              <h3 className="text-sm sm:text-base font-bold text-slate-950">100% Anonymous</h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <section className="mt-10 pt-7 border-t border-[var(--border-subtle)]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
+              <h2 className="text-sm font-bold text-[var(--ink-primary)]">100% Anonymous</h2>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                 Creators cannot see that you watched their videos or checked their follower count.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-2">
-              <h3 className="text-sm sm:text-base font-bold text-slate-950">No Account Needed</h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
+              <h2 className="text-sm font-bold text-[var(--ink-primary)]">No Account Needed</h2>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                 You never need to log in or share any email or password.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-2">
-              <h3 className="text-sm sm:text-base font-bold text-slate-950">Accurate Live Stats</h3>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
+              <h2 className="text-sm font-bold text-[var(--ink-primary)]">Accurate Live Stats</h2>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                 See real-time follower counts, total likes, and public video counts directly from TikTok.
               </p>
             </div>
@@ -104,18 +104,21 @@ export default function ProfileViewerPage() {
         </section>
 
         {/* FAQs */}
-        <section className="mt-12 pt-8 border-t border-slate-300/80 mb-10">
-          <div className="text-center max-w-2xl mx-auto mb-6">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950">
+        <section className="mt-9 pt-7 border-t border-[var(--border-subtle)] mb-8">
+          <div className="text-center max-w-xl mx-auto mb-5">
+            <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)]">
               Anonymous Viewer FAQs
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {faqSchema.mainEntity.map((item, idx) => (
-              <div key={idx} className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-300/80 shadow-xs flex flex-col gap-1.5">
-                <h3 className="text-xs sm:text-sm font-bold text-slate-950">{item.name}</h3>
-                <p className="text-xs text-slate-700 leading-relaxed">
+              <div
+                key={idx}
+                className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1"
+              >
+                <h3 className="text-xs sm:text-[13px] font-bold text-[var(--ink-primary)]">{item.name}</h3>
+                <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
                   {item.acceptedAnswer.text}
                 </p>
               </div>

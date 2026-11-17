@@ -1,329 +1,342 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
   Search,
-  Loader2,
+  BarChart3,
+  Users,
+  Heart,
+  Eye,
+  MessageCircle,
+  Share2,
+  TrendingUp,
+  Sparkles,
+  AlertCircle,
+  Play,
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
-import { fetchProfileDirect } from '@/lib/tiktok-client';
+import AdSlot from '@/components/AdSlot';
 
-export default function TikTokAnalyticsPage() {
-  // Manual Calculator state
-  const [calcLikes, setCalcLikes] = useState<string>('12500');
-  const [calcComments, setCalcComments] = useState<string>('850');
-  const [calcShares, setCalcShares] = useState<string>('1200');
-  const [calcViews, setCalcViews] = useState<string>('150000');
+interface AnalyticsProfile {
+  username: string;
+  nickname: string;
+  avatar: string;
+  bio: string;
+  verified: boolean;
+  followers: number;
+  following: number;
+  likes: number;
+  videosCount: number;
+}
 
-  // Audit state with empty search input by default
-  const [auditUsername, setAuditUsername] = useState<string>('');
-  const [auditLoading, setAuditLoading] = useState<boolean>(false);
-  const [auditResult, setAuditResult] = useState<{
-    unique_id: string;
-    nickname: string;
-    avatar: string;
-    followers: number;
-    totalLikes: number;
-    videoCount: number;
-    avgViews: number;
-    avgLikes: number;
-    avgShares: number;
-    engagementRate: number;
-  } | null>(null);
-  const [auditError, setAuditError] = useState<string | null>(null);
+interface AnalyticsVideo {
+  id: string;
+  title: string;
+  cover: string;
+  plays: number;
+  likes: number;
+  comments: number;
+  shares: number;
+}
 
-  // Manual calculation: ((Likes + Comments + Shares) / Views) * 100
-  const likesNum = parseFloat(calcLikes) || 0;
-  const commentsNum = parseFloat(calcComments) || 0;
-  const sharesNum = parseFloat(calcShares) || 0;
-  const viewsNum = parseFloat(calcViews) || 1;
+interface AnalyticsData {
+  profile: AnalyticsProfile;
+  videos: AnalyticsVideo[];
+}
 
-  const totalInteractions = likesNum + commentsNum + sharesNum;
-  const manualEngagementRate = viewsNum > 0 ? (totalInteractions / viewsNum) * 100 : 0;
+function formatNum(num: number): string {
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toString();
+}
 
-  const getRating = (rate: number) => {
-    if (rate >= 9) return { label: 'Top 1% Viral', color: 'text-emerald-800 bg-emerald-100 border-emerald-300' };
-    if (rate >= 6) return { label: 'High Engagement', color: 'text-sky-800 bg-sky-100 border-sky-300' };
-    if (rate >= 3) return { label: 'Average Engagement', color: 'text-amber-800 bg-amber-100 border-amber-300' };
-    return { label: 'Low Engagement', color: 'text-rose-800 bg-rose-100 border-rose-300' };
-  };
+export default function AnalyticsPage() {
+  const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<AnalyticsData | null>(null);
 
-  const handleAudit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const clean = auditUsername.replace(/^@/, '').trim();
-    if (!clean) {
-      setAuditError('Please enter a TikTok username.');
-      return;
-    }
+  const handleAnalyze = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = username.trim().replace(/^@/, '');
+    if (!clean) return;
 
-    setAuditLoading(true);
-    setAuditError(null);
+    setLoading(true);
+    setError(null);
+    setData(null);
 
     try {
-      const data = await fetchProfileDirect(clean);
+      const res = await fetch(`/api/tiktok?username=${encodeURIComponent(clean)}`);
+      const json = await res.json();
 
-      if (!data || data.code !== 0 || !data.data) {
-        throw new Error(data?.msg || 'Creator not found or account is private.');
+      if (!res.ok || json.error) {
+        setError(json.error || 'Could not fetch profile metrics.');
+      } else {
+        setData(json);
       }
-
-      const videos = data.data.videos || [];
-      const user = data.data.user;
-      const stats = data.data.stats;
-
-      if (videos.length === 0) {
-        throw new Error('User has no public videos available to analyze.');
-      }
-
-      let totalPlay = 0;
-      let totalDigg = 0;
-      let totalShare = 0;
-
-      for (const v of videos) {
-        totalPlay += Number(v.play_count) || 0;
-        totalDigg += Number(v.digg_count) || 0;
-        totalShare += Number(v.share_count) || 0;
-      }
-
-      const sampleCount = videos.length;
-      const avgViews = Math.round(totalPlay / sampleCount);
-      const avgLikes = Math.round(totalDigg / sampleCount);
-      const avgShares = Math.round(totalShare / sampleCount);
-      const rate = totalPlay > 0 ? ((totalDigg + totalShare) / totalPlay) * 100 : 0;
-
-      setAuditResult({
-        unique_id: user.unique_id || clean,
-        nickname: user.nickname || clean,
-        avatar: user.avatar || '',
-        followers: Number(stats.followerCount) || 0,
-        totalLikes: Number(stats.heartCount) || totalDigg,
-        videoCount: Number(stats.videoCount) || sampleCount,
-        avgViews,
-        avgLikes,
-        avgShares,
-        engagementRate: parseFloat(rate.toFixed(2)),
-      });
-    } catch (err: unknown) {
-      setAuditError(err instanceof Error ? err.message : 'Audit failed.');
-      setAuditResult(null);
+    } catch {
+      setError('Connection failed. Please verify the username and try again.');
     } finally {
-      setAuditLoading(false);
+      setLoading(false);
     }
   };
 
-  const rating = getRating(manualEngagementRate);
+  const videos = data?.videos || [];
+  const profile = data?.profile;
+
+  const avgViews = videos.length
+    ? Math.round(videos.reduce((acc, v) => acc + (v.plays || 0), 0) / videos.length)
+    : 0;
+  const avgLikes = videos.length
+    ? Math.round(videos.reduce((acc, v) => acc + (v.likes || 0), 0) / videos.length)
+    : 0;
+  const avgComments = videos.length
+    ? Math.round(videos.reduce((acc, v) => acc + (v.comments || 0), 0) / videos.length)
+    : 0;
+  const avgShares = videos.length
+    ? Math.round(videos.reduce((acc, v) => acc + (v.shares || 0), 0) / videos.length)
+    : 0;
+
+  const engagementRate =
+    avgViews > 0
+      ? (((avgLikes + avgComments + avgShares) / avgViews) * 100).toFixed(2)
+      : '0.00';
+
+  const estEarningsLow = profile ? Math.round((profile.followers / 1000) * 1.2) : 0;
+  const estEarningsHigh = profile ? Math.round((profile.followers / 1000) * 3.5) : 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
         <Breadcrumbs items={[{ label: 'TikTok Analytics' }]} />
+        <AdSlot placement="header" />
 
-        {/* Hero Section */}
-        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight">
-            TikTok Engagement Calculator
+        {/* Compact Header */}
+        <div className="text-center max-w-xl mx-auto mb-5">
+          <h1 className="text-[length:var(--h1-size)] font-black text-[var(--ink-primary)] tracking-tight leading-tight">
+            TikTok Profile Analytics
           </h1>
-          <p className="text-xs sm:text-sm md:text-base text-slate-700 mt-2 leading-relaxed max-w-xl mx-auto">
-            Check engagement rates, average views, and video performance for any public creator.
+          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-1.5 leading-relaxed">
+            Analyze any public creator account. View real-time engagement rates, average video views, and estimated creator earnings.
           </p>
         </div>
 
-        {/* Section 1: Live Creator Auditor */}
-        <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white border border-slate-300/80 shadow-xs">
-          <h2 className="text-base sm:text-lg font-bold text-slate-950 mb-1">
-            Audit Any Creator
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-700 mb-4">
-            Enter a TikTok username to analyze their latest public videos and calculate their real engagement score.
-          </p>
-
-          <form onSubmit={handleAudit} className="flex flex-col sm:flex-row gap-2.5 max-w-lg">
-            <div className="relative flex-1">
-              <span className="absolute left-3 top-2 text-slate-500 font-bold text-sm">@</span>
-              <input
-                type="text"
-                value={auditUsername}
-                onChange={(e) => setAuditUsername(e.target.value)}
-                placeholder="TikTok username (e.g. mrbeast)"
-                className="w-full pl-7 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-950 placeholder:text-slate-500 focus:bg-white focus:outline-none focus:border-sky-600"
-              />
-            </div>
+        {/* Search Input */}
+        <form onSubmit={handleAnalyze} className="max-w-lg mx-auto mb-7">
+          <div className="relative flex items-center">
+            <Search className="w-4 h-4 text-[var(--ink-muted)] absolute start-3.5 pointer-events-none" />
+            <input
+              type="text"
+              aria-label="Enter TikTok username"
+              placeholder="Enter TikTok username (e.g., khaby.lame or @mrbeast)"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full h-11 ps-10 pe-28 rounded-xl border border-[var(--border-strong)] bg-[var(--surface-elevated)] text-[var(--ink-primary)] text-xs sm:text-sm font-medium focus:outline-none focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[var(--accent-primary)]/15 transition-all"
+            />
             <button
               type="submit"
-              disabled={auditLoading}
-              className="px-5 py-2 rounded-xl bg-slate-950 hover:bg-black active:scale-[0.98] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 cursor-pointer transition-all"
+              disabled={loading || !username.trim()}
+              className="absolute end-1.5 h-8 px-4 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] disabled:opacity-50 text-[var(--accent-contrast)] font-bold text-xs transition-all cursor-pointer"
             >
-              {auditLoading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Auditing...</span>
-                </>
-              ) : (
-                <>
-                  <Search className="w-3.5 h-3.5" />
-                  <span>Audit Creator</span>
-                </>
-              )}
+              {loading ? 'Analyzing...' : 'Analyze'}
             </button>
-          </form>
-
-          {auditError && (
-            <div className="mt-3 p-3 rounded-xl bg-rose-50 border border-rose-300 text-xs font-medium text-rose-800">
-              {auditError}
+          </div>
+          {error && (
+            <div className="mt-2.5 p-2.5 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-primary)] text-[var(--accent-primary-text)] text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
             </div>
           )}
+        </form>
 
-          {auditResult && (
-            <div className="mt-6 pt-5 border-t border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-3.5">
-              <div className="md:col-span-4 flex items-center justify-between flex-wrap gap-2.5 pb-2.5 border-b border-slate-200">
-                <div className="flex items-center gap-2.5">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={auditResult.avatar || `/api/avatar?username=${encodeURIComponent(auditResult.unique_id)}`}
-                    alt={auditResult.nickname}
-                    referrerPolicy="no-referrer"
-                    className="w-10 h-10 rounded-full object-cover border border-slate-300 bg-slate-100"
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      target.src = `/api/avatar?username=${encodeURIComponent(auditResult.unique_id)}`;
-                    }}
-                  />
-                  <div>
-                    <h3 className="font-bold text-slate-950 text-sm">{auditResult.nickname}</h3>
-                    <p className="text-[11px] text-slate-600 font-mono">@{auditResult.unique_id}</p>
+        {/* Results Dashboard */}
+        {profile && (
+          <div className="space-y-5 animate-in fade-in duration-300">
+            {/* Creator Summary Card */}
+            <div className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col sm:flex-row items-center gap-4">
+              <img
+                src={profile.avatar}
+                alt={profile.nickname}
+                className="w-16 h-16 rounded-full object-cover border-2 border-[var(--accent-cyan)] shrink-0"
+              />
+              <div className="flex-1 text-center sm:text-start">
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <h2 className="text-base sm:text-lg font-extrabold text-[var(--ink-primary)]">
+                    {profile.nickname}
+                  </h2>
+                  {profile.verified && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)]">
+                      Verified
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[var(--ink-muted)] font-mono">@{profile.username}</p>
+                {profile.bio && (
+                  <p className="text-xs text-[var(--ink-secondary)] mt-1 line-clamp-2 max-w-xl">
+                    {profile.bio}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-5 border-t sm:border-t-0 sm:border-s border-[var(--border-subtle)] pt-3 sm:pt-0 sm:ps-5 tabular-nums">
+                <div className="text-center">
+                  <div className="text-base font-black text-[var(--ink-primary)]">
+                    {formatNum(profile.followers)}
                   </div>
+                  <div className="text-[11px] font-semibold text-[var(--ink-muted)]">Followers</div>
                 </div>
+                <div className="text-center">
+                  <div className="text-base font-black text-[var(--ink-primary)]">
+                    {formatNum(profile.likes)}
+                  </div>
+                  <div className="text-[11px] font-semibold text-[var(--ink-muted)]">Total Likes</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-base font-black text-[var(--ink-primary)]">
+                    {formatNum(profile.videosCount)}
+                  </div>
+                  <div className="text-[11px] font-semibold text-[var(--ink-muted)]">Videos</div>
+                </div>
+              </div>
+            </div>
 
-                <div className="flex items-center gap-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${getRating(auditResult.engagementRate).color}`}>
-                    {getRating(auditResult.engagementRate).label}
-                  </span>
-                  <Link
-                    href={`/profile/${auditResult.unique_id}`}
-                    className="text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-950 hover:bg-black text-white transition-colors"
+            {/* Core Analytics KPIs */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 tabular-nums">
+              <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+                <div className="flex items-center gap-2 text-xs font-bold text-[var(--ink-secondary)] mb-1.5">
+                  <TrendingUp className="w-4 h-4 text-[var(--accent-primary-text)]" />
+                  <span>Engagement Rate</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[var(--ink-primary)]">
+                  {engagementRate}%
+                </div>
+                <p className="text-[11px] text-[var(--ink-muted)] mt-1">
+                  {Number(engagementRate) > 8
+                    ? 'Viral-grade engagement'
+                    : Number(engagementRate) > 4
+                    ? 'Healthy creator activity'
+                    : 'Average interaction'}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+                <div className="flex items-center gap-2 text-xs font-bold text-[var(--ink-secondary)] mb-1.5">
+                  <Eye className="w-4 h-4 text-[var(--accent-cyan-text)]" />
+                  <span>Avg. Video Views</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[var(--ink-primary)]">
+                  {formatNum(avgViews)}
+                </div>
+                <p className="text-[11px] text-[var(--ink-muted)] mt-1">
+                  Based on last {videos.length} videos
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+                <div className="flex items-center gap-2 text-xs font-bold text-[var(--ink-secondary)] mb-1.5">
+                  <Heart className="w-4 h-4 text-[var(--accent-primary-text)]" />
+                  <span>Avg. Video Likes</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[var(--ink-primary)]">
+                  {formatNum(avgLikes)}
+                </div>
+                <p className="text-[11px] text-[var(--ink-muted)] mt-1">
+                  {formatNum(avgComments)} comments / video
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+                <div className="flex items-center gap-2 text-xs font-bold text-[var(--ink-secondary)] mb-1.5">
+                  <Sparkles className="w-4 h-4 text-[var(--accent-cyan-text)]" />
+                  <span>Est. Sponsorship Value</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[var(--ink-primary)]">
+                  ${estEarningsLow.toLocaleString()} - ${estEarningsHigh.toLocaleString()}
+                </div>
+                <p className="text-[11px] text-[var(--ink-muted)] mt-1">
+                  Estimated per sponsored post
+                </p>
+              </div>
+            </div>
+
+            {/* Video Performance Breakdown */}
+            <div className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+              <div className="flex items-center justify-between mb-3.5">
+                <h3 className="text-sm font-bold text-[var(--ink-primary)] flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-[var(--accent-primary-text)]" />
+                  <span>Recent Videos Performance Breakdown</span>
+                </h3>
+                <span className="text-[11px] font-semibold text-[var(--ink-muted)]">
+                  Live feed metrics
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {videos.slice(0, 6).map((v) => (
+                  <div
+                    key={v.id}
+                    className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-colors"
                   >
-                    View All Videos
-                  </Link>
-                </div>
+                    <div className="relative w-12 h-14 rounded-md overflow-hidden shrink-0 bg-[var(--surface-sunken)]">
+                      <img src={v.cover} alt={v.title} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-[var(--ink-primary)] truncate">
+                        {v.title || 'TikTok Video'}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-3.5 mt-1.5 text-[11px] text-[var(--ink-secondary)] font-medium tabular-nums">
+                        <span className="flex items-center gap-1">
+                          <Play className="w-3 h-3 text-[var(--accent-cyan-text)]" />
+                          {formatNum(v.plays)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3 h-3 text-[var(--accent-primary-text)]" />
+                          {formatNum(v.likes)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageCircle className="w-3 h-3 text-[var(--ink-muted)]" />
+                          {formatNum(v.comments)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Share2 className="w-3 h-3 text-[var(--ink-muted)]" />
+                          {formatNum(v.shares)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-100/80 border border-slate-200">
-                <span className="text-slate-600 font-semibold text-[11px] block">Engagement Rate</span>
-                <span className="text-xl font-black text-slate-950 font-mono">
-                  {auditResult.engagementRate}%
-                </span>
-                <span className="text-[10px] text-slate-500 block mt-0.5">Interactions / Views</span>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-100/80 border border-slate-200">
-                <span className="text-slate-600 font-semibold text-[11px] block">Avg. Views</span>
-                <span className="text-base font-extrabold text-slate-950 font-mono">
-                  {auditResult.avgViews.toLocaleString()}
-                </span>
-                <span className="text-[10px] text-slate-500 block mt-0.5">Recent posts</span>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-100/80 border border-slate-200">
-                <span className="text-slate-600 font-semibold text-[11px] block">Avg. Likes</span>
-                <span className="text-base font-extrabold text-slate-950 font-mono">
-                  {auditResult.avgLikes.toLocaleString()}
-                </span>
-                <span className="text-[10px] text-slate-500 block mt-0.5">Average likes</span>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-100/80 border border-slate-200">
-                <span className="text-slate-600 font-semibold text-[11px] block">Avg. Shares</span>
-                <span className="text-base font-extrabold text-slate-950 font-mono">
-                  {auditResult.avgShares.toLocaleString()}
-                </span>
-                <span className="text-[10px] text-slate-500 block mt-0.5">Average shares</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Section 2: Interactive Manual Calculator */}
-        <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-300/80 shadow-xs mb-8">
-          <h2 className="text-base sm:text-lg font-bold text-slate-950 mb-1">
-            Manual Engagement Calculator
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-700 mb-5">
-            Type your views, likes, comments, and shares to calculate your score.
-          </p>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-            {/* Form Inputs */}
-            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  Total Video Views
-                </label>
-                <input
-                  type="number"
-                  value={calcViews}
-                  onChange={(e) => setCalcViews(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-950 focus:bg-white focus:outline-none focus:border-sky-600 font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  Total Likes
-                </label>
-                <input
-                  type="number"
-                  value={calcLikes}
-                  onChange={(e) => setCalcLikes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-950 focus:bg-white focus:outline-none focus:border-sky-600 font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  Comments Count
-                </label>
-                <input
-                  type="number"
-                  value={calcComments}
-                  onChange={(e) => setCalcComments(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-950 focus:bg-white focus:outline-none focus:border-sky-600 font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  Shares Count
-                </label>
-                <input
-                  type="number"
-                  value={calcShares}
-                  onChange={(e) => setCalcShares(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-950 focus:bg-white focus:outline-none focus:border-sky-600 font-mono"
-                />
-              </div>
-            </div>
-
-            {/* Result Display Box */}
-            <div className="p-5 rounded-2xl bg-slate-100 border border-slate-300/80 flex flex-col items-center justify-center text-center gap-2">
-              <span className="text-[11px] uppercase tracking-wider font-bold text-slate-600">
-                Calculated Engagement
-              </span>
-              <div className="text-4xl font-black text-slate-950 font-mono">
-                {manualEngagementRate.toFixed(2)}%
-              </div>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${rating.color}`}>
-                {rating.label}
-              </span>
-              <p className="text-[10px] text-slate-600 mt-0.5">
-                Formula: ((Likes + Comments + Shares) / Views) x 100
-              </p>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Educational Content */}
+        <section className="mt-10 pt-7 border-t border-[var(--border-subtle)] grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+            <Users className="w-4 h-4 text-[var(--accent-cyan-text)] mb-1.5" />
+            <h2 className="text-sm font-bold text-[var(--ink-primary)] mb-1">Audience Quality Check</h2>
+            <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
+              Spot fake followers by comparing follower count against real average views and comments per video.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+            <TrendingUp className="w-4 h-4 text-[var(--accent-primary-text)] mb-1.5" />
+            <h2 className="text-sm font-bold text-[var(--ink-primary)] mb-1">Engagement Benchmarks</h2>
+            <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
+              High performing TikTok accounts maintain an engagement rate above 5% across recent short-form uploads.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+            <Sparkles className="w-4 h-4 text-[var(--accent-cyan-text)] mb-1.5" />
+            <h2 className="text-sm font-bold text-[var(--ink-primary)] mb-1">Creator Monetization</h2>
+            <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
+              Estimate creator sponsorship values based on verified follower tiers and active audience response.
+            </p>
+          </div>
+        </section>
       </main>
 
       <Footer />

@@ -6,13 +6,13 @@ import TikTokProfileViewer from '@/components/TikTokProfileViewer';
 import AdSlot from '@/components/AdSlot';
 
 export const metadata: Metadata = {
-  title: 'TikTok Watermark Remover - Remove TikTok Logo Online Free',
+  title: 'TikTok Watermark Remover - Save Clean HD Videos Without Logo',
   description:
-    'Remove TikTok watermark logo and creator username tag online. Download clean 1080p HD MP4 videos without watermark for Reels, Shorts, and offline use on TikProfilesViewer.com.',
+    'Remove the TikTok watermark and bouncing username logo from any video automatically. Save clean, lossless HD MP4 files on TikProfilesViewer.com.',
   openGraph: {
-    title: 'TikTok Watermark Remover - Remove TikTok Logo Online Free',
+    title: 'TikTok Watermark Remover - Save Clean HD Videos Without Logo',
     description:
-      'Remove TikTok watermark logo and creator username tag online. Download clean 1080p HD MP4 videos.',
+      'Get original unwatermarked TikTok videos directly without cropping or blurring the frame.',
     url: 'https://tikprofilesviewer.com/tiktok-watermark-remover',
     siteName: 'Tik Profiles Viewer',
     type: 'website',
@@ -29,36 +29,36 @@ export default function WatermarkRemoverPage() {
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'How does Tik Profiles Viewer remove TikTok watermarks?',
+        name: 'How does the TikTok watermark remover work without cropping?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Instead of blurring or cropping the screen, our engine accesses the raw original MP4 video stream directly from TikTok content delivery servers before the app applies the bouncing watermark logo.',
+          text: 'Unlike screen recorders or blurring apps, our tool fetches the clean original video file directly before TikTok stamps the bouncing logo onto the playback stream.',
         },
       },
       {
         '@type': 'Question',
-        name: 'Is there any loss of video quality when removing the watermark?',
+        name: 'Will removing the watermark reduce video resolution?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'No. The video is downloaded in original 1080p / 720p resolution without re-compression or loss of fidelity.',
+          text: 'No. Because we retrieve the source video directly from TikTok CDN, you preserve 100% of the crisp original HD quality, frame rate, and clear stereo audio.',
         },
       },
       {
         '@type': 'Question',
-        name: 'Can I repost watermark-free videos to Instagram Reels or YouTube Shorts?',
+        name: 'Is it safe to use on iPhone, Android, and desktop?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes! Both Instagram Reels and YouTube Shorts algorithms downrank videos with visible TikTok watermarks. Using Tik Profiles Viewer ensures your videos remain clean and eligible for maximum reach.',
+          text: 'Yes. Everything runs securely in your browser with zero software installs, browser extensions, or login requirements.',
         },
       },
     ],
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[1080px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -67,67 +67,59 @@ export default function WatermarkRemoverPage() {
         <Breadcrumbs items={[{ label: 'TikTok Watermark Remover' }]} />
         <AdSlot placement="header" />
 
-        {/* Hero Section */}
-        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight">
+        {/* Compact Hero Section */}
+        <div className="text-center max-w-xl mx-auto mb-5">
+          <h1 className="text-[length:var(--h1-size)] font-black text-[var(--ink-primary)] tracking-tight leading-tight">
             TikTok Watermark Remover
           </h1>
-          <p className="text-xs sm:text-sm md:text-base text-slate-700 mt-2 leading-relaxed max-w-xl mx-auto">
-            Extract pure, original HD MP4 videos without the bouncing TikTok watermark logo or end credit cards. 100% free with unlimited downloads.
+          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-1.5 leading-relaxed">
+            Remove the bouncing TikTok logo and username watermark cleanly without cropping, blurring, or losing original HD quality.
           </p>
         </div>
 
-        {/* Interactive Downloader with empty input until user types */}
+        {/* Interactive Viewer */}
         <TikTokProfileViewer
           initialUsername=""
           autoSearch={false}
         />
 
-        {/* 3 Step Explanation */}
-        <section className="mt-14 pt-8 border-t border-slate-300/80">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950">
-              Why Remove TikTok Watermarks?
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-700 mt-1">
-              Repurpose short-form videos across all major platforms with maximum engagement.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs">
-              <h3 className="font-bold text-sm sm:text-base text-slate-950 mb-1">Boost Instagram Reels Reach</h3>
-              <p className="text-xs text-slate-700 leading-relaxed">
-                Instagram officially penalizes clips with TikTok logos. Watermark-free clips receive full organic distribution.
+        {/* Feature Highlights */}
+        <section className="mt-10 pt-7 border-t border-[var(--border-subtle)]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
+              <h2 className="text-sm font-bold text-[var(--ink-primary)]">No Blurring or Cropping</h2>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
+                Keep the full video screen clean and sharp without ugly blurred corners or cropped edges.
               </p>
             </div>
-
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs">
-              <h3 className="font-bold text-sm sm:text-base text-slate-950 mb-1">YouTube Shorts Monetization</h3>
-              <p className="text-xs text-slate-700 leading-relaxed">
-                Eligible for YouTube Shorts Creator Fund and Ads revenue without third-party brand marks.
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
+              <h2 className="text-sm font-bold text-[var(--ink-primary)]">Direct Clean HD MP4</h2>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
+                Stream and download pure MP4 files ready for editing or reposting on Instagram Reels and YouTube Shorts.
               </p>
             </div>
-
-            <div className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs">
-              <h3 className="font-bold text-sm sm:text-base text-slate-950 mb-1">Clean Portfolio Archiving</h3>
-              <p className="text-xs text-slate-700 leading-relaxed">
-                Save clean master copies of your original creative work in original 1080p resolution.
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
+              <h2 className="text-sm font-bold text-[var(--ink-primary)]">Fast &amp; 100% Free</h2>
+              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
+                Unlimited clean watermark removals every day without paying fees or making an account.
               </p>
             </div>
           </div>
         </section>
 
         {/* FAQs */}
-        <section className="mt-12 pt-8 border-t border-slate-300/80 mb-10">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950 text-center mb-6">
-            Frequently Asked Questions
+        <section className="mt-9 pt-7 border-t border-[var(--border-subtle)] mb-8">
+          <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)] text-center mb-5">
+            Watermark Remover FAQs
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {faqSchema.mainEntity.map((faq, i) => (
-              <div key={i} className="p-4 sm:p-5 rounded-xl bg-white border border-slate-300/80 shadow-xs">
-                <h3 className="text-xs sm:text-sm font-bold text-slate-950 mb-1">{faq.name}</h3>
-                <p className="text-xs text-slate-700 leading-relaxed">{faq.acceptedAnswer.text}</p>
+              <div
+                key={i}
+                className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1"
+              >
+                <h3 className="text-xs sm:text-[13px] font-bold text-[var(--ink-primary)]">{faq.name}</h3>
+                <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">{faq.acceptedAnswer.text}</p>
               </div>
             ))}
           </div>

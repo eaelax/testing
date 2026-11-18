@@ -1,56 +1,56 @@
 @import "tailwindcss";
 
 :root {
-  /* Core Semantic Surfaces (High-contrast alternating white, cool slate, and deep obsidian) */
-  --surface-canvas: #F3F5F8;
+  /* Core Semantic Surfaces (60% Soft Canvas, 30% Structural Surface, 10% Accent) */
+  --surface-canvas: #F5F7FA;
   --surface-elevated: #FFFFFF;
-  --surface-sunken: #E7ECF3;
-  --surface-interactive: #DCE4EE;
-  --surface-hero: #0B0F17;
-  --surface-hero-elevated: #141B29;
-  --surface-hero-border: #253047;
+  --surface-sunken: #EBF0F5;
+  --surface-interactive: #E2E8F0;
+  --surface-hero: #EEF2F7;
+  --surface-hero-elevated: #FFFFFF;
+  --surface-hero-border: #D6DFEB;
 
-  /* High-Contrast Ink Tokens */
-  --ink-primary: #0B0F17;
-  --ink-secondary: #2A3241;
-  --ink-muted: #525E70;
+  /* Comfortable High-Contrast Ink Tokens */
+  --ink-primary: #111827;
+  --ink-secondary: #374151;
+  --ink-muted: #5B6678;
 
-  /* Crisp 1px Hairline Borders (No thick borders) */
-  --border-subtle: #D5DDE7;
-  --border-strong: #B8C4D4;
-  --border-hover: #8B9BB0;
+  /* Crisp 1px Hairline Borders */
+  --border-subtle: #DCE3EC;
+  --border-strong: #C2CDDB;
+  --border-hover: #94A3B8;
 
-  /* Brand Primary Accent (#EE1D52 Crimson) */
-  --accent-primary: #EE1D52;
-  --accent-primary-hover: #D41445;
-  --accent-primary-text: #C4113F;
-  --accent-soft: #FFF0F4;
+  /* Brand Primary Accent (Refined Eye-Friendly Crimson) */
+  --accent-primary: #D92652;
+  --accent-primary-hover: #BE1B44;
+  --accent-primary-text: #B8173F;
+  --accent-soft: #FDF2F5;
   --accent-contrast: #FFFFFF;
 
-  /* Brand Secondary Accent (#69C9D0 Cyan) */
-  --accent-cyan: #69C9D0;
-  --accent-cyan-hover: #4DB8C0;
-  --accent-cyan-soft: #E8F9FA;
-  --accent-cyan-text: #09636B;
+  /* Brand Secondary Accent (Calm Teal-Cyan) */
+  --accent-cyan: #58C7D0;
+  --accent-cyan-hover: #42B3BC;
+  --accent-cyan-soft: #EAF8F9;
+  --accent-cyan-text: #0B636B;
 
-  /* Brand Structural Dark */
-  --accent-dark: #0B0F17;
-  --accent-dark-hover: #182030;
+  /* Brand Structural Slate-Navy */
+  --accent-dark: #1A2332;
+  --accent-dark-hover: #263347;
 
   /* Semantic Status & Interactive States */
-  --status-success: #09636B;
+  --status-success: #0B636B;
   --status-warning: #B45309;
-  --status-danger: #C4113F;
-  --status-danger-bg: #FFF0F4;
-  --status-danger-border: #EE1D52;
-  --focus-ring: #EE1D52;
-  --state-disabled-bg: #DCE4EE;
-  --state-disabled-ink: #525E70;
+  --status-danger: #B8173F;
+  --status-danger-bg: #FDF2F5;
+  --status-danger-border: #D92652;
+  --focus-ring: #D92652;
+  --state-disabled-bg: #E2E8F0;
+  --state-disabled-ink: #64748B;
 
-  /* Subtle Surface Depth (Clean separation without thick borders) */
-  --shadow-card: 0 1px 3px rgba(11, 15, 23, 0.06), 0 4px 14px rgba(11, 15, 23, 0.04);
-  --shadow-card-hover: 0 6px 20px rgba(11, 15, 23, 0.09);
-  --shadow-workbench: 0 16px 40px rgba(0, 0, 0, 0.35);
+  /* Subtle Surface Depth */
+  --shadow-card: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 12px rgba(17, 24, 39, 0.04);
+  --shadow-card-hover: 0 6px 18px rgba(17, 24, 39, 0.08);
+  --shadow-workbench: 0 12px 32px rgba(17, 24, 39, 0.08), 0 2px 6px rgba(17, 24, 39, 0.04);
 
   /* Proportional Typographic Ceiling */
   --h1-size: clamp(1.75rem, 3vw, 2.35rem);
@@ -72,6 +72,11 @@
   --shadow-none: none;
 }
 
+@theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
 html {
   font-size: 16px;
   scroll-behavior: smooth;
@@ -80,12 +85,19 @@ html {
 body {
   background-color: var(--surface-canvas);
   color: var(--ink-primary);
+  font-family: var(--font-sans);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Crisp Scrollbar */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Soft Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

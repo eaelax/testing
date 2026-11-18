@@ -48,21 +48,21 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
     '336x280': 'w-[336px] max-w-full h-[280px]',
     '320x100': 'w-[320px] max-w-full h-[100px]',
     '300x600': 'w-[300px] max-w-full h-[600px]',
-    responsive: 'w-full min-h-[56px]',
+    responsive: 'w-full min-h-[64px]',
   };
 
-  const dimClass = dimensionClasses[ad.dimension] || 'w-full';
+  const dimClass = dimensionClasses[ad.dimension] || 'w-full min-h-[64px]';
 
   return (
-    <div className={`flex flex-col items-center justify-center my-2.5 select-none ${className}`}>
-      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-[var(--ink-muted)] tracking-wider mb-1">
+    <div className={`flex flex-col items-center justify-center my-6 select-none ${className}`}>
+      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-[var(--ink-muted)] tracking-wider mb-1.5">
         <span>Advertisement</span>
         <span className="text-[var(--border-strong)]">•</span>
         <span className="font-mono text-[9px] text-[var(--ink-muted)]">{ad.dimension}</span>
       </div>
 
       <div
-        className={`relative overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex items-center justify-center ${dimClass}`}
+        className={`relative overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex items-center justify-center ${dimClass}`}
       >
         {ad.code ? (
           <div

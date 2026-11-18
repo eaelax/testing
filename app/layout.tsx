@@ -1,13 +1,30 @@
 import type { Metadata } from 'next';
+import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-jakarta',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Tik Profiles Viewer - Free TikTok Profile Viewer & HD Downloader',
-  description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
+  description:
+    'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
   referrer: 'no-referrer',
   openGraph: {
     title: 'Tik Profiles Viewer - Free TikTok Profile Viewer & HD Downloader',
-    description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
+    description:
+      'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
     url: 'https://tikprofilesviewer.com',
     siteName: 'Tik Profiles Viewer',
     type: 'website',
@@ -15,7 +32,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Tik Profiles Viewer - Free TikTok Profile Viewer & HD Downloader',
-    description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
+    description:
+      'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
   },
   icons: {
     icon: '/assets/aistudio/tik-profiles-viewer-logo_c4487561.png',
@@ -30,13 +48,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" dir="ltr" className={`${jakarta.variable} ${jetbrainsMono.variable}`}>
       <head>
         <meta name="referrer" content="no-referrer" />
         <link rel="icon" type="image/png" href="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png" />
         <link rel="apple-touch-icon" href="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png" />
       </head>
-      <body className="min-h-screen bg-[var(--surface-canvas)] text-[var(--ink-primary)] antialiased overflow-x-hidden selection:bg-[var(--accent-soft)] selection:text-[var(--ink-primary)]">
+      <body className="min-h-screen bg-[var(--surface-canvas)] text-[var(--ink-primary)] font-sans antialiased overflow-x-hidden selection:bg-[var(--accent-soft)] selection:text-[var(--ink-primary)]">
         {children}
       </body>
     </html>

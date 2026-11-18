@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import LegalLayout from '@/components/LegalLayout';
 
 export const metadata: Metadata = {
   title: 'Cookie Policy - Tik Profiles Viewer',
   description:
-    'Comprehensive Cookie Policy for Tik Profiles Viewer on TikProfilesViewer.com. Learn about technical cookies, local storage preferences, and how to control your tracking settings.',
+    'Cookie Policy for Tik Profiles Viewer on TikProfilesViewer.com. Learn what cookies and browser storage are used, why we use them, and how to turn them off.',
   alternates: {
     canonical: 'https://tikprofilesviewer.com/cookie-policy',
   },
@@ -14,77 +15,142 @@ export default function CookiePolicyPage() {
   return (
     <LegalLayout
       title="Cookie Policy"
-      subtitle="Complete transparency on how cookies, local storage, and tracking technologies operate on TikProfilesViewer.com."
-      summary="Tik Profiles Viewer uses essential technical cookies and browser local storage to preserve your language preferences and maintain site security. We do not use intrusive tracking cookies, and you can control cookie settings at any time."
+      subtitle="Clear information about how cookies and browser storage work on TikProfilesViewer.com and how you can control them."
+      summary="Tik Profiles Viewer uses basic browser storage to remember your preferences and keep the site safe. If ads are shown, advertising partners such as Google AdSense may also place cookies based on your browser and consent settings."
       currentPath="/cookie-policy"
     >
       <section className="space-y-3">
-        <h2 className="text-xl font-bold text-slate-900">1. What Are Cookies and Local Storage?</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-[var(--ink-primary)]">
+          1. What Are Cookies and Local Storage?
+        </h2>
         <p>
-          Cookies are small text files placed on your computer, tablet, or smartphone by web servers when you browse online. They help web applications remember your preferences, keep you logged into secure areas, and analyze how visitors interact with web pages.
+          Cookies are small text files that a website saves on your phone, tablet, or computer when you visit a page. They help the site remember settings and stay secure.
         </p>
         <p>
-          In addition to standard cookies, modern web technologies also employ <strong>LocalStorage</strong> and <strong>SessionStorage</strong>. These are browser-managed key-value storage mechanisms that store user choices directly on your physical device without transferring data automatically on every network request.
+          Modern browsers also provide <strong>LocalStorage</strong> and <strong>SessionStorage</strong>. These tools save your settings directly inside your browser so your choices stay ready without creating a user account.
         </p>
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-bold text-slate-900">2. Categories of Cookies We Utilize</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-[var(--ink-primary)]">
+          2. Cookie Categories Used on This Site
+        </h2>
         <p>
-          At <strong>Tik Profiles Viewer</strong>, we categorize browser storage into the following defined groups:
+          Below is a simple table showing each category, what it does, and how long data stays stored:
         </p>
 
-        <div className="space-y-4 pt-2">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <h3 className="text-base font-bold text-slate-900 mb-1">A. Strictly Necessary &amp; Functional Cookies</h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              These cookies are essential for our website to operate correctly. They enable fundamental capabilities such as page navigation, language selection (English, Arabic, French, German, Spanish, etc.), security rate-limiting, and CDN server routing. The Website cannot function properly without these items.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <h3 className="text-base font-bold text-slate-900 mb-1">B. Preference &amp; UI State Storage (LocalStorage)</h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              We utilize browser LocalStorage to remember custom UI configurations, such as your countdown seconds preference and search filter states. This data is strictly stored locally in your browser sandbox and is never uploaded to remote tracking servers.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <h3 className="text-base font-bold text-slate-900 mb-1">C. Performance &amp; Diagnostic Analytics</h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              We may utilize privacy-preserving, aggregated technical telemetry to measure page loading speeds, monitor server latency, and diagnose technical errors across various device types. No personal identity information is recorded or combined with third-party tracking databases.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <h3 className="text-base font-bold text-slate-900 mb-1">D. Third-Party Advertising Cookies</h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              To keep our tools completely free without paywalls, our website may display banner ads from verified ad partners (such as Google AdSense). These third-party vendors may use cookies to serve ads based on your visit to this and other websites. You may opt out of personalized advertising by visiting Google Ads Settings.
-            </p>
-          </div>
+        <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-canvas)]">
+          <table className="w-full text-start border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-[var(--border-subtle)] bg-[var(--surface-sunken)] text-[var(--ink-primary)]">
+                <th className="p-3 font-bold text-start">Category</th>
+                <th className="p-3 font-bold text-start">Purpose</th>
+                <th className="p-3 font-bold text-start">Retention</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--ink-secondary)]">
+              <tr>
+                <td className="p-3 font-bold text-[var(--ink-primary)] whitespace-nowrap">
+                  Strictly Necessary
+                </td>
+                <td className="p-3">
+                  Keeps page routing, basic security checks, and admin login sessions working properly.
+                </td>
+                <td className="p-3 whitespace-nowrap">Session</td>
+              </tr>
+              <tr>
+                <td className="p-3 font-bold text-[var(--ink-primary)] whitespace-nowrap">
+                  Preferences (LocalStorage)
+                </td>
+                <td className="p-3">
+                  Remembers your chosen display settings and countdown preferences on your own device.
+                </td>
+                <td className="p-3 whitespace-nowrap">Until cleared</td>
+              </tr>
+              <tr>
+                <td className="p-3 font-bold text-[var(--ink-primary)] whitespace-nowrap">
+                  Analytics
+                </td>
+                <td className="p-3">
+                  Helps measure page speed and fix technical errors using aggregated site traffic data.
+                </td>
+                <td className="p-3 whitespace-nowrap">Up to 12 months</td>
+              </tr>
+              <tr>
+                <td className="p-3 font-bold text-[var(--ink-primary)] whitespace-nowrap">
+                  Advertising (Google AdSense)
+                </td>
+                <td className="p-3">
+                  Helps Google and approved ad partners show ads, limit repeat ads, and measure ad clicks.
+                </td>
+                <td className="p-3 whitespace-nowrap">Per partner rules</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-bold text-slate-900">3. How to Manage and Disable Cookies</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-[var(--ink-primary)]">
+          3. Google AdSense Advertising Choices
+        </h2>
         <p>
-          You have full control over cookie storage. Most web browsers allow you to modify your cookie settings to refuse cookies, delete specific cookies, or notify you whenever a cookie is set. Below are links to management guides for common browsers:
+          If ads are active on this site, Google and third-party vendors may use cookies to display ads based on your visits to this website and other websites.
         </p>
-        <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
-          <li><strong>Google Chrome:</strong> Settings &gt; Privacy and Security &gt; Cookies and other site data</li>
-          <li><strong>Apple Safari (iOS &amp; macOS):</strong> Preferences &gt; Privacy &gt; Manage Website Data</li>
-          <li><strong>Mozilla Firefox:</strong> Options &gt; Privacy &amp; Security &gt; Cookies and Site Data</li>
-          <li><strong>Microsoft Edge:</strong> Settings &gt; Cookies and Site Permissions</li>
-        </ul>
-        <p className="text-xs text-slate-500">
-          Please note that disabling strictly necessary cookies may impact the proper visual layout and language localization of the Website.
+        <p>
+          You can opt out of personalized advertising in{' '}
+          <a
+            href="https://adssettings.google.com"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-[var(--accent-primary-text)] font-semibold hover:underline"
+          >
+            Google Ads Settings
+          </a>{' '}
+          or manage third-party ad cookies at{' '}
+          <a
+            href="https://www.aboutads.info/choices/"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-[var(--accent-primary-text)] font-semibold hover:underline"
+          >
+            www.aboutads.info
+          </a>
+          .
         </p>
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-bold text-slate-900">4. Policy Revisions</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-[var(--ink-primary)]">
+          4. How to Control Cookies in Your Browser
+        </h2>
         <p>
-          We may amend this Cookie Policy periodically to reflect technological adjustments or regulatory guidance. Any modifications will be posted here with an updated review date.
+          You can block or delete cookies at any time using your browser settings:
+        </p>
+        <ul className="list-disc ps-5 space-y-1.5 text-[var(--ink-secondary)]">
+          <li><strong>Google Chrome:</strong> Settings &gt; Privacy and security &gt; Third-party cookies</li>
+          <li><strong>Apple Safari:</strong> Settings or Preferences &gt; Privacy &gt; Manage Website Data</li>
+          <li><strong>Mozilla Firefox:</strong> Settings &gt; Privacy &amp; Security &gt; Cookies and Site Data</li>
+          <li><strong>Microsoft Edge:</strong> Settings &gt; Cookies and site permissions</li>
+        </ul>
+        <p className="text-xs text-[var(--ink-muted)]">
+          Turning off strictly necessary storage may prevent some site preferences from saving. For more details, read our{' '}
+          <Link
+            href="/privacy-policy"
+            className="text-[var(--accent-primary-text)] font-semibold hover:underline"
+          >
+            Privacy Policy
+          </Link>
+          .
+        </p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg sm:text-xl font-bold text-[var(--ink-primary)]">
+          5. Updates to This Policy
+        </h2>
+        <p>
+          We may update this Cookie Policy when browser rules or site tools change. Please check this page for the latest version, and confirm operator details ([Owner / Company Legal Name], [Country / Jurisdiction]) before launch.
         </p>
       </section>
     </LegalLayout>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
 
 export interface AdPlacement {
   id: string;
@@ -14,7 +15,7 @@ export interface AdPlacement {
 export interface SiteSettings {
   siteName: string;
   domainName: string;
-  downloadCounterSeconds: number; // e.g. 5
+  downloadCounterSeconds: number;
   downloadPreparingText: string;
   downloadSuccessText: string;
   announcementEnabled: boolean;
@@ -31,7 +32,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   downloadPreparingText: 'Preparing clean HD video stream in background...',
   downloadSuccessText: 'Your download is ready! Starting download...',
   announcementEnabled: false,
-  announcementText: '🔥 New: High-speed HD Video & MP3 Audio Downloader without watermarks!',
+  announcementText: 'New: High-speed HD Video and MP3 Audio Downloader without watermarks.',
   announcementLink: '/tiktok-video-downloader',
   customHeadCode: '',
   ads: [
@@ -85,7 +86,6 @@ export function getStoredSettings(): SiteSettings {
     const parsed = JSON.parse(raw);
     const cleanedAds = Array.isArray(parsed.ads)
       ? parsed.ads.map((ad: AdPlacement) => {
-          // If ad code was the previous placeholder, clean it out
           if (ad.code && ad.code.includes('ad-placeholder')) {
             return { ...ad, code: '', enabled: false };
           }
@@ -113,8 +113,6 @@ export function saveStoredSettings(settings: SiteSettings) {
     console.error('Failed to save settings:', err);
   }
 }
-
-import { useSyncExternalStore } from 'react';
 
 let memoryCache: SiteSettings | null = null;
 let lastRaw: string | null = null;

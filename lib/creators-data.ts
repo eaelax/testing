@@ -38,15 +38,15 @@ export const CATEGORIES: CategoryData[] = [
     faqs: [
       {
         question: 'Who is the most followed comedy creator on TikTok?',
-        answer: 'Khaby Lame (@khaby.lame) is the most followed comedy creator on TikTok with over 160 million followers, famous for his signature silent reactions to overcomplicated life hacks.'
+        answer: 'Khaby Lame (@khaby.lame) is the most followed comedy creator on TikTok with over 160 million followers, famous for his silent reactions to overcomplicated life hacks.'
       },
       {
         question: 'Can I download TikTok comedy clips without watermarks?',
-        answer: 'Yes! Using TikVault, you can download any public TikTok comedy video in original HD MP4 quality without the bouncing TikTok watermark logo.'
+        answer: 'Yes. Using Tik Profiles Viewer, you can download any public TikTok comedy video in original HD MP4 quality without the bouncing TikTok watermark logo.'
       },
       {
         question: 'How do TikTok comedians achieve high engagement rates?',
-        answer: 'Comedy creators typically maintain 8-15% engagement rates because humorous short-form content drives high rewatch rates, comment arguments, and cross-platform shares.'
+        answer: 'Comedy creators often maintain 8 to 15 percent engagement rates because funny short videos drive high rewatch counts, active comments, and shares.'
       }
     ]
   },
@@ -62,7 +62,7 @@ export const CATEGORIES: CategoryData[] = [
     faqs: [
       {
         question: 'How do I download TikTok recipe videos to cook later?',
-        answer: 'Search any food creator on TikVault (like @gordonramsayofficial or @cznburak) and click Download HD Video to save the cooking tutorial directly to your device.'
+        answer: 'Search any food creator on Tik Profiles Viewer (like @gordonramsayofficial or @cznburak) and click Download HD Video to save the cooking tutorial directly to your device.'
       },
       {
         question: 'Who are the top chefs on TikTok?',
@@ -82,11 +82,11 @@ export const CATEGORIES: CategoryData[] = [
     faqs: [
       {
         question: 'Can I download TikTok tech tutorials to watch offline?',
-        answer: 'Yes, TikVault allows instant watermark-free MP4 downloads so you can reference software tutorials, coding tips, and hardware guides offline.'
+        answer: 'Yes, Tik Profiles Viewer allows instant watermark-free MP4 downloads so you can watch software tutorials, coding tips, and hardware guides offline.'
       },
       {
         question: 'What is the best way to analyze a tech creator on TikTok?',
-        answer: 'Use TikVault’s TikTok Analytics tool to calculate average view counts, engagement percentage, and total likes across their public posts.'
+        answer: 'Use the Tik Profiles Viewer Analytics tool to check average view counts, engagement percentage, and total likes across their public posts.'
       }
     ]
   },
@@ -102,11 +102,11 @@ export const CATEGORIES: CategoryData[] = [
     faqs: [
       {
         question: 'How do I extract TikTok gaming sound clips in MP3 format?',
-        answer: 'Open the gamer profile on TikVault, select any video card, and click Download Audio Only (MP3) to save the background music or audio meme.'
+        answer: 'Open the gamer profile on Tik Profiles Viewer, select any video card, and click Download Audio (MP3) to save the background music or sound clip.'
       },
       {
         question: 'Can I view gamer TikTok profiles without having an account?',
-        answer: 'Yes! TikVault is 100% anonymous and free—no TikTok login, app installation, or personal account is required.'
+        answer: 'Yes. Tik Profiles Viewer is 100% anonymous and free. No TikTok login, app installation, or personal account is required.'
       }
     ]
   },
@@ -122,11 +122,11 @@ export const CATEGORIES: CategoryData[] = [
     faqs: [
       {
         question: 'How can I save TikTok workout videos to my phone gallery?',
-        answer: 'Enter the fitness creator username on TikVault, tap on the workout routine video, and click Download HD Video. The MP4 saves directly to your device storage.'
+        answer: 'Enter the fitness creator username on Tik Profiles Viewer, tap on the workout routine video, and click Download HD Video. The MP4 saves directly to your device storage.'
       },
       {
         question: 'Are fitness videos downloaded with watermarks?',
-        answer: 'No. All videos downloaded through TikVault are 100% clean, high-definition streams with zero watermark or creator overlays.'
+        answer: 'No. All videos downloaded through Tik Profiles Viewer are clean, high-definition streams with zero watermark or creator overlays.'
       }
     ]
   },
@@ -142,11 +142,11 @@ export const CATEGORIES: CategoryData[] = [
     faqs: [
       {
         question: 'How do I download the original sound from a viral TikTok dance?',
-        answer: 'Select the dance video in TikVault and click Download Audio Only (MP3) to download the high-fidelity 320kbps audio file directly.'
+        answer: 'Select the dance video in Tik Profiles Viewer and click Download Audio (MP3) to download the clean audio file directly.'
       },
       {
         question: 'Who are the biggest dance influencers on TikTok?',
-        answer: 'Charli D’Amelio (@charlidamelio), Addison Rae (@addisonre), and Michael Le (@michael.le) are among the most famous dance influencers in TikTok history.'
+        answer: 'Charli D’Amelio (@charlidamelio), Addison Rae (@addisonre), and Michael Le (@michael.le) are among the most famous dance creators in TikTok history.'
       }
     ]
   }

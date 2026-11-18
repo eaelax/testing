@@ -18,10 +18,12 @@ import { CREATORS } from '@/lib/creators-data';
 
 export const metadata: Metadata = {
   title: 'Tik Profiles Viewer - Free TikTok Profile Viewer & HD Downloader',
-  description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
+  description:
+    'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
   openGraph: {
     title: 'Tik Profiles Viewer - Free TikTok Profile Viewer & HD Downloader',
-    description: 'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
+    description:
+      'View any TikTok profile anonymously, watch videos, and download watermark-free HD videos and MP3 audio for free on TikProfilesViewer.com.',
     url: 'https://tikprofilesviewer.com',
     siteName: 'Tik Profiles Viewer',
     type: 'website',
@@ -40,7 +42,8 @@ export default function HomePage() {
     name: 'Tik Profiles Viewer',
     applicationCategory: 'MultimediaApplication',
     operatingSystem: 'All',
-    description: 'Free TikTok profile viewer, video player, and watermark-free HD video and MP3 audio downloader.',
+    description:
+      'Free TikTok profile viewer, video player, and watermark-free HD video and MP3 audio downloader.',
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -88,192 +91,199 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)] relative">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <div className="relative w-full overflow-hidden flex-1 flex flex-col">
-        {/* Subtle brand ambient tint behind hero */}
-        <div
-          className="absolute top-0 start-1/2 -translate-x-1/2 w-[900px] max-w-[120vw] h-[380px] pointer-events-none -z-10 blur-3xl opacity-65"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 60% at 50% 38%, rgba(238, 29, 82, 0.08) 0%, rgba(105, 201, 208, 0.12) 48%, transparent 100%)',
-          }}
+      <main className="flex-1 w-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
 
-        <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 pt-5 sm:pt-7 pb-8 flex flex-col items-center">
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
-          />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-          />
-
-          {/* Compact Hero Headline & Subtitle */}
-          <div className="text-center max-w-2xl mx-auto mb-5">
-            <h1 className="text-[length:var(--h1-size)] font-black tracking-tight text-[var(--ink-primary)] leading-[1.18]">
-              View Any TikTok Profile &amp; Download Videos in HD
-            </h1>
-
-            <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-2 leading-relaxed max-w-xl mx-auto">
-              Inspect public TikTok profiles anonymously, watch videos quickly without lag, and save watermark-free HD videos and MP3 audio for free.
-            </p>
-          </div>
-
-          <div className="w-full">
-            <TikTokProfileViewer initialUsername="" autoSearch={false}>
-              <div className="w-full">
-                {/* How to Use Section */}
-                <section id="how-to-use" className="w-full mt-9 pt-7 border-t border-[var(--border-subtle)] scroll-mt-16">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)]">
-                        How to Use Tik Profiles Viewer
-                      </h2>
-                      <p className="text-xs text-[var(--ink-secondary)] mt-0.5">
-                        Follow these simple steps to view and download any public video.
-                      </p>
-                    </div>
-                    <Link
-                      href="/how-to-use-tiktok-profile-viewer"
-                      className="text-xs font-bold text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] flex items-center gap-1 transition-colors shrink-0"
-                    >
-                      <span>Full guide</span>
-                      <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
-                    </Link>
+        <TikTokProfileViewer
+          initialUsername=""
+          autoSearch={false}
+          heroVariant="workbench"
+          title="View Any TikTok Profile & Download Videos in HD"
+          subtitle="Inspect public TikTok profiles anonymously, watch videos smoothly without lag, and save watermark-free HD MP4 videos and MP3 audio for free."
+        >
+          <div className="w-full flex flex-col">
+            {/* Band 1: How to Use (Cool Slate Band + White Cards) */}
+            <section
+              id="how-to-use"
+              className="w-full bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] py-10 sm:py-12 scroll-mt-16"
+            >
+              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight">
+                      How to Use Tik Profiles Viewer
+                    </h2>
+                    <p className="text-sm text-[var(--ink-secondary)] mt-1">
+                      Follow these three simple steps to view any public profile and save HD media.
+                    </p>
                   </div>
+                  <Link
+                    href="/how-to-use-tiktok-profile-viewer"
+                    className="h-9 px-3.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-strong)] hover:border-[var(--accent-primary)] text-xs font-bold text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] inline-flex items-center gap-1.5 transition-colors shrink-0 w-fit"
+                  >
+                    <span>Full guide</span>
+                    <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                  </Link>
+                </div>
 
-                  <HowToUseSteps />
-                </section>
+                <HowToUseSteps />
+              </div>
+            </section>
 
-                {/* Explore Any TikTok Niche */}
+            {/* Band 2: Explore Niches (Pure White Band + Containerless Image) */}
+            <section className="w-full bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] py-10 sm:py-14">
+              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
                 <ExploreNichesSection />
+              </div>
+            </section>
 
-                {/* Trending Creators */}
-                <section className="w-full mt-10 pt-8 border-t border-[var(--border-subtle)]">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)]">
-                        Trending TikTok Creators
-                      </h2>
-                      <p className="text-xs text-[var(--ink-secondary)] mt-0.5">
-                        Popular creators you can inspect right now.
-                      </p>
-                    </div>
+            {/* Band 3: Trending Creators (Cool Slate Band + White Cards) */}
+            <section className="w-full bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] py-10 sm:py-12">
+              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight">
+                      Trending TikTok Creators
+                    </h2>
+                    <p className="text-sm text-[var(--ink-secondary)] mt-1">
+                      Popular public creators you can inspect and watch right now.
+                    </p>
+                  </div>
+                  <Link
+                    href="/creators"
+                    className="h-9 px-3.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-strong)] hover:border-[var(--accent-primary)] text-xs font-bold text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] inline-flex items-center gap-1.5 transition-colors shrink-0 w-fit"
+                  >
+                    <span>View all creators</span>
+                    <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {featuredCreators.map((creator) => (
                     <Link
-                      href="/creators"
-                      className="text-xs font-bold text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] flex items-center gap-1 transition-colors shrink-0"
+                      key={creator.username}
+                      href={`/profile/${creator.username}`}
+                      className="group p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] hover:border-[var(--accent-primary)] hover:shadow-[var(--shadow-card-hover)] transition-all flex items-center gap-3.5"
                     >
-                      <span>View all creators</span>
-                      <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[var(--surface-sunken)] shrink-0 border border-[var(--border-subtle)]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={creator.avatar || `/api/avatar?username=${encodeURIComponent(creator.username)}`}
+                          alt={creator.displayName}
+                          referrerPolicy="no-referrer"
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-extrabold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors truncate">
+                          {creator.displayName}
+                        </h3>
+                        <p className="text-xs font-mono font-semibold text-[var(--ink-muted)] truncate">
+                          @{creator.username}
+                        </p>
+                        <div className="flex items-center gap-1.5 text-xs text-[var(--ink-secondary)] font-medium mt-1">
+                          <span className="font-bold text-[var(--ink-primary)] tabular-nums">
+                            {creator.followers} followers
+                          </span>
+                          <span>•</span>
+                          <span className="truncate">{creator.category}</span>
+                        </div>
+                      </div>
+
+                      <ChevronRight className="w-4 h-4 text-[var(--ink-muted)] group-hover:text-[var(--accent-primary-text)] group-hover:translate-x-0.5 transition-all shrink-0 rtl:rotate-180" />
                     </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Band 4: About Tik Profiles Viewer (Pure White Band) */}
+            <section
+              id="about"
+              className="w-full bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] py-10 sm:py-12 scroll-mt-16"
+            >
+              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight">
+                      About Tik Profiles Viewer
+                    </h2>
+                    <p className="text-sm text-[var(--ink-secondary)] mt-1">
+                      Built on TikProfilesViewer.com for fast, private access to public TikTok profiles.
+                    </p>
+                  </div>
+                  <Link
+                    href="/about-tiktok-profile-viewer"
+                    className="h-9 px-3.5 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-strong)] hover:border-[var(--accent-primary)] text-xs font-bold text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] inline-flex items-center gap-1.5 transition-colors shrink-0 w-fit"
+                  >
+                    <span>Read more</span>
+                    <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] flex flex-col gap-2.5">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)] flex items-center justify-center">
+                      <Zap className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-base font-extrabold text-[var(--ink-primary)]">Fast Video Player</h3>
+                    <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                      Play videos smoothly without lag. Clips start quickly with crisp picture quality.
+                    </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {featuredCreators.map((creator) => (
-                      <Link
-                        key={creator.username}
-                        href={`/profile/${creator.username}`}
-                        className="group p-3.5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] transition-all flex items-center gap-3"
-                      >
-                        <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-[var(--surface-sunken)] shrink-0 border border-[var(--border-subtle)]">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={creator.avatar || `/api/avatar?username=${encodeURIComponent(creator.username)}`}
-                            alt={creator.displayName}
-                            referrerPolicy="no-referrer"
-                            loading="lazy"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-xs sm:text-sm font-bold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors truncate">
-                            {creator.displayName}
-                          </h3>
-                          <p className="text-[11px] font-mono font-semibold text-[var(--ink-muted)] truncate">
-                            @{creator.username}
-                          </p>
-                          <div className="flex items-center gap-1.5 text-[11px] text-[var(--ink-secondary)] font-medium mt-0.5">
-                            <span className="tabular-nums">{creator.followers} followers</span>
-                            <span>•</span>
-                            <span className="truncate">{creator.category}</span>
-                          </div>
-                        </div>
-
-                        <ChevronRight className="w-4 h-4 text-[var(--ink-muted)] group-hover:text-[var(--accent-primary-text)] transition-colors shrink-0 rtl:rotate-180" />
-                      </Link>
-                    ))}
+                  <div className="p-5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] flex flex-col gap-2.5">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40 flex items-center justify-center">
+                      <Download className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-base font-extrabold text-[var(--ink-primary)]">100% Free Forever</h3>
+                    <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                      No payments, no credit card, and no daily caps. Download as many videos as you need.
+                    </p>
                   </div>
-                </section>
 
-                {/* Free Tools Section */}
+                  <div className="p-5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] flex flex-col gap-2.5">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] flex items-center justify-center">
+                      <ShieldCheck className="w-4 h-4 text-[var(--accent-cyan)]" />
+                    </div>
+                    <h3 className="text-base font-extrabold text-[var(--ink-primary)]">Private &amp; Anonymous</h3>
+                    <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                      Nobody knows you viewed their profile. No sign-up required, and your activity stays private.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Band 5: Free Creator Tools (Cool Slate Band + White Cards) */}
+            <section className="w-full bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] py-10 sm:py-12">
+              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
                 <CreatorToolsSection />
+              </div>
+            </section>
 
+            {/* Band 6: AdSlot & FAQ (Soft Canvas Band + White Cards) */}
+            <section className="w-full bg-[var(--surface-canvas)] py-10 sm:py-12">
+              <div className="max-w-[1120px] mx-auto px-4 sm:px-6 space-y-8">
                 <AdSlot placement="footer" />
-
-                {/* About Tik Profiles Viewer */}
-                <section id="about" className="w-full mt-10 pt-8 border-t border-[var(--border-subtle)] scroll-mt-16">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)]">
-                        About Tik Profiles Viewer
-                      </h2>
-                      <p className="text-xs text-[var(--ink-secondary)] mt-0.5">
-                        Free web service on TikProfilesViewer.com built for everyone.
-                      </p>
-                    </div>
-                    <Link
-                      href="/about-tiktok-profile-viewer"
-                      className="text-xs font-bold text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] flex items-center gap-1 transition-colors shrink-0"
-                    >
-                      <span>Read more</span>
-                      <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
-                    </Link>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)] flex items-center justify-center">
-                        <Zap className="w-4 h-4" />
-                      </div>
-                      <h3 className="text-sm font-bold text-[var(--ink-primary)]">Fast Video Player</h3>
-                      <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
-                        Play videos smoothly without lag. Videos start quickly with clear picture quality.
-                      </p>
-                    </div>
-
-                    <div className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40 flex items-center justify-center">
-                        <Download className="w-4 h-4" />
-                      </div>
-                      <h3 className="text-sm font-bold text-[var(--ink-primary)]">100% Free Forever</h3>
-                      <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
-                        No payments, no credit card, and no limits. Download as many videos as you want.
-                      </p>
-                    </div>
-
-                    <div className="p-4 sm:p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-[var(--surface-canvas)] text-[var(--ink-primary)] border border-[var(--border-strong)] flex items-center justify-center">
-                        <ShieldCheck className="w-4 h-4" />
-                      </div>
-                      <h3 className="text-sm font-bold text-[var(--ink-primary)]">Private &amp; Anonymous</h3>
-                      <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
-                        Nobody knows you viewed their profile. No sign up required, and your data stays private.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Frequently Asked Questions */}
                 <FaqSection />
               </div>
-            </TikTokProfileViewer>
+            </section>
           </div>
-        </main>
-      </div>
+        </TikTokProfileViewer>
+      </main>
 
       <Footer />
     </div>

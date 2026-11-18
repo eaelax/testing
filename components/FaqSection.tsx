@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, X, Mail } from 'lucide-react';
+import { Plus, X, Mail, HelpCircle } from 'lucide-react';
 
 interface FaqItem {
   question: string;
@@ -42,43 +42,47 @@ const FAQS: FaqItem[] = [
 ];
 
 export default function FaqSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const toggleIndex = (index: number) => {
     setOpenIndex((prev) => (prev === index ? null : index));
   };
 
   return (
-    <section id="faq" className="w-full mt-10 pt-8 border-t border-[var(--border-subtle)] scroll-mt-16">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+    <div id="faq" className="w-full scroll-mt-20">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-10 items-start">
         {/* Left Column */}
-        <div className="lg:col-span-5 flex flex-col items-start">
+        <div className="lg:col-span-5 flex flex-col items-start text-start p-5 sm:p-6 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)]">
+          <div className="w-10 h-10 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40 flex items-center justify-center mb-3.5">
+            <HelpCircle className="w-5 h-5" />
+          </div>
+
           <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight leading-tight">
             Frequently Asked Questions
           </h2>
 
-          <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] mt-2.5 leading-relaxed max-w-sm">
-            Find answers to frequently asked questions about viewing profiles and saving watermark-free media.
+          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-2.5 leading-relaxed">
+            Quick answers about viewing TikTok profiles, downloading clean HD MP4 videos, and extracting MP3 audio.
           </p>
 
           <a
             href="mailto:support@tikprofilesviewer.com"
-            className="mt-4 h-9 inline-flex items-center gap-2 px-4 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] text-[var(--accent-contrast)] text-xs font-bold transition-all cursor-pointer"
+            className="mt-5 h-10 inline-flex items-center gap-2 px-4 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] text-[var(--accent-contrast)] text-xs font-bold transition-all cursor-pointer"
           >
             <Mail className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
-            <span>Contact us</span>
+            <span>Contact support</span>
           </a>
         </div>
 
         {/* Right Column: Accordion Stack */}
-        <div className="lg:col-span-7 flex flex-col space-y-2">
+        <div className="lg:col-span-7 flex flex-col space-y-2.5">
           {FAQS.map((item, index) => {
             const isOpen = openIndex === index;
 
             return (
               <div
                 key={index}
-                className={`rounded-xl bg-[var(--surface-elevated)] border transition-colors overflow-hidden ${
+                className={`rounded-xl bg-[var(--surface-elevated)] border shadow-[var(--shadow-card)] transition-colors overflow-hidden ${
                   isOpen
                     ? 'border-[var(--accent-primary)]'
                     : 'border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
@@ -87,30 +91,30 @@ export default function FaqSection() {
                 <button
                   type="button"
                   onClick={() => toggleIndex(index)}
-                  className="w-full px-4 py-3 text-start flex items-center justify-between gap-3 cursor-pointer focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[var(--focus-ring)] group"
+                  className="w-full px-4 sm:px-5 py-3.5 text-start flex items-center justify-between gap-3 cursor-pointer focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[var(--focus-ring)] group"
                   aria-expanded={isOpen}
                 >
-                  <span className="text-xs sm:text-[13px] font-bold text-[var(--ink-primary)] tracking-tight">
+                  <span className="text-xs sm:text-sm font-extrabold text-[var(--ink-primary)] tracking-tight">
                     {item.question}
                   </span>
 
                   <div
-                    className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                    className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${
                       isOpen
-                        ? 'bg-[var(--accent-primary-hover)] border-[var(--accent-primary-hover)] text-[var(--accent-contrast)]'
-                        : 'bg-[var(--surface-canvas)] group-hover:bg-[var(--accent-cyan-soft)] border-[var(--border-strong)] text-[var(--ink-primary)]'
+                        ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-[var(--accent-contrast)]'
+                        : 'bg-[var(--surface-sunken)] group-hover:bg-[var(--accent-cyan-soft)] border-[var(--border-subtle)] text-[var(--ink-primary)]'
                     }`}
                   >
                     {isOpen ? (
-                      <X className="w-3 h-3 text-[var(--accent-contrast)]" />
+                      <X className="w-3.5 h-3.5 text-[var(--accent-contrast)]" />
                     ) : (
-                      <Plus className="w-3 h-3 text-[var(--ink-primary)]" />
+                      <Plus className="w-3.5 h-3.5 text-[var(--ink-primary)]" />
                     )}
                   </div>
                 </button>
 
                 {isOpen && (
-                  <div className="px-4 pb-3.5 pt-2.5 text-xs text-[var(--ink-secondary)] leading-relaxed border-t border-[var(--border-subtle)] bg-[var(--surface-canvas)]">
+                  <div className="px-4 sm:px-5 pb-4 pt-3 text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed border-t border-[var(--border-subtle)] bg-[var(--surface-canvas)]">
                     <p>{item.answer}</p>
                   </div>
                 )}
@@ -119,6 +123,6 @@ export default function FaqSection() {
           })}
         </div>
       </div>
-    </section>
+    </div>
   );
 }

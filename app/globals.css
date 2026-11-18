@@ -1,21 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  /* Core Semantic Surfaces (#FFFFFF elevated on soft #F5F7F9 canvas for eye comfort) */
-  --surface-canvas: #F5F7F9;
+  /* Core Semantic Surfaces (High-contrast alternating white, cool slate, and deep obsidian) */
+  --surface-canvas: #F3F5F8;
   --surface-elevated: #FFFFFF;
-  --surface-sunken: #EDF1F5;
-  --surface-interactive: #E6ECF0;
+  --surface-sunken: #E7ECF3;
+  --surface-interactive: #DCE4EE;
+  --surface-hero: #0B0F17;
+  --surface-hero-elevated: #141B29;
+  --surface-hero-border: #253047;
 
-  /* High-Contrast Ink Tokens (#010101 primary + accessible slate grays) */
-  --ink-primary: #010101;
-  --ink-secondary: #2F363D;
-  --ink-muted: #4D5660;
+  /* High-Contrast Ink Tokens */
+  --ink-primary: #0B0F17;
+  --ink-secondary: #2A3241;
+  --ink-muted: #525E70;
 
-  /* Crisp 1px Hairline Borders */
-  --border-subtle: #DFE5EA;
-  --border-strong: #CBD5DF;
-  --border-hover: #9AA5B1;
+  /* Crisp 1px Hairline Borders (No thick borders) */
+  --border-subtle: #D5DDE7;
+  --border-strong: #B8C4D4;
+  --border-hover: #8B9BB0;
 
   /* Brand Primary Accent (#EE1D52 Crimson) */
   --accent-primary: #EE1D52;
@@ -26,26 +29,33 @@
 
   /* Brand Secondary Accent (#69C9D0 Cyan) */
   --accent-cyan: #69C9D0;
-  --accent-cyan-hover: #53B9C1;
-  --accent-cyan-soft: #ECFAFB;
-  --accent-cyan-text: #0A6C74;
+  --accent-cyan-hover: #4DB8C0;
+  --accent-cyan-soft: #E8F9FA;
+  --accent-cyan-text: #09636B;
 
-  /* Brand Structural Dark (#010101) */
-  --accent-dark: #010101;
-  --accent-dark-hover: #1D2126;
+  /* Brand Structural Dark */
+  --accent-dark: #0B0F17;
+  --accent-dark-hover: #182030;
 
   /* Semantic Status & Interactive States */
-  --status-success: #0A6C74;
+  --status-success: #09636B;
   --status-warning: #B45309;
   --status-danger: #C4113F;
+  --status-danger-bg: #FFF0F4;
+  --status-danger-border: #EE1D52;
   --focus-ring: #EE1D52;
-  --state-disabled-bg: #E6ECF0;
-  --state-disabled-ink: #5C6573;
+  --state-disabled-bg: #DCE4EE;
+  --state-disabled-ink: #525E70;
 
-  /* Compact Proportional Typography Ceiling */
-  --h1-size: clamp(1.75rem, 2.5vw, 2.125rem);
+  /* Subtle Surface Depth (Clean separation without thick borders) */
+  --shadow-card: 0 1px 3px rgba(11, 15, 23, 0.06), 0 4px 14px rgba(11, 15, 23, 0.04);
+  --shadow-card-hover: 0 6px 20px rgba(11, 15, 23, 0.09);
+  --shadow-workbench: 0 16px 40px rgba(0, 0, 0, 0.35);
 
-  /* Legacy Alias Tokens Mapped to New Palette */
+  /* Proportional Typographic Ceiling */
+  --h1-size: clamp(1.75rem, 3vw, 2.35rem);
+
+  /* Compatibility Alias Tokens */
   --bg-page: var(--surface-canvas);
   --bg-surface: var(--surface-elevated);
   --bg-surface-subtle: var(--surface-sunken);
@@ -63,7 +73,7 @@
 }
 
 html {
-  font-size: 15px;
+  font-size: 16px;
   scroll-behavior: smooth;
 }
 
@@ -75,10 +85,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Compact Scrollbar */
+/* Crisp Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {

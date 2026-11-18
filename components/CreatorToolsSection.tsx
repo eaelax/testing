@@ -90,57 +90,57 @@ const ALL_TOOLS = [
 
 const ICON_VARIANT_STYLES = {
   crimson:
-    'bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/35 group-hover:bg-[var(--accent-primary-hover)] group-hover:text-[var(--accent-contrast)]',
+    'bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40 group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--accent-contrast)] group-hover:border-[var(--accent-primary)]',
   cyan:
     'bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)] group-hover:bg-[var(--accent-cyan)] group-hover:text-[var(--ink-primary)]',
   dark:
-    'bg-[var(--surface-canvas)] text-[var(--ink-primary)] border border-[var(--border-strong)] group-hover:bg-[var(--accent-dark)] group-hover:text-[var(--accent-contrast)]',
+    'bg-[var(--accent-dark)] text-[var(--accent-contrast)] border border-[var(--accent-dark)] group-hover:bg-[var(--accent-primary)] group-hover:border-[var(--accent-primary)]',
 } as const;
 
 export default function CreatorToolsSection() {
   return (
-    <section id="tools" className="w-full mt-10 pt-8 border-t border-[var(--border-subtle)] scroll-mt-16">
-      <div className="text-center max-w-xl mx-auto mb-6">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--ink-primary)] tracking-tight">
+    <div id="tools" className="w-full scroll-mt-20">
+      <div className="text-center max-w-2xl mx-auto mb-7">
+        <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight">
           Free Creator Tools
         </h2>
-        <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] mt-1 leading-relaxed">
-          Select a tool to download media, inspect profiles, analyze viral growth, and remove watermarks.
+        <p className="text-sm text-[var(--ink-secondary)] mt-2 leading-relaxed">
+          Pick a free tool to download clean media, inspect public profiles, check viral growth, or remove watermarks.
         </p>
       </div>
 
-      {/* Compact 10-Tool Responsive Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      {/* High-Contrast 10-Tool Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
         {ALL_TOOLS.map((tool) => {
           const Icon = tool.icon;
           return (
             <Link
               key={tool.href}
               href={tool.href}
-              className="group p-3.5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] transition-all flex flex-col justify-between min-h-[128px]"
+              className="group p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] hover:border-[var(--accent-primary)] hover:shadow-[var(--shadow-card-hover)] transition-all flex flex-col justify-between min-h-[146px]"
             >
               <div>
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors mb-2.5 ${ICON_VARIANT_STYLES[tool.variant]}`}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors mb-3 ${ICON_VARIANT_STYLES[tool.variant]}`}
                 >
                   <Icon className="w-4 h-4" />
                 </div>
-                <h3 className="text-xs sm:text-[13px] font-bold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors line-clamp-1">
+                <h3 className="text-xs sm:text-sm font-extrabold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors line-clamp-1">
                   {tool.title}
                 </h3>
-                <p className="text-[11px] text-[var(--ink-secondary)] leading-snug line-clamp-2 mt-1">
+                <p className="text-xs text-[var(--ink-secondary)] leading-snug line-clamp-2 mt-1">
                   {tool.desc}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-2.5 mt-2 border-t border-[var(--border-subtle)] text-[11px] font-bold text-[var(--ink-secondary)] group-hover:text-[var(--accent-primary-text)] transition-colors">
-                <span>Use tool</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform rtl:rotate-180" />
+              <div className="flex items-center justify-between pt-3 mt-3 border-t border-[var(--border-subtle)] text-xs font-bold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors">
+                <span>Open tool</span>
+                <ChevronRight className="w-4 h-4 text-[var(--ink-muted)] group-hover:text-[var(--accent-primary-text)] group-hover:translate-x-0.5 transition-all rtl:rotate-180" />
               </div>
             </Link>
           );
         })}
       </div>
-    </section>
+    </div>
   );
 }

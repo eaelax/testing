@@ -100,11 +100,30 @@ export default async function CreatorProfilePage({ params }: Props) {
     ],
   };
 
+  const heroTitle = creator
+    ? `${creator.displayName} (@${creator.username})`
+    : `@${decodedUsername} TikTok Profile`;
+
+  const heroSubtitle = creator?.bio
+    ? creator.bio
+    : `Watch and download @${decodedUsername}'s public TikTok videos in watermark-free HD MP4 and MP3 audio.`;
+
   return (
     <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-5 sm:py-6">
+      <div className="w-full bg-[var(--surface-canvas)] border-b border-[var(--border-subtle)]">
+        <div className="max-w-[1120px] mx-auto px-4 sm:px-6 pt-3 pb-0.5">
+          <Breadcrumbs
+            items={[
+              { label: 'Creators', href: '/creators' },
+              { label: `@${decodedUsername}` },
+            ]}
+          />
+        </div>
+      </div>
+
+      <main className="flex-1 w-full flex flex-col">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
@@ -114,17 +133,38 @@ export default async function CreatorProfilePage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
 
-        <Breadcrumbs
-          items={[
-            { label: 'Creators', href: '/creators' },
-            { label: `@${decodedUsername}` },
-          ]}
-        />
-
         <TikTokProfileViewer
           initialUsername={decodedUsername}
           autoSearch={true}
+          heroVariant="workbench"
+          title={heroTitle}
+          subtitle={heroSubtitle}
         />
+
+        {/* Profile FAQs Band */}
+        <section className="w-full bg-[var(--surface-sunken)] border-t border-[var(--border-subtle)] py-10 sm:py-12 mt-auto">
+          <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+            <div className="text-center max-w-xl mx-auto mb-6">
+              <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight">
+                Frequently Asked Questions
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {faqSchema.mainEntity.map((faq, idx) => (
+                <div
+                  key={idx}
+                  className="p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col gap-1.5"
+                >
+                  <h3 className="text-sm font-extrabold text-[var(--ink-primary)]">{faq.name}</h3>
+                  <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                    {faq.acceptedAnswer.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />

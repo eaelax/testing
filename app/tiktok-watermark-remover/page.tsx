@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Eraser, Film, Zap } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
@@ -58,72 +59,99 @@ export default function WatermarkRemoverPage() {
     <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--ink-primary)]">
       <Navbar />
 
-      <main className="flex-1 max-w-[980px] w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
+      <div className="w-full bg-[var(--surface-canvas)] border-b border-[var(--border-subtle)]">
+        <div className="max-w-[1120px] mx-auto px-4 sm:px-6 pt-3 pb-0.5">
+          <Breadcrumbs items={[{ label: 'TikTok Watermark Remover' }]} />
+        </div>
+      </div>
+
+      <main className="flex-1 w-full flex flex-col">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
 
-        <Breadcrumbs items={[{ label: 'TikTok Watermark Remover' }]} />
-        <AdSlot placement="header" />
-
-        {/* Compact Hero Section */}
-        <div className="text-center max-w-xl mx-auto mb-5">
-          <h1 className="text-[length:var(--h1-size)] font-black text-[var(--ink-primary)] tracking-tight leading-tight">
-            TikTok Watermark Remover
-          </h1>
-          <p className="text-xs sm:text-sm text-[var(--ink-secondary)] mt-1.5 leading-relaxed">
-            Remove the bouncing TikTok logo and username watermark cleanly without cropping, blurring, or losing original HD quality.
-          </p>
-        </div>
-
-        {/* Interactive Viewer */}
         <TikTokProfileViewer
           initialUsername=""
           autoSearch={false}
-        />
+          heroVariant="workbench"
+          title="TikTok Watermark Remover"
+          subtitle="Remove the bouncing TikTok logo and username watermark cleanly without cropping, blurring, or losing original HD quality."
+        >
+          <div className="w-full flex flex-col">
+            {/* Band 1: Feature Highlights */}
+            <section className="w-full bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] py-10 sm:py-12">
+              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+                <div className="text-center max-w-xl mx-auto mb-7">
+                  <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight">
+                    Clean Videos With Zero Logo Overlay
+                  </h2>
+                  <p className="text-sm text-[var(--ink-secondary)] mt-1.5">
+                    Save original unwatermarked streams ready for offline playback or editing.
+                  </p>
+                </div>
 
-        {/* Feature Highlights */}
-        <section className="mt-10 pt-7 border-t border-[var(--border-subtle)]">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
-              <h2 className="text-sm font-bold text-[var(--ink-primary)]">No Blurring or Cropping</h2>
-              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
-                Keep the full video screen clean and sharp without ugly blurred corners or cropped edges.
-              </p>
-            </div>
-            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
-              <h2 className="text-sm font-bold text-[var(--ink-primary)]">Direct Clean HD MP4</h2>
-              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
-                Stream and download pure MP4 files ready for editing or reposting on Instagram Reels and YouTube Shorts.
-              </p>
-            </div>
-            <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1.5">
-              <h2 className="text-sm font-bold text-[var(--ink-primary)]">Fast &amp; 100% Free</h2>
-              <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">
-                Unlimited clean watermark removals every day without paying fees or making an account.
-              </p>
-            </div>
-          </div>
-        </section>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col gap-2.5">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40 flex items-center justify-center">
+                      <Eraser className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-base font-extrabold text-[var(--ink-primary)]">No Blurring or Cropping</h3>
+                    <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                      Keep the full video screen clean and sharp without ugly blurred corners or cropped edges.
+                    </p>
+                  </div>
 
-        {/* FAQs */}
-        <section className="mt-9 pt-7 border-t border-[var(--border-subtle)] mb-8">
-          <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)] text-center mb-5">
-            Watermark Remover FAQs
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-            {faqSchema.mainEntity.map((faq, i) => (
-              <div
-                key={i}
-                className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col gap-1"
-              >
-                <h3 className="text-xs sm:text-[13px] font-bold text-[var(--ink-primary)]">{faq.name}</h3>
-                <p className="text-xs text-[var(--ink-secondary)] leading-relaxed">{faq.acceptedAnswer.text}</p>
+                  <div className="p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col gap-2.5">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)] flex items-center justify-center">
+                      <Film className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-base font-extrabold text-[var(--ink-primary)]">Direct Clean HD MP4</h3>
+                    <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                      Stream and download pure MP4 files ready for editing or reposting on Instagram Reels and YouTube Shorts.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col gap-2.5">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-[var(--accent-cyan)]" />
+                    </div>
+                    <h3 className="text-base font-extrabold text-[var(--ink-primary)]">Fast &amp; 100% Free</h3>
+                    <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                      Unlimited clean watermark removals every day without paying fees or making an account.
+                    </p>
+                  </div>
+                </div>
               </div>
-            ))}
+            </section>
+
+            {/* Band 2: FAQs & AdSlot */}
+            <section className="w-full bg-[var(--surface-canvas)] py-10 sm:py-12">
+              <div className="max-w-[1120px] mx-auto px-4 sm:px-6 space-y-8">
+                <AdSlot placement="header" />
+
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight text-center mb-6">
+                    Watermark Remover FAQs
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {faqSchema.mainEntity.map((faq, i) => (
+                      <div
+                        key={i}
+                        className="p-5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col gap-1.5"
+                      >
+                        <h3 className="text-sm font-extrabold text-[var(--ink-primary)]">{faq.name}</h3>
+                        <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
+                          {faq.acceptedAnswer.text}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
-        </section>
+        </TikTokProfileViewer>
       </main>
 
       <Footer />

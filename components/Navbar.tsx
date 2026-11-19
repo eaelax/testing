@@ -3,26 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  ChevronDown,
-  Menu,
-  X,
-  Check,
-  Globe,
-  Download,
-  Music,
-  Users,
-  BarChart3,
-  Clock,
-  Image as ImageIcon,
-  DollarSign,
-  Percent,
-  Hash,
-  ShieldCheck,
-} from 'lucide-react';
+import { ChevronDown, Menu, X, Check, Globe } from 'lucide-react';
 
 const LANGUAGES = [
-  { code: 'en', name: 'English', native: 'English' },
+  { code: 'en', name: 'English', native: 'English', isDefault: true },
   { code: 'ar', name: 'Arabic', native: 'العربية' },
   { code: 'fr', name: 'French', native: 'Français' },
   { code: 'es', name: 'Spanish', native: 'Español' },
@@ -38,62 +22,52 @@ const TOOLS = [
   {
     href: '/tiktok-video-downloader',
     label: 'HD Video Downloader',
-    desc: 'Save clean MP4 without logo',
-    icon: Download,
+    desc: 'Download videos without watermark',
   },
   {
     href: '/tiktok-mp3-downloader',
     label: 'Audio MP3 Downloader',
-    desc: 'Extract original soundtracks',
-    icon: Music,
+    desc: 'Save original audio sound',
   },
   {
     href: '/tiktok-profile-viewer',
     label: 'Profile Viewer',
-    desc: 'Inspect public stats privately',
-    icon: Users,
+    desc: 'Check profiles and view count',
   },
   {
     href: '/tiktok-analytics',
     label: 'Viral Analytics',
-    desc: 'Check views and engagement',
-    icon: BarChart3,
+    desc: 'See engagement and growth metrics',
   },
   {
     href: '/tiktok-story-downloader',
     label: 'Story Downloader',
-    desc: 'Save 24h stories before expiry',
-    icon: Clock,
+    desc: 'Save stories before they expire',
   },
   {
     href: '/tiktok-photo-downloader',
     label: 'Photo & Slideshow',
-    desc: 'Save carousel photos in HD',
-    icon: ImageIcon,
+    desc: 'Download carousel images in HD',
   },
   {
     href: '/tiktok-money-calculator',
     label: 'Money Calculator',
-    desc: 'Estimate creator sponsorship pay',
-    icon: DollarSign,
+    desc: 'Estimate creator earnings & rates',
   },
   {
     href: '/tiktok-engagement-calculator',
     label: 'Engagement Calculator',
-    desc: 'Measure post interaction rate',
-    icon: Percent,
+    desc: 'Calculate campaign engagement rate',
   },
   {
     href: '/tiktok-caption-generator',
     label: 'Caption Generator',
-    desc: 'Create hooks and hashtags',
-    icon: Hash,
+    desc: 'Generate viral hooks & hashtags',
   },
   {
     href: '/tiktok-watermark-remover',
     label: 'Watermark Remover',
-    desc: 'Clean clips for Reels & Shorts',
-    icon: ShieldCheck,
+    desc: 'Remove TikTok logo for Reels',
   },
 ];
 
@@ -140,18 +114,19 @@ export default function Navbar() {
     };
   }, []);
 
-  const isToolActive = TOOLS.some((t) => pathname === t.href);
-
   return (
-    <header className="sticky top-0 z-40 w-full bg-[var(--surface-elevated)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] shadow-[0_1px_4px_rgba(17,24,39,0.04)]">
-      <div className="max-w-[1160px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-        {/* Brand Identity */}
+    <header className="sticky top-0 z-40 w-full bg-[var(--surface-elevated)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] shadow-[0_1px_4px_rgba(17,19,24,0.04)]">
+      {/* Crisp Niche-Matched Creator Accent Line */}
+      <div className="w-full h-[2.5px] creator-split-bar" aria-hidden="true" />
+
+      <div className="max-w-[1120px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+        {/* Website Logo */}
         <Link
           href="/"
           onClick={handleGoHome}
-          className="flex items-center gap-2.5 text-[var(--ink-primary)] select-none shrink-0 group rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+          className="flex items-center gap-2.5 text-[var(--ink-primary)] select-none shrink-0 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] rounded-lg"
         >
-          <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-[var(--surface-canvas)] border border-[var(--border-subtle)] group-hover:border-[var(--accent-primary)] transition-colors shadow-xs">
+          <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-[var(--surface-tint-rose)] border border-[var(--border-subtle)] group-hover:border-[var(--accent-primary)] transition-colors">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png"
@@ -163,74 +138,72 @@ export default function Navbar() {
             <span className="font-extrabold text-sm sm:text-[15px] tracking-tight text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors leading-none">
               Tik Profiles Viewer
             </span>
-            <span className="text-[11px] text-[var(--ink-muted)] font-medium tracking-wide mt-1 leading-none">
+            <span className="text-[11px] text-[var(--ink-muted)] font-semibold tracking-wide mt-1 leading-none">
               TikProfilesViewer.com
             </span>
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Nav Items */}
         <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-1 ms-auto">
-          <div className="flex items-center gap-1 bg-[var(--surface-canvas)] border border-[var(--border-subtle)] rounded-xl p-1">
-            <Link
-              href="/"
-              onClick={handleGoHome}
-              className={`h-8 px-3.5 rounded-lg inline-flex items-center text-[13px] font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
-                pathname === '/'
-                  ? 'bg-[var(--surface-elevated)] text-[var(--accent-primary-text)] shadow-xs border border-[var(--border-subtle)]'
-                  : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-elevated)]/60'
-              }`}
-            >
-              Home
-            </Link>
+          <Link
+            href="/"
+            onClick={handleGoHome}
+            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+              pathname === '/'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+            }`}
+          >
+            Home
+          </Link>
 
-            <Link
-              href="/creators"
-              className={`h-8 px-3.5 rounded-lg inline-flex items-center text-[13px] font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
-                pathname === '/creators' || pathname.startsWith('/profile/')
-                  ? 'bg-[var(--surface-elevated)] text-[var(--accent-primary-text)] shadow-xs border border-[var(--border-subtle)]'
-                  : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-elevated)]/60'
-              }`}
-            >
-              Top Creators
-            </Link>
+          <Link
+            href="/creators"
+            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+              pathname === '/creators'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+            }`}
+          >
+            Top Creators
+          </Link>
 
-            <Link
-              href="/categories"
-              className={`h-8 px-3.5 rounded-lg inline-flex items-center text-[13px] font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
-                pathname === '/categories' || pathname.startsWith('/category/')
-                  ? 'bg-[var(--surface-elevated)] text-[var(--accent-primary-text)] shadow-xs border border-[var(--border-subtle)]'
-                  : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-elevated)]/60'
-              }`}
-            >
-              Categories
-            </Link>
+          <Link
+            href="/categories"
+            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+              pathname === '/categories'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+            }`}
+          >
+            Categories
+          </Link>
 
-            <Link
-              href="/how-to-use-tiktok-profile-viewer"
-              className={`h-8 px-3.5 rounded-lg inline-flex items-center text-[13px] font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
-                pathname === '/how-to-use-tiktok-profile-viewer'
-                  ? 'bg-[var(--surface-elevated)] text-[var(--accent-primary-text)] shadow-xs border border-[var(--border-subtle)]'
-                  : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-elevated)]/60'
-              }`}
-            >
-              How to use
-            </Link>
+          <Link
+            href="/how-to-use-tiktok-profile-viewer"
+            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+              pathname === '/how-to-use-tiktok-profile-viewer'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+            }`}
+          >
+            How to use
+          </Link>
 
-            <Link
-              href="/about-tiktok-profile-viewer"
-              className={`h-8 px-3.5 rounded-lg inline-flex items-center text-[13px] font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
-                pathname === '/about-tiktok-profile-viewer'
-                  ? 'bg-[var(--surface-elevated)] text-[var(--accent-primary-text)] shadow-xs border border-[var(--border-subtle)]'
-                  : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-elevated)]/60'
-              }`}
-            >
-              About
-            </Link>
-          </div>
+          <Link
+            href="/about-tiktok-profile-viewer"
+            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+              pathname === '/about-tiktok-profile-viewer'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+            }`}
+          >
+            About
+          </Link>
 
-          {/* Tools Popover Menu */}
-          <div className="relative ms-1.5" ref={toolsRef}>
+          {/* Tools Dropdown */}
+          <div className="relative" ref={toolsRef}>
             <button
               type="button"
               aria-expanded={toolsDropdownOpen}
@@ -238,10 +211,10 @@ export default function Navbar() {
                 setToolsDropdownOpen(!toolsDropdownOpen);
                 setLangDropdownOpen(false);
               }}
-              className={`h-10 text-[13px] font-bold px-3.5 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
-                toolsDropdownOpen || isToolActive
-                  ? 'bg-[var(--accent-dark)] border-[var(--accent-dark)] text-[var(--accent-contrast)] shadow-xs'
-                  : 'border-[var(--border-strong)] bg-[var(--surface-elevated)] text-[var(--ink-primary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary-text)]'
+              className={`h-9 text-[13px] font-bold px-3 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+                toolsDropdownOpen
+                  ? 'bg-[var(--accent-dark)] text-[var(--accent-contrast)]'
+                  : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
               }`}
             >
               <span>Tools</span>
@@ -253,57 +226,26 @@ export default function Navbar() {
             </button>
 
             {toolsDropdownOpen && (
-              <div className="absolute top-full end-0 mt-2 w-[470px] rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-strong)] shadow-[var(--shadow-workbench)] p-2.5 z-50">
-                <div className="px-2.5 pb-2 mb-1.5 border-b border-[var(--border-subtle)] flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-muted)]">
-                    Free Creator &amp; Downloader Tools
-                  </span>
-                  <span className="text-[11px] font-semibold text-[var(--accent-cyan-text)] bg-[var(--accent-cyan-soft)] px-2 py-0.5 rounded-md">
-                    10 Tools
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-1">
-                  {TOOLS.map((tool) => {
-                    const Icon = tool.icon;
-                    const active = pathname === tool.href;
-                    return (
-                      <Link
-                        key={tool.href}
-                        href={tool.href}
-                        onClick={() => setToolsDropdownOpen(false)}
-                        className={`px-2.5 py-2 rounded-xl flex items-start gap-2.5 transition-colors ${
-                          active
-                            ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
-                            : 'hover:bg-[var(--surface-canvas)] text-[var(--ink-primary)]'
-                        }`}
-                      >
-                        <div
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 border ${
-                            active
-                              ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-[var(--accent-contrast)]'
-                              : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-secondary)]'
-                          }`}
-                        >
-                          <Icon className="w-3.5 h-3.5" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-bold text-xs leading-tight truncate">
-                            {tool.label}
-                          </div>
-                          <div className="text-[11px] text-[var(--ink-muted)] mt-0.5 leading-tight truncate">
-                            {tool.desc}
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
+              <div className="absolute top-full end-0 mt-2 w-72 max-h-[420px] overflow-y-auto rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-workbench)] p-1.5 z-50 flex flex-col gap-0.5">
+                {TOOLS.map((tool) => (
+                  <Link
+                    key={tool.href}
+                    href={tool.href}
+                    onClick={() => setToolsDropdownOpen(false)}
+                    className="px-3 py-2 rounded-lg hover:bg-[var(--accent-soft)] text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] transition-colors"
+                  >
+                    <div className="font-bold text-xs">{tool.label}</div>
+                    <div className="text-[11px] text-[var(--ink-muted)] mt-0.5">{tool.desc}</div>
+                  </Link>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Language Selector */}
-          <div className="relative ms-1" ref={langRef}>
+          <div className="w-px h-5 bg-[var(--border-subtle)] mx-1.5" />
+
+          {/* Languages Dropdown */}
+          <div className="relative" ref={langRef}>
             <button
               type="button"
               aria-expanded={langDropdownOpen}
@@ -311,10 +253,10 @@ export default function Navbar() {
                 setLangDropdownOpen(!langDropdownOpen);
                 setToolsDropdownOpen(false);
               }}
-              className={`h-10 text-xs font-bold px-3 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+              className={`h-9 text-xs font-bold px-3 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
                 langDropdownOpen
                   ? 'bg-[var(--accent-dark)] border-[var(--accent-dark)] text-[var(--accent-contrast)]'
-                  : 'border-[var(--border-subtle)] bg-[var(--surface-canvas)] text-[var(--ink-primary)] hover:border-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-soft)]'
+                  : 'border-[var(--border-subtle)] bg-[var(--surface-tint-aqua)] text-[var(--ink-primary)] hover:border-[var(--accent-cyan-hover)]'
               }`}
             >
               <Globe className="w-3.5 h-3.5 text-[var(--accent-cyan-text)] shrink-0" />
@@ -327,7 +269,7 @@ export default function Navbar() {
             </button>
 
             {langDropdownOpen && (
-              <div className="absolute top-full end-0 mt-2 w-52 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-strong)] shadow-[var(--shadow-workbench)] p-1.5 z-50 flex flex-col gap-0.5">
+              <div className="absolute top-full end-0 mt-2 w-48 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-workbench)] p-1.5 z-50 flex flex-col gap-0.5">
                 {LANGUAGES.map((lang) => {
                   const isSelected = selectedLang === lang.name;
                   return (
@@ -341,7 +283,7 @@ export default function Navbar() {
                       className={`w-full px-2.5 py-2 rounded-lg text-xs flex items-center justify-between text-start transition-colors cursor-pointer ${
                         isSelected
                           ? 'bg-[var(--accent-cyan-soft)] text-[var(--ink-primary)] font-bold border border-[var(--accent-cyan)]'
-                          : 'text-[var(--ink-secondary)] hover:bg-[var(--surface-canvas)] hover:text-[var(--ink-primary)]'
+                          : 'text-[var(--ink-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--ink-primary)]'
                       }`}
                     >
                       <span>
@@ -367,8 +309,7 @@ export default function Navbar() {
               setLangDropdownOpen(!langDropdownOpen);
               setMobileMenuOpen(false);
             }}
-            aria-expanded={langDropdownOpen}
-            className="h-11 px-3 rounded-xl border border-[var(--border-strong)] bg-[var(--surface-canvas)] text-xs font-bold text-[var(--ink-primary)] flex items-center gap-1.5 cursor-pointer hover:bg-[var(--accent-cyan-soft)] hover:border-[var(--accent-cyan)]"
+            className="h-10 px-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-tint-aqua)] text-xs font-bold text-[var(--ink-primary)] flex items-center gap-1.5 cursor-pointer hover:border-[var(--accent-cyan-hover)]"
           >
             <Globe className="w-3.5 h-3.5 text-[var(--accent-cyan-text)]" />
             <span>{selectedLang}</span>
@@ -381,22 +322,22 @@ export default function Navbar() {
               setMobileMenuOpen(!mobileMenuOpen);
               setLangDropdownOpen(false);
             }}
-            className="w-11 h-11 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-strong)] text-[var(--ink-primary)] hover:bg-[var(--surface-interactive)] transition-colors cursor-pointer flex items-center justify-center"
+            className="w-10 h-10 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-[var(--ink-primary)] hover:bg-[var(--surface-tint-rose)] hover:border-[var(--accent-primary)] transition-colors cursor-pointer flex items-center justify-center"
             aria-label="Toggle Menu"
             aria-expanded={mobileMenuOpen}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Language Drawer */}
+      {/* Mobile Language Dropdown */}
       {langDropdownOpen && (
-        <div className="lg:hidden border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-4 py-4 shadow-md">
-          <p className="text-[11px] font-bold text-[var(--ink-muted)] uppercase tracking-wider text-center mb-2.5">
+        <div className="lg:hidden border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-4 py-3 shadow-md">
+          <p className="text-[11px] font-bold text-[var(--ink-muted)] uppercase tracking-wider mb-2">
             Select Language
           </p>
-          <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
+          <div className="grid grid-cols-2 gap-2">
             {LANGUAGES.map((lang) => (
               <button
                 key={lang.code}
@@ -405,10 +346,10 @@ export default function Navbar() {
                   setSelectedLang(lang.name);
                   setLangDropdownOpen(false);
                 }}
-                className={`h-11 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 border cursor-pointer ${
+                className={`h-10 px-3 rounded-lg text-xs text-start flex items-center justify-between border cursor-pointer ${
                   selectedLang === lang.name
-                    ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-[var(--accent-contrast)] font-bold'
-                    : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-primary)] hover:bg-[var(--accent-cyan-soft)]'
+                    ? 'bg-[var(--accent-primary-hover)] border-[var(--accent-primary-hover)] text-[var(--accent-contrast)] font-bold'
+                    : 'bg-[var(--surface-sunken)] border-[var(--border-subtle)] text-[var(--ink-primary)] hover:bg-[var(--accent-cyan-soft)]'
                 }`}
               >
                 <span>{lang.name}</span>
@@ -419,86 +360,61 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Mobile Navigation Drawer (Centered & Easy to Tap) */}
+      {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-4 py-4 flex flex-col gap-3 shadow-md max-h-[82vh] overflow-y-auto">
-          <div className="grid grid-cols-2 gap-2 max-w-md mx-auto w-full">
-            <Link
-              href="/"
-              onClick={handleGoHome}
-              className={`h-11 px-3 rounded-xl text-xs font-bold flex items-center justify-center text-center border ${
-                pathname === '/'
-                  ? 'bg-[var(--accent-soft)] border-[var(--accent-primary)] text-[var(--accent-primary-text)]'
-                  : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-primary)]'
-              }`}
-            >
-              Home
-            </Link>
-            <Link
-              href="/creators"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`h-11 px-3 rounded-xl text-xs font-bold flex items-center justify-center text-center border ${
-                pathname === '/creators'
-                  ? 'bg-[var(--accent-soft)] border-[var(--accent-primary)] text-[var(--accent-primary-text)]'
-                  : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-primary)]'
-              }`}
-            >
-              Top Creators
-            </Link>
-            <Link
-              href="/categories"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`h-11 px-3 rounded-xl text-xs font-bold flex items-center justify-center text-center border ${
-                pathname === '/categories'
-                  ? 'bg-[var(--accent-soft)] border-[var(--accent-primary)] text-[var(--accent-primary-text)]'
-                  : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-primary)]'
-              }`}
-            >
-              Categories
-            </Link>
-            <Link
-              href="/how-to-use-tiktok-profile-viewer"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`h-11 px-3 rounded-xl text-xs font-bold flex items-center justify-center text-center border ${
-                pathname === '/how-to-use-tiktok-profile-viewer'
-                  ? 'bg-[var(--accent-soft)] border-[var(--accent-primary)] text-[var(--accent-primary-text)]'
-                  : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-primary)]'
-              }`}
-            >
-              How to use
-            </Link>
-            <Link
-              href="/about-tiktok-profile-viewer"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`col-span-2 h-11 px-3 rounded-xl text-xs font-bold flex items-center justify-center text-center border ${
-                pathname === '/about-tiktok-profile-viewer'
-                  ? 'bg-[var(--accent-soft)] border-[var(--accent-primary)] text-[var(--accent-primary-text)]'
-                  : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-primary)]'
-              }`}
-            >
-              About Tik Profiles Viewer
-            </Link>
-          </div>
+        <div className="lg:hidden border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-4 py-3 flex flex-col gap-1 shadow-md max-h-[80vh] overflow-y-auto">
+          <Link
+            href="/"
+            onClick={handleGoHome}
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+          >
+            Home
+          </Link>
+          <Link
+            href="/creators"
+            onClick={() => setMobileMenuOpen(false)}
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+          >
+            Top Creators
+          </Link>
+          <Link
+            href="/categories"
+            onClick={() => setMobileMenuOpen(false)}
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+          >
+            Categories
+          </Link>
+          <Link
+            href="/how-to-use-tiktok-profile-viewer"
+            onClick={() => setMobileMenuOpen(false)}
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+          >
+            How to use
+          </Link>
+          <Link
+            href="/about-tiktok-profile-viewer"
+            onClick={() => setMobileMenuOpen(false)}
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+          >
+            About
+          </Link>
 
-          <div className="pt-3 border-t border-[var(--border-subtle)] max-w-md mx-auto w-full">
-            <span className="text-[11px] font-bold text-[var(--ink-muted)] uppercase tracking-wider block text-center mb-2">
-              Creator &amp; Downloader Tools
+          <div className="pt-2.5 mt-1 border-t border-[var(--border-subtle)]">
+            <span className="text-[11px] font-bold text-[var(--ink-muted)] uppercase tracking-wider block px-3 mb-1.5">
+              Creator Tools
             </span>
-            <div className="grid grid-cols-2 gap-2">
-              {TOOLS.map((tool) => {
-                const Icon = tool.icon;
-                return (
-                  <Link
-                    key={tool.href}
-                    href={tool.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="min-h-[44px] px-2.5 py-2 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] text-xs font-bold text-[var(--ink-primary)] flex items-center justify-center text-center gap-1.5"
-                  >
-                    <Icon className="w-3.5 h-3.5 text-[var(--accent-primary-text)] shrink-0" />
-                    <span className="truncate">{tool.label}</span>
-                  </Link>
-                );
-              })}
+            <div className="flex flex-col gap-0.5">
+              {TOOLS.map((tool) => (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2.5 rounded-lg text-xs font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)] flex items-center justify-between gap-2"
+                >
+                  <span>{tool.label}</span>
+                  <span className="text-[11px] font-normal text-[var(--ink-muted)] truncate">{tool.desc}</span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>

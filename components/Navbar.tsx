@@ -2,8 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ChevronDown, Menu, X, Check, Globe } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ChevronDown, Menu, X, Check, Globe, Search } from 'lucide-react';
+import { MotionDropdownPanel, MotionCollapse } from './MotionPrimitives';
+import { sanitizeUsername } from '@/lib/tiktok-client';
 
 const LANGUAGES = [
   { code: 'en', name: 'English', native: 'English', isDefault: true },
@@ -73,20 +75,48 @@ const TOOLS = [
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState('English');
+  const [headerQuery, setHeaderQuery] = useState('');
+
   const pathname = usePathname();
+  const router = useRouter();
 
   const toolsRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
 
   const handleGoHome = () => {
     setMobileMenuOpen(false);
+    setMobileSearchOpen(false);
     setToolsDropdownOpen(false);
     setLangDropdownOpen(false);
+    setHeaderQuery('');
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('tpv:reset-home'));
+    }
+  };
+
+  const handleHeaderSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = sanitizeUsername(headerQuery);
+    if (!clean) return;
+
+    setMobileSearchOpen(false);
+    setMobileMenuOpen(false);
+    setToolsDropdownOpen(false);
+    setLangDropdownOpen(false);
+
+    if (pathname === '/') {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('tpv:search-username', { detail: { username: clean } })
+        );
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      router.push(`/profile/${encodeURIComponent(clean)}`);
     }
   };
 
@@ -104,6 +134,7 @@ export default function Navbar() {
         setToolsDropdownOpen(false);
         setLangDropdownOpen(false);
         setMobileMenuOpen(false);
+        setMobileSearchOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -115,18 +146,18 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[var(--surface-elevated)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] shadow-[0_1px_4px_rgba(17,19,24,0.04)]">
-      {/* Crisp Niche-Matched Creator Accent Line */}
-      <div className="w-full h-[2.5px] creator-split-bar" aria-hidden="true" />
+    <header className="sticky top-0 z-40 w-full bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)]">
+      {/* Crisp Dual-Tone Creator Accent Line */}
+      <div className="w-full h-[3px] creator-split-bar" aria-hidden="true" />
 
-      <div className="max-w-[1120px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-        {/* Website Logo */}
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+        {/* Brand Logo */}
         <Link
           href="/"
           onClick={handleGoHome}
-          className="flex items-center gap-2.5 text-[var(--ink-primary)] select-none shrink-0 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] rounded-lg"
+          className="flex items-center gap-2.5 text-[var(--ink-primary)] select-none shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
         >
-          <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-[var(--surface-tint-rose)] border border-[var(--border-subtle)] group-hover:border-[var(--accent-primary)] transition-colors">
+          <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-[var(--surface-canvas)] border border-[var(--border-strong)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png"
@@ -135,7 +166,7 @@ export default function Navbar() {
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-sm sm:text-[15px] tracking-tight text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors leading-none">
+            <span className="font-extrabold text-sm sm:text-[15px] tracking-tight text-[var(--ink-primary)] leading-none">
               Tik Profiles Viewer
             </span>
             <span className="text-[11px] text-[var(--ink-muted)] font-semibold tracking-wide mt-1 leading-none">
@@ -144,15 +175,45 @@ export default function Navbar() {
           </div>
         </Link>
 
+        {/* Integrated High-Contrast Header Profile Search (Desktop & Tablet) */}
+        <form
+          onSubmit={handleHeaderSearch}
+          className="hidden md:flex items-center flex-1 max-w-[300px] lg:max-w-[320px] h-10 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-strong)] focus-within:bg-[var(--surface-elevated)] focus-within:border-[var(--ink-primary)] px-1 transition-colors"
+        >
+          <span
+            aria-hidden="true"
+            className="px-2 text-xs font-mono font-bold text-[var(--ink-muted)] select-none shrink-0"
+          >
+            @
+          </span>
+          <input
+            type="text"
+            value={headerQuery}
+            onChange={(e) => setHeaderQuery(e.target.value)}
+            placeholder="Search TikTok profile..."
+            aria-label="Search TikTok profile username from header"
+            className="w-full min-w-0 bg-transparent text-xs font-semibold text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] placeholder:font-normal focus:outline-none pe-2"
+          />
+          <button
+            type="submit"
+            disabled={!headerQuery.trim()}
+            aria-label="Search profile"
+            className="h-8 px-3 rounded-md bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] text-[var(--accent-contrast)] text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer disabled:cursor-not-allowed transition-colors"
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Search</span>
+          </button>
+        </form>
+
         {/* Desktop Nav Items */}
-        <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-1 ms-auto">
+        <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-1 shrink-0">
           <Link
             href="/"
             onClick={handleGoHome}
-            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+            className={`h-9 px-2.5 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
               pathname === '/'
-                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
-                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]'
             }`}
           >
             Home
@@ -160,21 +221,21 @@ export default function Navbar() {
 
           <Link
             href="/creators"
-            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+            className={`h-9 px-2.5 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
               pathname === '/creators'
-                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
-                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]'
             }`}
           >
-            Top Creators
+            Creators
           </Link>
 
           <Link
             href="/categories"
-            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+            className={`h-9 px-2.5 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
               pathname === '/categories'
-                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
-                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]'
             }`}
           >
             Categories
@@ -182,24 +243,13 @@ export default function Navbar() {
 
           <Link
             href="/how-to-use-tiktok-profile-viewer"
-            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+            className={`h-9 px-2.5 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
               pathname === '/how-to-use-tiktok-profile-viewer'
-                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
-                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40'
+                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]'
             }`}
           >
             How to use
-          </Link>
-
-          <Link
-            href="/about-tiktok-profile-viewer"
-            className={`h-9 px-3 rounded-lg inline-flex items-center text-[13px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
-              pathname === '/about-tiktok-profile-viewer'
-                ? 'bg-[var(--accent-soft)] text-[var(--accent-primary-text)]'
-                : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
-            }`}
-          >
-            About
           </Link>
 
           {/* Tools Dropdown */}
@@ -211,38 +261,39 @@ export default function Navbar() {
                 setToolsDropdownOpen(!toolsDropdownOpen);
                 setLangDropdownOpen(false);
               }}
-              className={`h-9 text-[13px] font-bold px-3 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+              className={`h-9 text-[13px] font-bold px-2.5 rounded-lg flex items-center gap-1 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
                 toolsDropdownOpen
                   ? 'bg-[var(--accent-dark)] text-[var(--accent-contrast)]'
-                  : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-tint-aqua)]'
+                  : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]'
               }`}
             >
               <span>Tools</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                className={`w-3.5 h-3.5 transition-transform duration-150 ${
                   toolsDropdownOpen ? 'rotate-180' : ''
                 }`}
               />
             </button>
 
-            {toolsDropdownOpen && (
-              <div className="absolute top-full end-0 mt-2 w-72 max-h-[420px] overflow-y-auto rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-workbench)] p-1.5 z-50 flex flex-col gap-0.5">
-                {TOOLS.map((tool) => (
-                  <Link
-                    key={tool.href}
-                    href={tool.href}
-                    onClick={() => setToolsDropdownOpen(false)}
-                    className="px-3 py-2 rounded-lg hover:bg-[var(--accent-soft)] text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] transition-colors"
-                  >
-                    <div className="font-bold text-xs">{tool.label}</div>
-                    <div className="text-[11px] text-[var(--ink-muted)] mt-0.5">{tool.desc}</div>
-                  </Link>
-                ))}
-              </div>
-            )}
+            <MotionDropdownPanel
+              isOpen={toolsDropdownOpen}
+              className="absolute top-full end-0 mt-2 w-72 max-h-[420px] overflow-y-auto rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-strong)] p-1.5 z-50 flex flex-col gap-0.5"
+            >
+              {TOOLS.map((tool) => (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  onClick={() => setToolsDropdownOpen(false)}
+                  className="px-3 py-2 rounded-lg hover:bg-[var(--surface-canvas)] text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] transition-colors"
+                >
+                  <div className="font-bold text-xs">{tool.label}</div>
+                  <div className="text-[11px] text-[var(--ink-muted)] mt-0.5">{tool.desc}</div>
+                </Link>
+              ))}
+            </MotionDropdownPanel>
           </div>
 
-          <div className="w-px h-5 bg-[var(--border-subtle)] mx-1.5" />
+          <div className="w-px h-5 bg-[var(--border-subtle)] mx-1" />
 
           {/* Languages Dropdown */}
           <div className="relative" ref={langRef}>
@@ -253,51 +304,52 @@ export default function Navbar() {
                 setLangDropdownOpen(!langDropdownOpen);
                 setToolsDropdownOpen(false);
               }}
-              className={`h-9 text-xs font-bold px-3 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+              className={`h-9 text-xs font-bold px-2.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
                 langDropdownOpen
                   ? 'bg-[var(--accent-dark)] border-[var(--accent-dark)] text-[var(--accent-contrast)]'
-                  : 'border-[var(--border-subtle)] bg-[var(--surface-tint-aqua)] text-[var(--ink-primary)] hover:border-[var(--accent-cyan-hover)]'
+                  : 'border-[var(--border-strong)] bg-[var(--surface-canvas)] text-[var(--ink-primary)] hover:border-[var(--ink-primary)]'
               }`}
             >
               <Globe className="w-3.5 h-3.5 text-[var(--accent-cyan-text)] shrink-0" />
               <span>{selectedLang}</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                className={`w-3.5 h-3.5 transition-transform duration-150 ${
                   langDropdownOpen ? 'rotate-180' : ''
                 }`}
               />
             </button>
 
-            {langDropdownOpen && (
-              <div className="absolute top-full end-0 mt-2 w-48 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-workbench)] p-1.5 z-50 flex flex-col gap-0.5">
-                {LANGUAGES.map((lang) => {
-                  const isSelected = selectedLang === lang.name;
-                  return (
-                    <button
-                      key={lang.code}
-                      type="button"
-                      onClick={() => {
-                        setSelectedLang(lang.name);
-                        setLangDropdownOpen(false);
-                      }}
-                      className={`w-full px-2.5 py-2 rounded-lg text-xs flex items-center justify-between text-start transition-colors cursor-pointer ${
-                        isSelected
-                          ? 'bg-[var(--accent-cyan-soft)] text-[var(--ink-primary)] font-bold border border-[var(--accent-cyan)]'
-                          : 'text-[var(--ink-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--ink-primary)]'
-                      }`}
-                    >
-                      <span>
-                        {lang.name}{' '}
-                        <span className="text-[var(--ink-muted)] font-normal">
-                          ({lang.native})
-                        </span>
+            <MotionDropdownPanel
+              isOpen={langDropdownOpen}
+              className="absolute top-full end-0 mt-2 w-48 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-strong)] p-1.5 z-50 flex flex-col gap-0.5"
+            >
+              {LANGUAGES.map((lang) => {
+                const isSelected = selectedLang === lang.name;
+                return (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => {
+                      setSelectedLang(lang.name);
+                      setLangDropdownOpen(false);
+                    }}
+                    className={`w-full px-2.5 py-2 rounded-lg text-xs flex items-center justify-between text-start transition-colors cursor-pointer ${
+                      isSelected
+                        ? 'bg-[var(--accent-cyan-soft)] text-[var(--ink-primary)] font-bold border border-[var(--accent-cyan)]'
+                        : 'text-[var(--ink-secondary)] hover:bg-[var(--surface-canvas)] hover:text-[var(--ink-primary)]'
+                    }`}
+                  >
+                    <span>
+                      {lang.name}{' '}
+                      <span className="text-[var(--ink-muted)] font-normal">
+                        ({lang.native})
                       </span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-[var(--accent-primary-text)]" />}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+                    </span>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-[var(--accent-primary-text)]" />}
+                  </button>
+                );
+              })}
+            </MotionDropdownPanel>
           </div>
         </nav>
 
@@ -306,13 +358,32 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => {
-              setLangDropdownOpen(!langDropdownOpen);
+              setMobileSearchOpen(!mobileSearchOpen);
+              setLangDropdownOpen(false);
               setMobileMenuOpen(false);
             }}
-            className="h-10 px-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-tint-aqua)] text-xs font-bold text-[var(--ink-primary)] flex items-center gap-1.5 cursor-pointer hover:border-[var(--accent-cyan-hover)]"
+            aria-label="Search TikTok profile"
+            aria-expanded={mobileSearchOpen}
+            className={`md:hidden w-10 h-10 rounded-lg border flex items-center justify-center transition-colors cursor-pointer ${
+              mobileSearchOpen
+                ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-[var(--accent-contrast)]'
+                : 'bg-[var(--surface-canvas)] border-[var(--border-strong)] text-[var(--ink-primary)]'
+            }`}
+          >
+            <Search className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setLangDropdownOpen(!langDropdownOpen);
+              setMobileMenuOpen(false);
+              setMobileSearchOpen(false);
+            }}
+            className="h-10 px-2.5 rounded-lg border border-[var(--border-strong)] bg-[var(--surface-canvas)] text-xs font-bold text-[var(--ink-primary)] flex items-center gap-1.5 cursor-pointer"
           >
             <Globe className="w-3.5 h-3.5 text-[var(--accent-cyan-text)]" />
-            <span>{selectedLang}</span>
+            <span className="hidden sm:inline">{selectedLang}</span>
             <ChevronDown className="w-3 h-3 text-[var(--ink-muted)]" />
           </button>
 
@@ -321,8 +392,9 @@ export default function Navbar() {
             onClick={() => {
               setMobileMenuOpen(!mobileMenuOpen);
               setLangDropdownOpen(false);
+              setMobileSearchOpen(false);
             }}
-            className="w-10 h-10 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-[var(--ink-primary)] hover:bg-[var(--surface-tint-rose)] hover:border-[var(--accent-primary)] transition-colors cursor-pointer flex items-center justify-center"
+            className="w-10 h-10 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-strong)] text-[var(--ink-primary)] hover:border-[var(--ink-primary)] transition-colors cursor-pointer flex items-center justify-center"
             aria-label="Toggle Menu"
             aria-expanded={mobileMenuOpen}
           >
@@ -331,9 +403,39 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Language Dropdown */}
-      {langDropdownOpen && (
-        <div className="lg:hidden border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-4 py-3 shadow-md">
+      {/* Mobile Collapsible Header Search Bar */}
+      <MotionCollapse
+        isOpen={mobileSearchOpen}
+        className="md:hidden border-t border-[var(--border-subtle)] bg-[var(--surface-canvas)]"
+      >
+        <form onSubmit={handleHeaderSearch} className="px-4 py-3 flex items-center gap-2">
+          <div className="flex-1 h-10 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-strong)] focus-within:border-[var(--ink-primary)] flex items-center px-2.5">
+            <span className="text-xs font-mono font-bold text-[var(--ink-muted)] me-1.5">@</span>
+            <input
+              type="text"
+              value={headerQuery}
+              onChange={(e) => setHeaderQuery(e.target.value)}
+              placeholder="Enter TikTok username..."
+              aria-label="Enter TikTok username"
+              className="w-full bg-transparent text-xs font-semibold text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] focus:outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={!headerQuery.trim()}
+            className="h-10 px-4 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] text-[var(--accent-contrast)] text-xs font-bold shrink-0 cursor-pointer"
+          >
+            Search
+          </button>
+        </form>
+      </MotionCollapse>
+
+      {/* Mobile Language Drawer */}
+      <MotionCollapse
+        isOpen={langDropdownOpen}
+        className="lg:hidden border-t border-[var(--border-subtle)] bg-[var(--surface-elevated)]"
+      >
+        <div className="px-4 py-3">
           <p className="text-[11px] font-bold text-[var(--ink-muted)] uppercase tracking-wider mb-2">
             Select Language
           </p>
@@ -348,8 +450,8 @@ export default function Navbar() {
                 }}
                 className={`h-10 px-3 rounded-lg text-xs text-start flex items-center justify-between border cursor-pointer ${
                   selectedLang === lang.name
-                    ? 'bg-[var(--accent-primary-hover)] border-[var(--accent-primary-hover)] text-[var(--accent-contrast)] font-bold'
-                    : 'bg-[var(--surface-sunken)] border-[var(--border-subtle)] text-[var(--ink-primary)] hover:bg-[var(--accent-cyan-soft)]'
+                    ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-[var(--accent-contrast)] font-bold'
+                    : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-primary)]'
                 }`}
               >
                 <span>{lang.name}</span>
@@ -358,43 +460,46 @@ export default function Navbar() {
             ))}
           </div>
         </div>
-      )}
+      </MotionCollapse>
 
       {/* Mobile Navigation Drawer */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-4 py-3 flex flex-col gap-1 shadow-md max-h-[80vh] overflow-y-auto">
+      <MotionCollapse
+        isOpen={mobileMenuOpen}
+        className="lg:hidden border-t border-[var(--border-subtle)] bg-[var(--surface-elevated)]"
+      >
+        <div className="px-4 py-3 flex flex-col gap-1 max-h-[75vh] overflow-y-auto">
           <Link
             href="/"
             onClick={handleGoHome}
-            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]"
           >
             Home
           </Link>
           <Link
             href="/creators"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]"
           >
             Top Creators
           </Link>
           <Link
             href="/categories"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]"
           >
             Categories
           </Link>
           <Link
             href="/how-to-use-tiktok-profile-viewer"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]"
           >
             How to use
           </Link>
           <Link
             href="/about-tiktok-profile-viewer"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)]"
+            className="px-3 py-2.5 rounded-lg text-sm font-bold text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)]"
           >
             About
           </Link>
@@ -409,7 +514,7 @@ export default function Navbar() {
                   key={tool.href}
                   href={tool.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2.5 rounded-lg text-xs font-bold text-[var(--ink-primary)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-primary-text)] flex items-center justify-between gap-2"
+                  className="px-3 py-2.5 rounded-lg text-xs font-bold text-[var(--ink-primary)] hover:bg-[var(--surface-canvas)] flex items-center justify-between gap-2"
                 >
                   <span>{tool.label}</span>
                   <span className="text-[11px] font-normal text-[var(--ink-muted)] truncate">{tool.desc}</span>
@@ -418,7 +523,7 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-      )}
+      </MotionCollapse>
     </header>
   );
 }

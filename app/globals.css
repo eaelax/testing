@@ -6,60 +6,60 @@
 }
 
 :root {
-  /* Core Bright Daylight Surfaces (60% Pure White & Bright Ice) */
-  --surface-canvas: #FFFFFF;
+  /* High-Contrast Flat Light Surfaces (60% Cool Alabaster Canvas) */
+  --surface-canvas: #EEF1F6;
   --surface-elevated: #FFFFFF;
-  --surface-sunken: #F8FAFC;
-  --surface-interactive: #F1F5F9;
+  --surface-sunken: #E3E8F1;
+  --surface-interactive: #D8E0EC;
 
-  /* Niche-Matched Light Band Tints (30% Structured Light Separation) */
-  --surface-tint-aqua: #F1FCFC;
-  --surface-tint-rose: #FFF6F8;
-  --surface-hero: #FFF8FA;
+  /* Structured Flat Band & Accent Surfaces (30%) */
+  --surface-tint-aqua: #E3F6F5;
+  --surface-tint-rose: #FCEAF0;
+  --surface-hero: #E6EBF3;
   --surface-hero-elevated: #FFFFFF;
-  --surface-hero-border: #E6EAF0;
+  --surface-hero-border: #BFC9D9;
 
-  /* High-Contrast Crisp Ink Tokens */
-  --ink-primary: #111318;
-  --ink-secondary: #374151;
-  --ink-muted: #5B6475;
+  /* High-Contrast Crisp Ink Tokens (WCAG AA/AAA) */
+  --ink-primary: #0B0E14;
+  --ink-secondary: #2B3340;
+  --ink-muted: #4C5668;
 
-  /* Clean 1px Hairline Borders */
-  --border-subtle: #E6EAF0;
-  --border-strong: #CFD6E2;
-  --border-hover: #9AA5B8;
+  /* Crisp 1px Hairline Borders (Flat Separation, Zero Shadows) */
+  --border-subtle: #C8D1E0;
+  --border-strong: #94A1B8;
+  --border-hover: #4C5668;
 
-  /* Brand Primary Accent (10% TikTok Coral-Rose) */
-  --accent-primary: #FE2C55;
-  --accent-primary-hover: #E01E45;
-  --accent-primary-text: #C41038;
-  --accent-soft: #FFF0F3;
+  /* Brand Primary Accent (10% High-Contrast Crimson-Rose) */
+  --accent-primary: #D91642;
+  --accent-primary-hover: #B80F35;
+  --accent-primary-text: #B00E33;
+  --accent-soft: #FCEAF0;
   --accent-contrast: #FFFFFF;
 
-  /* Brand Secondary Accent (Creator Aqua-Teal) */
-  --accent-cyan: #25F4EE;
-  --accent-cyan-hover: #00D2CB;
-  --accent-cyan-soft: #E8FCFC;
-  --accent-cyan-text: #08747D;
+  /* Brand Secondary Accent (High-Contrast Creator Teal) */
+  --accent-cyan: #0D9488;
+  --accent-cyan-hover: #0F766E;
+  --accent-cyan-soft: #E3F6F5;
+  --accent-cyan-text: #065F5B;
 
   /* Brand Structural Charcoal */
-  --accent-dark: #111318;
-  --accent-dark-hover: #1F2430;
+  --accent-dark: #0B0E14;
+  --accent-dark-hover: #1E2533;
 
   /* Semantic Status & Interactive States */
-  --status-success: #08747D;
-  --status-warning: #B45309;
-  --status-danger: #C41038;
-  --status-danger-bg: #FFF0F3;
-  --status-danger-border: #FE2C55;
-  --focus-ring: #FE2C55;
-  --state-disabled-bg: #E6EAF0;
-  --state-disabled-ink: #667085;
+  --status-success: #065F5B;
+  --status-warning: #92400E;
+  --status-danger: #B00E33;
+  --status-danger-bg: #FCEAF0;
+  --status-danger-border: #D91642;
+  --focus-ring: #D91642;
+  --state-disabled-bg: #D5DCE8;
+  --state-disabled-ink: #576275;
 
-  /* Airy Light-Theme Elevation */
-  --shadow-card: 0 1px 3px rgba(17, 19, 24, 0.04), 0 4px 14px rgba(17, 19, 24, 0.03);
-  --shadow-card-hover: 0 8px 24px rgba(17, 19, 24, 0.07);
-  --shadow-workbench: 0 10px 30px rgba(17, 19, 24, 0.06), 0 1px 3px rgba(17, 19, 24, 0.04);
+  /* Strict Flat Policy: Zero Box Shadows */
+  --shadow-card: none;
+  --shadow-card-hover: none;
+  --shadow-workbench: none;
 
   /* Proportional Typographic Ceiling */
   --h1-size: clamp(1.75rem, 3vw, 2.35rem);
@@ -95,17 +95,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Bright Daylight Studio Hero Wash (TikTok Aqua & Coral-Rose subtle ambient glow) */
+/* Flat High-Contrast Hero Surface */
 .hero-studio-backdrop {
-  background-color: #FFFFFF;
-  background-image:
-    radial-gradient(60% 90% at 88% 12%, rgba(37, 244, 238, 0.14) 0%, rgba(37, 244, 238, 0) 70%),
-    radial-gradient(55% 85% at 10% 85%, rgba(254, 44, 85, 0.09) 0%, rgba(254, 44, 85, 0) 70%);
+  background-color: var(--surface-hero);
 }
 
-/* Signature Dual-Tone Creator Accent Bar */
+/* Flat Dual-Tone Creator Accent Line */
 .creator-split-bar {
-  background: linear-gradient(90deg, #25F4EE 0%, #25F4EE 48%, #FE2C55 52%, #FE2C55 100%);
+  background: linear-gradient(90deg, #0D9488 0%, #0D9488 50%, #D91642 50%, #D91642 100%);
 }
 
 /* Editorial Legal Reader Prose Rules (Logical Properties & Token Overrides) */
@@ -149,7 +146,7 @@ body {
   font-size: 0.85em;
 }
 
-/* Crisp Scrollbar */
+/* Crisp Flat Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -166,4 +163,10 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

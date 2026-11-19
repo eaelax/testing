@@ -10,9 +10,9 @@ export default function Footer() {
   };
 
   return (
-    <footer className="w-full border-t border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--ink-secondary)] text-xs mt-auto">
+    <footer className="w-full border-t border-[var(--border-strong)] bg-[var(--surface-elevated)] text-[var(--ink-secondary)] text-xs mt-auto">
       {/* Main Footer Columns */}
-      <div className="max-w-[1120px] mx-auto px-4 sm:px-6 py-9 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-7">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8">
         {/* Col 1: Brand, Logo & About */}
         <div className="lg:col-span-4 flex flex-col gap-3">
           <Link
@@ -20,7 +20,7 @@ export default function Footer() {
             onClick={handleGoHome}
             className="flex items-center gap-2.5 text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] transition-colors font-extrabold text-sm select-none w-fit rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
           >
-            <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-[var(--surface-tint-rose)] border border-[var(--border-subtle)]">
+            <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-[var(--surface-canvas)] border border-[var(--border-strong)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png"
@@ -38,21 +38,21 @@ export default function Footer() {
           <div className="flex items-center gap-3 text-xs pt-1 text-[var(--ink-primary)]">
             <Link
               href="/about-tiktok-profile-viewer"
-              className="hover:text-[var(--accent-primary-text)] font-bold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan-hover)]"
+              className="hover:text-[var(--accent-primary-text)] font-bold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan)]"
             >
               About
             </Link>
             <span className="text-[var(--border-strong)]">•</span>
             <Link
               href="/how-to-use-tiktok-profile-viewer"
-              className="hover:text-[var(--accent-primary-text)] font-bold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan-hover)]"
+              className="hover:text-[var(--accent-primary-text)] font-bold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan)]"
             >
               How to use
             </Link>
             <span className="text-[var(--border-strong)]">•</span>
             <Link
               href="/creators"
-              className="hover:text-[var(--accent-primary-text)] font-bold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan-hover)]"
+              className="hover:text-[var(--accent-primary-text)] font-bold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan)]"
             >
               Top Creators
             </Link>
@@ -178,13 +178,13 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bright Aqua-Mist Bottom Legal Strip */}
-      <div className="border-t border-[var(--border-subtle)] bg-[var(--surface-tint-aqua)] py-4 px-4 sm:px-6">
-        <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] text-[var(--ink-secondary)] font-medium">
+      {/* High-Contrast Light Bottom Legal Strip */}
+      <div className="border-t border-[var(--border-subtle)] bg-[var(--surface-sunken)] py-4 px-4 sm:px-6">
+        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] text-[var(--ink-secondary)] font-medium">
           <p className="text-[var(--ink-primary)] font-bold">
             © {new Date().getFullYear()} TikProfilesViewer.com. All rights reserved.
           </p>
-          <p className="text-center md:text-end max-w-xl text-[var(--ink-muted)]">
+          <p className="text-center md:text-end max-w-xl text-[var(--ink-secondary)]">
             Disclaimer: Tik Profiles Viewer is an independent web utility and is not affiliated with, endorsed by, or associated with TikTok or ByteDance Ltd.
           </p>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { AnimatePresence } from 'motion/react';
 import {
   Search,
   Download,
@@ -22,6 +23,11 @@ import {
 } from 'lucide-react';
 import DownloadCounterModal from './DownloadCounterModal';
 import AdSlot from './AdSlot';
+import {
+  MotionFadeIn,
+  MotionModalBackdrop,
+  MotionModalPanel,
+} from './MotionPrimitives';
 import {
   fetchProfileDirect,
   fetchMoreVideosDirect,
@@ -358,6 +364,22 @@ export default function TikTokProfileViewer({
     [usernameInput]
   );
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onHeaderSearch = (event: Event) => {
+      const customEvent = event as CustomEvent<{ username?: string }>;
+      const target = customEvent.detail?.username;
+      if (target) {
+        setUsernameInput(target);
+        void handleSearch(target);
+      }
+    };
+    window.addEventListener('tpv:search-username', onHeaderSearch);
+    return () => {
+      window.removeEventListener('tpv:search-username', onHeaderSearch);
+    };
+  }, [handleSearch]);
+
   const searchedRef = useRef(false);
   useEffect(() => {
     if (autoSearch && initialUsername && !searchedRef.current) {
@@ -582,12 +604,12 @@ export default function TikTokProfileViewer({
         e.preventDefault();
         void handleSearch();
       }}
-      className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 rounded-xl p-1.5 bg-[var(--surface-canvas)] border border-[var(--border-strong)] focus-within:bg-[var(--surface-elevated)] focus-within:border-[var(--accent-primary)] focus-within:ring-3 focus-within:ring-[var(--accent-primary)]/15 transition-all"
+      className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 rounded-xl p-1.5 bg-[var(--surface-canvas)] border border-[var(--border-strong)] focus-within:bg-[var(--surface-elevated)] focus-within:border-[var(--ink-primary)] transition-colors"
     >
       <div className="flex items-center flex-1 min-w-0">
         <div
           aria-hidden="true"
-          className="flex items-center justify-center ms-1 me-1.5 px-2.5 h-9 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-[var(--ink-primary)] font-mono font-bold text-sm select-none shrink-0"
+          className="flex items-center justify-center ms-1 me-1.5 px-2.5 h-9 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-strong)] text-[var(--ink-primary)] font-mono font-bold text-sm select-none shrink-0"
         >
           @
         </div>
@@ -607,7 +629,7 @@ export default function TikTokProfileViewer({
       <button
         type="submit"
         disabled={loading}
-        className="shrink-0 h-11 flex items-center justify-center gap-2 px-5 sm:px-6 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] text-[var(--accent-contrast)] font-bold text-sm transition-all disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] disabled:cursor-not-allowed cursor-pointer shadow-xs"
+        className="shrink-0 h-11 flex items-center justify-center gap-2 px-5 sm:px-6 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)] font-bold text-sm transition-colors disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] disabled:cursor-not-allowed cursor-pointer"
       >
         {loading ? (
           <>
@@ -638,7 +660,7 @@ export default function TikTokProfileViewer({
               setUsernameInput(item.username);
               void handleSearch(item.username);
             }}
-            className="text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-subtle)] text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] hover:bg-[var(--accent-soft)] hover:border-[var(--accent-primary)] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            className="text-[11px] sm:text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-strong)] text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] hover:bg-[var(--accent-soft)] hover:border-[var(--accent-primary)] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
             @{item.username}
           </button>
@@ -651,7 +673,7 @@ export default function TikTokProfileViewer({
     errorMsg ? (
       <div
         role="alert"
-        className="mt-3.5 p-3.5 rounded-xl bg-[var(--status-danger-bg)] border border-[var(--status-danger-border)]/50 text-[var(--ink-primary)] text-xs flex items-start gap-2.5 text-start"
+        className="mt-3.5 p-3.5 rounded-xl bg-[var(--status-danger-bg)] border border-[var(--status-danger-border)] text-[var(--ink-primary)] text-xs flex items-start gap-2.5 text-start"
       >
         <AlertCircle className="w-4 h-4 text-[var(--status-danger)] shrink-0 mt-0.5" />
         <div className="flex-1">
@@ -667,7 +689,7 @@ export default function TikTokProfileViewer({
     <div className="w-full flex flex-col items-center">
       {isWorkbench ? (
         <section className="w-full bg-[var(--surface-hero)] border-b border-[var(--surface-hero-border)] py-8 sm:py-12">
-          <div className="max-w-[1160px] mx-auto px-4 sm:px-6 flex flex-col items-center text-center">
+          <MotionFadeIn className="max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col items-center text-center">
             {title && (
               <h1 className="text-[length:var(--h1-size)] font-extrabold tracking-tight text-[var(--ink-primary)] leading-[1.18] max-w-3xl">
                 {title}
@@ -679,8 +701,8 @@ export default function TikTokProfileViewer({
               </p>
             )}
 
-            {/* Centered High-Focus Search Workbench Container */}
-            <div className="w-full max-w-2xl mt-6 sm:mt-7 bg-[var(--surface-elevated)] rounded-2xl p-4 sm:p-6 border border-[var(--border-strong)] shadow-[var(--shadow-workbench)] ring-4 ring-[var(--surface-elevated)]/70">
+            {/* High-Contrast Flat Search Workbench Container */}
+            <div className="w-full max-w-2xl mt-6 sm:mt-7 bg-[var(--surface-elevated)] rounded-2xl p-4 sm:p-6 border-2 border-[var(--ink-primary)]">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mb-3">
                 <label
                   htmlFor="tiktok-username-search"
@@ -688,7 +710,7 @@ export default function TikTokProfileViewer({
                 >
                   Enter a TikTok Username to Search
                 </label>
-                <span className="text-[11px] font-bold text-[var(--accent-cyan-text)] bg-[var(--accent-cyan-soft)] px-2.5 py-0.5 rounded-md border border-[var(--accent-cyan)]/60">
+                <span className="text-[11px] font-bold text-[var(--accent-cyan-text)] bg-[var(--accent-cyan-soft)] px-2.5 py-0.5 rounded-md border border-[var(--accent-cyan)]">
                   Free and No Account Needed
                 </span>
               </div>
@@ -698,8 +720,8 @@ export default function TikTokProfileViewer({
               {renderErrorNotice()}
             </div>
 
-            {/* Clean Centered Capability Bar */}
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-[var(--ink-secondary)]">
+            {/* Clean Capability Bar */}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-bold text-[var(--ink-secondary)]">
               <div className="flex items-center gap-1.5">
                 <Film className="w-4 h-4 text-[var(--accent-primary-text)] shrink-0" />
                 <span>Clean HD MP4 Video</span>
@@ -713,10 +735,10 @@ export default function TikTokProfileViewer({
                 <span>Direct MP3 Audio Save</span>
               </div>
             </div>
-          </div>
+          </MotionFadeIn>
         </section>
       ) : (
-        <div className="w-full max-w-[1160px] mx-auto px-4 sm:px-6 pt-6 pb-2 flex flex-col items-center text-center">
+        <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 pt-6 pb-2 flex flex-col items-center text-center">
           {(title || subtitle) && (
             <div className="text-center max-w-2xl mx-auto mb-5">
               {title && (
@@ -732,7 +754,7 @@ export default function TikTokProfileViewer({
             </div>
           )}
 
-          <section className="w-full max-w-2xl mx-auto mb-4 bg-[var(--surface-elevated)] rounded-2xl p-4 sm:p-5 border border-[var(--border-strong)] shadow-[var(--shadow-card)]">
+          <section className="w-full max-w-2xl mx-auto mb-4 bg-[var(--surface-elevated)] rounded-2xl p-4 sm:p-5 border-2 border-[var(--ink-primary)]">
             {renderSearchForm()}
             {!hasActiveResult && renderPopularRow()}
             {renderErrorNotice()}
@@ -742,504 +764,509 @@ export default function TikTokProfileViewer({
 
       {/* Results Container (Profile + Videos Grid) */}
       {(authorProfile || (videos.length > 0 && !loading)) && (
-        <div className="w-full max-w-[1160px] mx-auto px-4 sm:px-6 py-7 sm:py-9">
+        <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-7 sm:py-9">
           {authorProfile && (
-            <section className="w-full mb-6 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-2xl p-4 sm:p-6 shadow-[var(--shadow-card)]">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-start">
-                <div className="relative shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={authorProfile.avatar || `/api/avatar?username=${encodeURIComponent(authorProfile.unique_id)}`}
-                    alt={authorProfile.nickname || authorProfile.unique_id}
-                    referrerPolicy="no-referrer"
-                    className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border border-[var(--accent-cyan)] bg-[var(--surface-sunken)]"
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      const fallbackSrc = `/api/avatar?username=${encodeURIComponent(authorProfile.unique_id)}`;
-                      if (!target.src.includes('/api/avatar')) {
-                        target.src = fallbackSrc;
-                      }
-                    }}
-                  />
-                </div>
+            <MotionFadeIn>
+              <section className="w-full mb-6 bg-[var(--surface-elevated)] border border-[var(--border-strong)] rounded-2xl p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-start">
+                  <div className="relative shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={authorProfile.avatar || `/api/avatar?username=${encodeURIComponent(authorProfile.unique_id)}`}
+                      alt={authorProfile.nickname || authorProfile.unique_id}
+                      referrerPolicy="no-referrer"
+                      className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-[var(--ink-primary)] bg-[var(--surface-sunken)]"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        const fallbackSrc = `/api/avatar?username=${encodeURIComponent(authorProfile.unique_id)}`;
+                        if (!target.src.includes('/api/avatar')) {
+                          target.src = fallbackSrc;
+                        }
+                      }}
+                    />
+                  </div>
 
-                <div className="flex-1 min-w-0 w-full flex flex-col justify-between">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                      <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)] tracking-tight">
-                        {authorProfile.nickname || authorProfile.unique_id}
-                      </h2>
+                  <div className="flex-1 min-w-0 w-full flex flex-col justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                        <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink-primary)] tracking-tight">
+                          {authorProfile.nickname || authorProfile.unique_id}
+                        </h2>
 
-                      <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <a
+                            href={`https://www.tiktok.com/@${authorProfile.unique_id}`}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            referrerPolicy="no-referrer"
+                            className="w-8 h-8 rounded-lg bg-[var(--surface-canvas)] hover:bg-[var(--surface-sunken)] border border-[var(--border-strong)] text-[var(--ink-primary)] flex items-center justify-center transition-colors"
+                            title="Open TikTok Profile"
+                            aria-label="Open TikTok Profile"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                          <button
+                            type="button"
+                            onClick={handleCopyProfileLink}
+                            className="w-8 h-8 rounded-lg bg-[var(--surface-canvas)] hover:bg-[var(--surface-sunken)] border border-[var(--border-strong)] text-[var(--ink-primary)] flex items-center justify-center transition-colors cursor-pointer"
+                            title="Copy Profile Link"
+                            aria-label="Copy Profile Link"
+                          >
+                            {copiedLink ? (
+                              <Check className="w-3.5 h-3.5 text-[var(--accent-cyan-text)]" />
+                            ) : (
+                              <Share2 className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-center sm:justify-end gap-2 flex-wrap shrink-0">
+                        <button
+                          type="button"
+                          onClick={handleDownloadAvatar}
+                          className="h-9 px-3 rounded-lg border border-[var(--border-strong)] bg-[var(--surface-canvas)] hover:bg-[var(--surface-sunken)] text-[var(--ink-primary)] text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"
+                          title="Download profile avatar"
+                        >
+                          <Download className="w-3.5 h-3.5 text-[var(--ink-primary)]" />
+                          <span>Avatar</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleCopyProfileLink}
+                          className="h-9 px-3 rounded-lg border border-[var(--border-strong)] bg-[var(--surface-canvas)] hover:bg-[var(--surface-sunken)] text-[var(--ink-primary)] text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"
+                          title="Copy profile link"
+                        >
+                          {copiedLink ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-[var(--accent-cyan-text)]" />
+                              <span>Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5 text-[var(--ink-primary)]" />
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+
                         <a
                           href={`https://www.tiktok.com/@${authorProfile.unique_id}`}
                           target="_blank"
                           rel="noreferrer noopener"
                           referrerPolicy="no-referrer"
-                          className="w-8 h-8 rounded-lg bg-[var(--surface-canvas)] hover:bg-[var(--surface-interactive)] border border-[var(--border-subtle)] text-[var(--ink-primary)] flex items-center justify-center transition-colors"
-                          title="Open TikTok Profile"
-                          aria-label="Open TikTok Profile"
+                          className="h-9 px-3 rounded-lg border border-[var(--accent-dark)] bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] text-[var(--accent-contrast)] text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
+                          title="Open TikTok profile"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
+                          <span>TikTok</span>
                         </a>
-                        <button
-                          type="button"
-                          onClick={handleCopyProfileLink}
-                          className="w-8 h-8 rounded-lg bg-[var(--surface-canvas)] hover:bg-[var(--surface-interactive)] border border-[var(--border-subtle)] text-[var(--ink-primary)] flex items-center justify-center transition-colors cursor-pointer"
-                          title="Copy Profile Link"
-                          aria-label="Copy Profile Link"
-                        >
-                          {copiedLink ? (
-                            <Check className="w-3.5 h-3.5 text-[var(--accent-cyan-text)]" />
-                          ) : (
-                            <Share2 className="w-3.5 h-3.5" />
-                          )}
-                        </button>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-center sm:justify-end gap-2 flex-wrap shrink-0">
-                      <button
-                        type="button"
-                        onClick={handleDownloadAvatar}
-                        className="h-9 px-3 rounded-lg border border-[var(--border-strong)] bg-[var(--surface-canvas)] hover:bg-[var(--accent-cyan-soft)] hover:border-[var(--accent-cyan)] active:scale-[0.98] text-[var(--ink-primary)] text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all whitespace-nowrap cursor-pointer"
-                        title="Download profile avatar"
-                      >
-                        <Download className="w-3.5 h-3.5 text-[var(--ink-primary)]" />
-                        <span>Avatar</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleCopyProfileLink}
-                        className="h-9 px-3 rounded-lg border border-[var(--border-strong)] bg-[var(--surface-canvas)] hover:bg-[var(--accent-cyan-soft)] hover:border-[var(--accent-cyan)] active:scale-[0.98] text-[var(--ink-primary)] text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all whitespace-nowrap cursor-pointer"
-                        title="Copy profile link"
-                      >
-                        {copiedLink ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-[var(--accent-cyan-text)]" />
-                            <span>Copied</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3.5 h-3.5 text-[var(--ink-primary)]" />
-                            <span>Copy</span>
-                          </>
-                        )}
-                      </button>
-
-                      <a
-                        href={`https://www.tiktok.com/@${authorProfile.unique_id}`}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        referrerPolicy="no-referrer"
-                        className="h-9 px-3 rounded-lg border border-[var(--accent-dark)] bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] active:scale-[0.98] text-[var(--accent-contrast)] text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all whitespace-nowrap"
-                        title="Open TikTok profile"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
-                        <span>TikTok</span>
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="mt-1.5 flex flex-col gap-1 items-center sm:items-start">
-                    <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-[var(--ink-secondary)] flex-wrap">
-                      <span className="font-mono text-[var(--ink-primary)] font-bold">
-                        @{authorProfile.unique_id}
-                      </span>
-                      <span className="text-[var(--border-strong)]">•</span>
-                      <span className="text-[var(--ink-muted)] font-medium">TikTok Public Creator</span>
-                      {authorProfile.verified && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--accent-cyan-soft)] border border-[var(--accent-cyan)] text-[var(--accent-cyan-text)] text-[10px] font-bold">
-                          <CheckCircle2 className="w-3 h-3 text-[var(--accent-cyan-text)] shrink-0" />
-                          <span>Verified</span>
+                    <div className="mt-1.5 flex flex-col gap-1 items-center sm:items-start">
+                      <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-[var(--ink-secondary)] flex-wrap">
+                        <span className="font-mono text-[var(--ink-primary)] font-bold">
+                          @{authorProfile.unique_id}
                         </span>
+                        <span className="text-[var(--border-strong)]">•</span>
+                        <span className="text-[var(--ink-muted)] font-medium">TikTok Public Creator</span>
+                        {authorProfile.verified && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--accent-cyan-soft)] border border-[var(--accent-cyan)] text-[var(--accent-cyan-text)] text-[10px] font-bold">
+                            <CheckCircle2 className="w-3 h-3 text-[var(--accent-cyan-text)] shrink-0" />
+                            <span>Verified</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {authorProfile.signature && (
+                        <p className="text-xs text-[var(--ink-secondary)] line-clamp-2 leading-relaxed mt-0.5 max-w-xl">
+                          {authorProfile.signature}
+                        </p>
                       )}
                     </div>
-
-                    {authorProfile.signature && (
-                      <p className="text-xs text-[var(--ink-secondary)] line-clamp-2 leading-relaxed mt-0.5 max-w-xl">
-                        {authorProfile.signature}
-                      </p>
-                    )}
                   </div>
                 </div>
-              </div>
 
-              <div className="border-t border-[var(--border-subtle)] my-4" />
+                <div className="border-t border-[var(--border-subtle)] my-4" />
 
-              {/* Metrics Row */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 items-stretch text-center sm:text-start">
-                <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--accent-cyan-soft)] border border-[var(--accent-cyan)] flex flex-col justify-center items-center sm:items-start">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent-cyan-text)] leading-none mb-1">
-                    Status
-                  </span>
-                  <span className="text-xs font-extrabold tracking-tight text-[var(--ink-primary)] leading-tight flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[var(--accent-cyan-text)] animate-pulse shrink-0" />
-                    <span>{authorProfile.status === 'private' ? 'Private' : 'Active'}</span>
-                  </span>
+                {/* Metrics Row */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 items-stretch text-center sm:text-start">
+                  <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--accent-cyan-soft)] border border-[var(--accent-cyan)] flex flex-col justify-center items-center sm:items-start">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent-cyan-text)] leading-none mb-1">
+                      Status
+                    </span>
+                    <span className="text-xs font-extrabold tracking-tight text-[var(--ink-primary)] leading-tight flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[var(--accent-cyan)] shrink-0" />
+                      <span>{authorProfile.status === 'private' ? 'Private' : 'Active'}</span>
+                    </span>
+                  </div>
+
+                  <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex flex-col justify-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-muted)] leading-none mb-1">
+                      Followers
+                    </span>
+                    <span className="text-sm font-extrabold text-[var(--ink-primary)] font-mono tabular-nums tracking-tight leading-tight truncate">
+                      {formatNumber(profileStats?.followerCount)}
+                    </span>
+                  </div>
+
+                  <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--accent-soft)] border border-[var(--accent-primary)] flex flex-col justify-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent-primary-text)] leading-none mb-1">
+                      Total Likes
+                    </span>
+                    <span className="text-sm font-extrabold text-[var(--ink-primary)] font-mono tabular-nums tracking-tight leading-tight truncate">
+                      {formatNumber(profileStats?.heartCount)}
+                    </span>
+                  </div>
+
+                  <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex flex-col justify-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-muted)] leading-none mb-1">
+                      Following
+                    </span>
+                    <span className="text-sm font-extrabold text-[var(--ink-primary)] font-mono tabular-nums tracking-tight leading-tight truncate">
+                      {formatNumber(profileStats?.followingCount)}
+                    </span>
+                  </div>
+
+                  <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex flex-col justify-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-muted)] leading-none mb-1">
+                      Videos
+                    </span>
+                    <span className="text-sm font-extrabold text-[var(--ink-primary)] font-mono tabular-nums tracking-tight leading-tight truncate">
+                      {formatNumber(profileStats?.videoCount ?? videos.length)}
+                    </span>
+                  </div>
+
+                  <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--accent-dark)] border border-[var(--accent-dark)] flex flex-col justify-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--surface-tint-aqua)] leading-none mb-1">
+                      Account
+                    </span>
+                    <span className="text-xs font-extrabold tracking-tight text-[var(--accent-contrast)] leading-tight truncate">
+                      {authorProfile.verified ? 'Verified' : 'Public'}
+                    </span>
+                  </div>
                 </div>
-
-                <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex flex-col justify-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-muted)] leading-none mb-1">
-                    Followers
-                  </span>
-                  <span className="text-sm font-extrabold text-[var(--ink-primary)] font-mono tabular-nums tracking-tight leading-tight truncate">
-                    {formatNumber(profileStats?.followerCount)}
-                  </span>
-                </div>
-
-                <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--accent-soft)] border border-[var(--accent-primary)]/40 flex flex-col justify-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent-primary-text)] leading-none mb-1">
-                    Total Likes
-                  </span>
-                  <span className="text-sm font-extrabold text-[var(--ink-primary)] font-mono tabular-nums tracking-tight leading-tight truncate">
-                    {formatNumber(profileStats?.heartCount)}
-                  </span>
-                </div>
-
-                <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex flex-col justify-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-muted)] leading-none mb-1">
-                    Following
-                  </span>
-                  <span className="text-sm font-extrabold text-[var(--ink-primary)] font-mono tabular-nums tracking-tight leading-tight truncate">
-                    {formatNumber(profileStats?.followingCount)}
-                  </span>
-                </div>
-
-                <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--surface-canvas)] border border-[var(--border-subtle)] flex flex-col justify-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-muted)] leading-none mb-1">
-                    Videos
-                  </span>
-                  <span className="text-sm font-extrabold text-[var(--ink-primary)] font-mono tabular-nums tracking-tight leading-tight truncate">
-                    {formatNumber(profileStats?.videoCount ?? videos.length)}
-                  </span>
-                </div>
-
-                <div className="min-h-[56px] rounded-xl px-3 py-2 bg-[var(--accent-dark)] border border-[var(--accent-dark)] flex flex-col justify-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent-cyan)] leading-none mb-1">
-                    Account
-                  </span>
-                  <span className="text-xs font-extrabold tracking-tight text-[var(--accent-contrast)] leading-tight truncate">
-                    {authorProfile.verified ? 'Verified' : 'Public'}
-                  </span>
-                </div>
-              </div>
-            </section>
+              </section>
+            </MotionFadeIn>
           )}
 
           {/* Video Grid Section */}
           {videos.length > 0 && !loading && (
-            <section className="w-full flex flex-col gap-3.5 my-1.5">
-              <AdSlot placement="above_grid" />
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-3 text-center sm:text-start">
-                <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <h3 className="text-sm sm:text-base font-extrabold text-[var(--ink-primary)]">
-                    Videos
-                  </h3>
-                  <span className="text-xs font-mono tabular-nums font-bold px-2.5 py-0.5 rounded-md bg-[var(--accent-dark)] text-[var(--accent-contrast)]">
-                    {videos.length} loaded
-                  </span>
+            <MotionFadeIn delay={0.05}>
+              <section className="w-full flex flex-col gap-4 my-1.5">
+                <AdSlot placement="above_grid" />
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-[var(--border-strong)] pb-3 text-center sm:text-start">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <h3 className="text-sm sm:text-base font-extrabold text-[var(--ink-primary)]">
+                      Videos
+                    </h3>
+                    <span className="text-xs font-mono tabular-nums font-bold px-2.5 py-0.5 rounded-md bg-[var(--accent-dark)] text-[var(--accent-contrast)]">
+                      {videos.length} loaded
+                    </span>
+                  </div>
+                  <div className="text-xs font-semibold text-[var(--ink-secondary)]">
+                    Click any video to watch and download
+                  </div>
                 </div>
-                <div className="text-xs font-semibold text-[var(--ink-muted)]">
-                  Click any video to watch and download
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {videos.map((video, index) => {
-                  const videoKey = String(video.video_id || video.id || index);
-                  const coverImg = video.cover || video.origin_cover || '';
-                  const duration = formatDuration(video.duration);
-                  const isHighlighted = highlightedVideoKey === videoKey;
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+                  {videos.map((video, index) => {
+                    const videoKey = String(video.video_id || video.id || index);
+                    const coverImg = video.cover || video.origin_cover || '';
+                    const duration = formatDuration(video.duration);
+                    const isHighlighted = highlightedVideoKey === videoKey;
 
-                  return (
-                    <div
-                      key={videoKey}
-                      ref={(el) => {
-                        if (el) {
-                          videoCardRefs.current.set(videoKey, el);
-                        } else {
-                          videoCardRefs.current.delete(videoKey);
-                        }
-                      }}
-                      onClick={() => void openModal(video, videoKey)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          void openModal(video, videoKey);
-                        }
-                      }}
-                      className={`relative aspect-[9/16] rounded-xl overflow-hidden bg-[var(--accent-dark)] border cursor-pointer shadow-[var(--shadow-card)] group transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
-                        isHighlighted
-                          ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)] ring-offset-2'
-                          : 'border-[var(--border-subtle)] hover:border-[var(--accent-primary)] hover:shadow-[var(--shadow-card-hover)]'
-                      }`}
-                    >
-                      {coverImg ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={coverImg}
-                          alt={video.title || 'TikTok video'}
-                          referrerPolicy="no-referrer"
-                          loading="lazy"
-                          data-step="0"
-                          className="w-full h-full object-cover bg-[var(--accent-dark)] pointer-events-none"
-                          onError={(e) => {
-                            const target = e.currentTarget as HTMLImageElement;
-                            const step = target.getAttribute('data-step') || '0';
+                    return (
+                      <div
+                        key={videoKey}
+                        ref={(el) => {
+                          if (el) {
+                            videoCardRefs.current.set(videoKey, el);
+                          } else {
+                            videoCardRefs.current.delete(videoKey);
+                          }
+                        }}
+                        onClick={() => void openModal(video, videoKey)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            void openModal(video, videoKey);
+                          }
+                        }}
+                        className={`relative aspect-[9/16] rounded-xl overflow-hidden bg-[var(--accent-dark)] border-2 cursor-pointer transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] ${
+                          isHighlighted
+                            ? 'border-[var(--accent-primary)]'
+                            : 'border-[var(--border-strong)] hover:border-[var(--accent-primary)]'
+                        }`}
+                      >
+                        {coverImg ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={coverImg}
+                            alt={video.title || 'TikTok video'}
+                            referrerPolicy="no-referrer"
+                            loading="lazy"
+                            data-step="0"
+                            className="w-full h-full object-cover bg-[var(--accent-dark)] pointer-events-none"
+                            onError={(e) => {
+                              const target = e.currentTarget as HTMLImageElement;
+                              const step = target.getAttribute('data-step') || '0';
 
-                            if (step === '0' && video.origin_cover && video.origin_cover !== coverImg) {
-                              target.setAttribute('data-step', '1');
-                              target.src = video.origin_cover;
-                              return;
-                            }
-
-                            if (step === '0' || step === '1') {
-                              target.setAttribute('data-step', '2');
-                              const rawCover = video.cover || video.origin_cover || '';
-                              if (rawCover && !rawCover.startsWith('/api/proxy')) {
-                                target.src = `/api/proxy?url=${encodeURIComponent(rawCover)}`;
+                              if (step === '0' && video.origin_cover && video.origin_cover !== coverImg) {
+                                target.setAttribute('data-step', '1');
+                                target.src = video.origin_cover;
                                 return;
                               }
-                            }
 
-                            target.style.display = 'none';
-                          }}
-                        />
-                      ) : null}
+                              if (step === '0' || step === '1') {
+                                target.setAttribute('data-step', '2');
+                                const rawCover = video.cover || video.origin_cover || '';
+                                if (rawCover && !rawCover.startsWith('/api/proxy')) {
+                                  target.src = `/api/proxy?url=${encodeURIComponent(rawCover)}`;
+                                  return;
+                                }
+                              }
 
-                      <div className="absolute inset-0 flex items-center justify-center bg-[var(--accent-dark)]/35 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                        <div className="w-11 h-11 rounded-xl bg-[var(--accent-primary)]/95 text-[var(--accent-contrast)] flex items-center justify-center shadow-lg ring-2 ring-[var(--accent-contrast)]/70 transform transition-transform group-hover:scale-105">
-                          <Play className="w-4 h-4 fill-[var(--accent-contrast)] text-[var(--accent-contrast)] translate-x-0.5" />
+                              target.style.display = 'none';
+                            }}
+                          />
+                        ) : null}
+
+                        {/* Static Center Play Indicator */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-10 h-10 rounded-xl bg-[var(--accent-dark)]/80 border border-[var(--accent-contrast)]/70 text-[var(--accent-contrast)] flex items-center justify-center">
+                            <Play className="w-4 h-4 fill-[var(--accent-contrast)] text-[var(--accent-contrast)] translate-x-0.5" />
+                          </div>
+                        </div>
+
+                        <div className="absolute inset-x-0 top-0 p-2 flex justify-between items-start bg-gradient-to-b from-[var(--accent-dark)]/85 via-[var(--accent-dark)]/30 to-transparent pointer-events-none">
+                          <span className="text-[10px] font-mono tabular-nums font-bold px-1.5 py-0.5 rounded bg-[var(--accent-dark)] text-[var(--accent-contrast)] border border-[var(--accent-contrast)]/25">
+                            #{index + 1}
+                          </span>
+                          {duration && (
+                            <span className="text-[10px] font-mono tabular-nums font-bold px-1.5 py-0.5 rounded bg-[var(--accent-dark)] text-[var(--accent-contrast)] border border-[var(--accent-contrast)]/25">
+                              {duration}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="absolute inset-x-0 bottom-0 px-2.5 py-2.5 bg-gradient-to-t from-[var(--accent-dark)] via-[var(--accent-dark)]/85 to-transparent flex flex-col gap-1.5 pointer-events-none text-start">
+                          <p className="text-[11px] text-[var(--accent-contrast)] line-clamp-2 font-semibold leading-tight">
+                            {video.title || 'Watch Video'}
+                          </p>
+
+                          <div className="grid grid-cols-3 items-center text-[10px] text-[var(--accent-contrast)] font-mono tabular-nums font-bold pt-1.5 border-t border-[var(--accent-contrast)]/25 w-full">
+                            <span className="flex items-center justify-start gap-1 text-[var(--accent-contrast)] min-w-0" title={`${video.play_count || 0} views`}>
+                              <Play className="w-2.5 h-2.5 fill-[var(--accent-contrast)] text-[var(--accent-contrast)] shrink-0" />
+                              <span className="truncate">{formatNumber(video.play_count)}</span>
+                            </span>
+
+                            <span className="flex items-center justify-center gap-1 text-[var(--accent-contrast)] min-w-0" title={`${video.digg_count || 0} likes`}>
+                              <Heart className="w-2.5 h-2.5 fill-[var(--accent-primary)] text-[var(--accent-primary)] shrink-0" />
+                              <span className="truncate">{formatNumber(video.digg_count)}</span>
+                            </span>
+
+                            <span className="flex items-center justify-end gap-1 text-[var(--accent-contrast)] min-w-0" title={`${video.share_count || 0} shares`}>
+                              <Share2 className="w-2.5 h-2.5 shrink-0" />
+                              <span className="truncate">{formatNumber(video.share_count)}</span>
+                            </span>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="absolute inset-x-0 top-0 p-1.5 flex justify-between items-start bg-gradient-to-b from-[var(--accent-dark)]/80 via-[var(--accent-dark)]/25 to-transparent pointer-events-none">
-                        <span className="text-[10px] font-mono tabular-nums font-bold px-1.5 py-0.5 rounded bg-[var(--accent-dark)]/85 text-[var(--accent-contrast)]">
-                          #{index + 1}
-                        </span>
-                        {duration && (
-                          <span className="text-[10px] font-mono tabular-nums font-bold px-1.5 py-0.5 rounded bg-[var(--accent-dark)]/85 text-[var(--accent-contrast)]">
-                            {duration}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="absolute inset-x-0 bottom-0 px-2 py-2 bg-gradient-to-t from-[var(--accent-dark)]/95 via-[var(--accent-dark)]/75 to-transparent flex flex-col gap-1 pointer-events-none text-start">
-                        <p className="text-[11px] text-[var(--accent-contrast)] line-clamp-2 font-semibold leading-tight">
-                          {video.title || 'Watch Video'}
-                        </p>
-
-                        <div className="grid grid-cols-3 items-center text-[10px] text-[var(--accent-contrast)] font-mono tabular-nums font-bold pt-1 border-t border-[var(--accent-contrast)]/25 w-full">
-                          <span className="flex items-center justify-start gap-1 text-[var(--accent-contrast)] min-w-0" title={`${video.play_count || 0} views`}>
-                            <Play className="w-2.5 h-2.5 fill-[var(--accent-contrast)] text-[var(--accent-contrast)] shrink-0" />
-                            <span className="truncate">{formatNumber(video.play_count)}</span>
-                          </span>
-
-                          <span className="flex items-center justify-center gap-1 text-[var(--accent-contrast)] min-w-0" title={`${video.digg_count || 0} likes`}>
-                            <Heart className="w-2.5 h-2.5 fill-[var(--accent-primary)] text-[var(--accent-primary)] shrink-0" />
-                            <span className="truncate">{formatNumber(video.digg_count)}</span>
-                          </span>
-
-                          <span className="flex items-center justify-end gap-1 text-[var(--accent-contrast)] min-w-0" title={`${video.share_count || 0} shares`}>
-                            <Share2 className="w-2.5 h-2.5 text-[var(--accent-cyan)] shrink-0" />
-                            <span className="truncate">{formatNumber(video.share_count)}</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {hasMore && (
-                <div className="flex flex-col items-center justify-center pt-5 pb-1">
-                  <button
-                    type="button"
-                    onClick={() => void handleShowMoreVideos()}
-                    disabled={loadingMore}
-                    className="h-11 px-7 rounded-xl bg-[var(--accent-dark)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] text-[var(--accent-contrast)] font-bold text-xs tracking-wide uppercase flex items-center gap-2 transition-all disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] cursor-pointer"
-                  >
-                    {loadingMore ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-current" />
-                        <span>Loading more videos...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>SHOW MORE VIDEOS</span>
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </>
-                    )}
-                  </button>
-                  <p className="text-xs text-[var(--ink-muted)] font-semibold mt-2 tabular-nums">
-                    Showing {videos.length} of {profileStats?.videoCount || 'all'} videos
-                  </p>
+                    );
+                  })}
                 </div>
-              )}
-            </section>
+
+                {hasMore && (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-1">
+                    <button
+                      type="button"
+                      onClick={() => void handleShowMoreVideos()}
+                      disabled={loadingMore}
+                      className="h-11 px-7 rounded-xl bg-[var(--accent-dark)] hover:bg-[var(--accent-primary)] text-[var(--accent-contrast)] font-bold text-xs tracking-wide uppercase flex items-center gap-2 transition-colors disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] cursor-pointer"
+                    >
+                      {loadingMore ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-current" />
+                          <span>Loading more videos...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>SHOW MORE VIDEOS</span>
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
+                    <p className="text-xs text-[var(--ink-secondary)] font-semibold mt-2 tabular-nums">
+                      Showing {videos.length} of {profileStats?.videoCount || 'all'} videos
+                    </p>
+                  </div>
+                )}
+              </section>
+            </MotionFadeIn>
           )}
         </div>
       )}
 
-      {/* Video Player Modal */}
-      {selectedVideo && (
-        <div
-          onClick={closeModal}
-          className="fixed inset-0 z-50 bg-[var(--accent-dark)]/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={`Video player for @${modalAuthorUser}`}
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-[400px] sm:max-w-[430px] h-[540px] sm:h-[580px] max-h-[90vh] bg-[var(--surface-elevated)] rounded-2xl overflow-hidden shadow-2xl border border-[var(--border-strong)] flex flex-col justify-between animate-in fade-in zoom-in-95 duration-200"
+      {/* Flat High-Contrast Video Player Modal */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <MotionModalBackdrop
+            onClick={closeModal}
+            className="fixed inset-0 z-50 bg-[var(--ink-primary)]/60 flex items-center justify-center p-3 sm:p-4"
           >
-            {/* Modal Header */}
-            <div className="bg-[var(--accent-dark)] text-[var(--accent-contrast)] px-3.5 py-2.5 border-b border-[var(--ink-secondary)] flex items-center justify-between gap-2.5 shrink-0">
-              <div className="flex items-center gap-2 min-w-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={modalAuthorAvatar}
-                  alt={modalAuthorUser}
-                  referrerPolicy="no-referrer"
-                  className="w-6 h-6 rounded-full object-cover border border-[var(--accent-cyan)] bg-[var(--accent-dark-hover)] shrink-0"
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    if (!target.src.includes('/api/avatar')) {
-                      target.src = `/api/avatar?username=${encodeURIComponent(modalAuthorUser)}`;
-                    }
-                  }}
+            <MotionModalPanel
+              ariaLabel={`Video player for @${modalAuthorUser}`}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-[410px] sm:max-w-[440px] h-[540px] sm:h-[580px] max-h-[90vh] bg-[var(--surface-elevated)] rounded-2xl overflow-hidden border-2 border-[var(--ink-primary)] flex flex-col justify-between"
+            >
+              {/* Modal Header */}
+              <div className="bg-[var(--surface-canvas)] text-[var(--ink-primary)] px-4 py-2.5 border-b border-[var(--border-subtle)] flex items-center justify-between gap-2.5 shrink-0">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={modalAuthorAvatar}
+                    alt={modalAuthorUser}
+                    referrerPolicy="no-referrer"
+                    className="w-7 h-7 rounded-full object-cover border border-[var(--ink-primary)] bg-[var(--surface-sunken)] shrink-0"
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (!target.src.includes('/api/avatar')) {
+                        target.src = `/api/avatar?username=${encodeURIComponent(modalAuthorUser)}`;
+                      }
+                    }}
+                  />
+                  <div className="min-w-0 flex items-center gap-1.5">
+                    <span className="text-xs font-extrabold text-[var(--ink-primary)] truncate">
+                      @{modalAuthorUser}
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[var(--accent-cyan-soft)] border border-[var(--accent-cyan)] text-[var(--accent-cyan-text)] text-[10px] font-bold uppercase tracking-wider shrink-0">
+                      <Film className="w-2.5 h-2.5" />
+                      <span>HD</span>
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="w-9 h-9 rounded-lg bg-[var(--surface-elevated)] hover:bg-[var(--accent-soft)] text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] border border-[var(--border-strong)] hover:border-[var(--accent-primary)] flex items-center justify-center transition-colors cursor-pointer shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+                  title="Close modal (Esc)"
+                  aria-label="Close modal"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Video Viewport */}
+              <div className="relative flex-1 min-h-0 bg-[var(--accent-dark)] flex items-center justify-center w-full overflow-hidden">
+                {videoResolving && (
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[var(--accent-dark)]/90 text-[var(--accent-contrast)]">
+                    <Loader2 className="w-7 h-7 animate-spin text-[var(--accent-primary)]" />
+                    <span className="text-xs font-semibold text-[var(--accent-contrast)]">Loading HD stream...</span>
+                  </div>
+                )}
+
+                {!isVideoPlaying && !videoResolving && (
+                  <button
+                    type="button"
+                    onClick={handleCustomPlayClick}
+                    aria-label="Play video"
+                    className="absolute inset-0 m-auto z-20 w-14 h-14 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)] border-2 border-[var(--accent-contrast)] flex items-center justify-center transition-colors cursor-pointer"
+                  >
+                    <Play className="w-6 h-6 fill-[var(--accent-contrast)] text-[var(--accent-contrast)] translate-x-0.5" />
+                  </button>
+                )}
+
+                <video
+                  ref={modalVideoRef}
+                  src={activePlayUrl || undefined}
+                  poster={selectedVideo.cover || selectedVideo.origin_cover || undefined}
+                  controls
+                  playsInline
+                  autoPlay
+                  preload="metadata"
+                  onPlay={() => setIsVideoPlaying(true)}
+                  onPause={() => setIsVideoPlaying(false)}
+                  onEnded={() => setIsVideoPlaying(false)}
+                  onCanPlay={() => setVideoResolving(false)}
+                  onError={() => void handleVideoPlayError()}
+                  className="w-full h-full object-contain"
                 />
-                <div className="min-w-0 flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-[var(--accent-contrast)] truncate">
-                    @{modalAuthorUser}
+              </div>
+
+              {/* Bottom Info & Action Panel */}
+              <div className="p-3.5 sm:p-4 flex flex-col gap-2.5 bg-[var(--surface-elevated)] border-t border-[var(--border-subtle)] shrink-0">
+                <p className="text-xs font-bold text-[var(--ink-primary)] line-clamp-2 leading-snug break-words text-start">
+                  {selectedVideo.title || 'TikTok Video'}
+                </p>
+
+                <div className="flex items-center justify-between text-[11px] text-[var(--ink-primary)] bg-[var(--surface-canvas)] px-3 py-2 rounded-lg border border-[var(--border-subtle)] font-mono tabular-nums font-bold">
+                  <span className="flex items-center gap-1 text-[var(--ink-primary)]">
+                    <Play className="w-3 h-3 fill-[var(--ink-primary)] text-[var(--ink-primary)]" />
+                    <span>{formatNumber(selectedVideo.play_count)}</span>
                   </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--accent-cyan)]/20 border border-[var(--accent-cyan)]/60 text-[var(--accent-cyan)] text-[10px] font-bold uppercase tracking-wider shrink-0">
-                    <Film className="w-2.5 h-2.5" />
-                    <span>HD</span>
+                  <span className="flex items-center gap-1 text-[var(--accent-primary-text)]">
+                    <Heart className="w-3 h-3 fill-[var(--accent-primary)] text-[var(--accent-primary)]" />
+                    <span>{formatNumber(selectedVideo.digg_count)}</span>
                   </span>
+                  <span className="flex items-center gap-1 text-[var(--accent-cyan-text)]">
+                    <Share2 className="w-3 h-3 text-[var(--accent-cyan-text)]" />
+                    <span>{formatNumber(selectedVideo.share_count)}</span>
+                  </span>
+                  {selectedVideo.duration ? (
+                    <span className="text-[var(--ink-muted)]">{formatDuration(selectedVideo.duration)}</span>
+                  ) : null}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+                  <button
+                    type="button"
+                    disabled={downloadingVideo || downloadingAudio}
+                    onClick={() => void handleDownloadVideo()}
+                    className="w-full h-10 px-3.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] cursor-pointer"
+                  >
+                    {downloadingVideo ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-current" />
+                        <span>Preparing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download HD Video</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={downloadingVideo || downloadingAudio}
+                    onClick={() => void handleDownloadAudio()}
+                    className="w-full h-10 px-3.5 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] text-[var(--accent-contrast)] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] cursor-pointer"
+                  >
+                    {downloadingAudio ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-current" />
+                        <span>Preparing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Music className="w-3.5 h-3.5" />
+                        <span>Download Audio (MP3)</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
-
-              <button
-                type="button"
-                onClick={closeModal}
-                className="w-8 h-8 rounded-full bg-[var(--accent-contrast)]/15 hover:bg-[var(--accent-primary)] text-[var(--accent-contrast)] flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-cyan)]"
-                title="Close modal (Esc)"
-                aria-label="Close modal"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Video Viewport */}
-            <div className="relative flex-1 min-h-0 bg-[var(--accent-dark)] flex items-center justify-center w-full overflow-hidden">
-              {videoResolving && (
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[var(--accent-dark)]/85 text-[var(--accent-contrast)]">
-                  <Loader2 className="w-7 h-7 animate-spin text-[var(--accent-primary)]" />
-                  <span className="text-xs font-semibold text-[var(--accent-contrast)]">Loading HD stream...</span>
-                </div>
-              )}
-
-              {!isVideoPlaying && !videoResolving && (
-                <button
-                  type="button"
-                  onClick={handleCustomPlayClick}
-                  aria-label="Play video"
-                  className="absolute inset-0 m-auto z-20 w-14 h-14 rounded-xl bg-[var(--accent-primary)]/95 hover:bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)] ring-4 ring-[var(--accent-contrast)]/35 shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                  <Play className="w-6 h-6 fill-[var(--accent-contrast)] text-[var(--accent-contrast)] translate-x-0.5" />
-                </button>
-              )}
-
-              <video
-                ref={modalVideoRef}
-                src={activePlayUrl || undefined}
-                poster={selectedVideo.cover || selectedVideo.origin_cover || undefined}
-                controls
-                playsInline
-                autoPlay
-                preload="metadata"
-                onPlay={() => setIsVideoPlaying(true)}
-                onPause={() => setIsVideoPlaying(false)}
-                onEnded={() => setIsVideoPlaying(false)}
-                onCanPlay={() => setVideoResolving(false)}
-                onError={() => void handleVideoPlayError()}
-                className="w-full h-full object-contain"
-              />
-            </div>
-
-            {/* Bottom Info & Action Panel */}
-            <div className="p-3.5 sm:p-4 flex flex-col gap-2.5 bg-[var(--surface-elevated)] border-t border-[var(--border-subtle)] shrink-0">
-              <p className="text-xs font-bold text-[var(--ink-primary)] line-clamp-2 leading-snug break-words text-start">
-                {selectedVideo.title || 'TikTok Video'}
-              </p>
-
-              <div className="flex items-center justify-between text-[11px] text-[var(--ink-primary)] bg-[var(--surface-canvas)] px-3 py-2 rounded-lg border border-[var(--border-subtle)] font-mono tabular-nums font-bold">
-                <span className="flex items-center gap-1 text-[var(--ink-primary)]">
-                  <Play className="w-3 h-3 fill-[var(--ink-primary)] text-[var(--ink-primary)]" />
-                  <span>{formatNumber(selectedVideo.play_count)}</span>
-                </span>
-                <span className="flex items-center gap-1 text-[var(--accent-primary-text)]">
-                  <Heart className="w-3 h-3 fill-[var(--accent-primary)] text-[var(--accent-primary)]" />
-                  <span>{formatNumber(selectedVideo.digg_count)}</span>
-                </span>
-                <span className="flex items-center gap-1 text-[var(--accent-cyan-text)]">
-                  <Share2 className="w-3 h-3 text-[var(--accent-cyan-text)]" />
-                  <span>{formatNumber(selectedVideo.share_count)}</span>
-                </span>
-                {selectedVideo.duration ? (
-                  <span className="text-[var(--ink-muted)]">{formatDuration(selectedVideo.duration)}</span>
-                ) : null}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
-                <button
-                  type="button"
-                  disabled={downloadingVideo || downloadingAudio}
-                  onClick={() => void handleDownloadVideo()}
-                  className="w-full h-10 px-3.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.99] text-[var(--accent-contrast)] font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] cursor-pointer"
-                >
-                  {downloadingVideo ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-current" />
-                      <span>Preparing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-3.5 h-3.5" />
-                      <span>Download HD Video</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  disabled={downloadingVideo || downloadingAudio}
-                  onClick={() => void handleDownloadAudio()}
-                  className="w-full h-10 px-3.5 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] active:scale-[0.99] text-[var(--accent-contrast)] font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] cursor-pointer"
-                >
-                  {downloadingAudio ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-current" />
-                      <span>Preparing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Music className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
-                      <span>Download Audio (MP3)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </MotionModalPanel>
+          </MotionModalBackdrop>
+        )}
+      </AnimatePresence>
 
       {!hasActiveResult && children}
 

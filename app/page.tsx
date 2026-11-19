@@ -14,6 +14,7 @@ import ExploreNichesSection from '@/components/ExploreNichesSection';
 import CreatorToolsSection from '@/components/CreatorToolsSection';
 import FaqSection from '@/components/FaqSection';
 import AdSlot from '@/components/AdSlot';
+import { MotionFadeIn } from '@/components/MotionPrimitives';
 import { CREATORS } from '@/lib/creators-data';
 
 export const metadata: Metadata = {
@@ -112,12 +113,12 @@ export default function HomePage() {
           subtitle="Inspect public TikTok profiles anonymously, watch videos smoothly without lag, and save watermark-free HD MP4 videos and MP3 audio for free."
         >
           <div className="w-full flex flex-col">
-            {/* Band 1: How to Use (Cool Slate Band + White Cards) */}
+            {/* Band 1: How to Use (Canvas Band + White Flat Cards) */}
             <section
               id="how-to-use"
-              className="w-full bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] py-10 sm:py-12 scroll-mt-16"
+              className="w-full bg-[var(--surface-canvas)] border-b border-[var(--border-subtle)] py-10 sm:py-12 scroll-mt-16"
             >
-              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+              <MotionFadeIn inView className="max-w-[1200px] mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
                   <div>
                     <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight">
@@ -137,19 +138,19 @@ export default function HomePage() {
                 </div>
 
                 <HowToUseSteps />
-              </div>
+              </MotionFadeIn>
             </section>
 
-            {/* Band 2: Explore Niches (Pure White Band + Containerless Image) */}
+            {/* Band 2: Explore Niches (Crisp White Band) */}
             <section className="w-full bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] py-10 sm:py-14">
-              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+              <MotionFadeIn inView className="max-w-[1200px] mx-auto px-4 sm:px-6">
                 <ExploreNichesSection />
-              </div>
+              </MotionFadeIn>
             </section>
 
-            {/* Band 3: Trending Creators (Cool Slate Band + White Cards) */}
-            <section className="w-full bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] py-10 sm:py-12">
-              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+            {/* Band 3: Trending Creators (Canvas Band + Crisp White Cards) */}
+            <section className="w-full bg-[var(--surface-canvas)] border-b border-[var(--border-subtle)] py-10 sm:py-12">
+              <MotionFadeIn inView className="max-w-[1200px] mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
                   <div>
                     <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight">
@@ -173,9 +174,9 @@ export default function HomePage() {
                     <Link
                       key={creator.username}
                       href={`/profile/${creator.username}`}
-                      className="group p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] hover:border-[var(--accent-primary)] hover:shadow-[var(--shadow-card-hover)] transition-all flex items-center gap-3.5"
+                      className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-strong)] hover:border-[var(--accent-primary)] transition-colors flex items-center gap-3.5"
                     >
-                      <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[var(--surface-sunken)] shrink-0 border border-[var(--border-subtle)]">
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[var(--surface-sunken)] shrink-0 border border-[var(--ink-primary)]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={creator.avatar || `/api/avatar?username=${encodeURIComponent(creator.username)}`}
@@ -187,7 +188,7 @@ export default function HomePage() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-extrabold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors truncate">
+                        <h3 className="text-sm font-extrabold text-[var(--ink-primary)] truncate">
                           {creator.displayName}
                         </h3>
                         <p className="text-xs font-mono font-semibold text-[var(--ink-muted)] truncate">
@@ -202,19 +203,19 @@ export default function HomePage() {
                         </div>
                       </div>
 
-                      <ChevronRight className="w-4 h-4 text-[var(--ink-muted)] group-hover:text-[var(--accent-primary-text)] group-hover:translate-x-0.5 transition-all shrink-0 rtl:rotate-180" />
+                      <ChevronRight className="w-4 h-4 text-[var(--ink-muted)] shrink-0 rtl:rotate-180" />
                     </Link>
                   ))}
                 </div>
-              </div>
+              </MotionFadeIn>
             </section>
 
-            {/* Band 4: About Tik Profiles Viewer (Pure White Band) */}
+            {/* Band 4: About Tik Profiles Viewer (White Band + Canvas Cards) */}
             <section
               id="about"
               className="w-full bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] py-10 sm:py-12 scroll-mt-16"
             >
-              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+              <MotionFadeIn inView className="max-w-[1200px] mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
                   <div>
                     <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight">
@@ -234,7 +235,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] flex flex-col gap-2.5">
+                  <div className="p-5 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-strong)] flex flex-col gap-2.5">
                     <div className="w-9 h-9 rounded-lg bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)] flex items-center justify-center">
                       <Zap className="w-4 h-4" />
                     </div>
@@ -244,8 +245,8 @@ export default function HomePage() {
                     </p>
                   </div>
 
-                  <div className="p-5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] flex flex-col gap-2.5">
-                    <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40 flex items-center justify-center">
+                  <div className="p-5 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-strong)] flex flex-col gap-2.5">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)] flex items-center justify-center">
                       <Download className="w-4 h-4" />
                     </div>
                     <h3 className="text-base font-extrabold text-[var(--ink-primary)]">100% Free Forever</h3>
@@ -254,9 +255,9 @@ export default function HomePage() {
                     </p>
                   </div>
 
-                  <div className="p-5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] flex flex-col gap-2.5">
+                  <div className="p-5 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-strong)] flex flex-col gap-2.5">
                     <div className="w-9 h-9 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] flex items-center justify-center">
-                      <ShieldCheck className="w-4 h-4 text-[var(--accent-cyan)]" />
+                      <ShieldCheck className="w-4 h-4" />
                     </div>
                     <h3 className="text-base font-extrabold text-[var(--ink-primary)]">Private &amp; Anonymous</h3>
                     <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
@@ -264,22 +265,22 @@ export default function HomePage() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </MotionFadeIn>
             </section>
 
-            {/* Band 5: Free Creator Tools (Cool Slate Band + White Cards) */}
-            <section className="w-full bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] py-10 sm:py-12">
-              <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+            {/* Band 5: Free Creator Tools (Canvas Band + White Cards) */}
+            <section className="w-full bg-[var(--surface-canvas)] border-b border-[var(--border-subtle)] py-10 sm:py-12">
+              <MotionFadeIn inView className="max-w-[1200px] mx-auto px-4 sm:px-6">
                 <CreatorToolsSection />
-              </div>
+              </MotionFadeIn>
             </section>
 
-            {/* Band 6: AdSlot & FAQ (Soft Canvas Band + White Cards) */}
-            <section className="w-full bg-[var(--surface-canvas)] py-10 sm:py-12">
-              <div className="max-w-[1120px] mx-auto px-4 sm:px-6 space-y-8">
+            {/* Band 6: AdSlot & FAQ (White Band) */}
+            <section className="w-full bg-[var(--surface-elevated)] py-10 sm:py-12">
+              <MotionFadeIn inView className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-8">
                 <AdSlot placement="footer" />
                 <FaqSection />
-              </div>
+              </MotionFadeIn>
             </section>
           </div>
         </TikTokProfileViewer>

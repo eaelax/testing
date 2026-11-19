@@ -1,56 +1,65 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
 :root {
-  /* Core Semantic Surfaces (60% Soft Canvas, 30% Structural Surface, 10% Accent) */
-  --surface-canvas: #F5F7FA;
+  /* Core Bright Daylight Surfaces (60% Pure White & Bright Ice) */
+  --surface-canvas: #FFFFFF;
   --surface-elevated: #FFFFFF;
-  --surface-sunken: #EBF0F5;
-  --surface-interactive: #E2E8F0;
-  --surface-hero: #EEF2F7;
+  --surface-sunken: #F8FAFC;
+  --surface-interactive: #F1F5F9;
+
+  /* Niche-Matched Light Band Tints (30% Structured Light Separation) */
+  --surface-tint-aqua: #F1FCFC;
+  --surface-tint-rose: #FFF6F8;
+  --surface-hero: #FFF8FA;
   --surface-hero-elevated: #FFFFFF;
-  --surface-hero-border: #D6DFEB;
+  --surface-hero-border: #E6EAF0;
 
-  /* Comfortable High-Contrast Ink Tokens */
-  --ink-primary: #111827;
+  /* High-Contrast Crisp Ink Tokens */
+  --ink-primary: #111318;
   --ink-secondary: #374151;
-  --ink-muted: #5B6678;
+  --ink-muted: #5B6475;
 
-  /* Crisp 1px Hairline Borders */
-  --border-subtle: #DCE3EC;
-  --border-strong: #C2CDDB;
-  --border-hover: #94A3B8;
+  /* Clean 1px Hairline Borders */
+  --border-subtle: #E6EAF0;
+  --border-strong: #CFD6E2;
+  --border-hover: #9AA5B8;
 
-  /* Brand Primary Accent (Refined Eye-Friendly Crimson) */
-  --accent-primary: #D92652;
-  --accent-primary-hover: #BE1B44;
-  --accent-primary-text: #B8173F;
-  --accent-soft: #FDF2F5;
+  /* Brand Primary Accent (10% TikTok Coral-Rose) */
+  --accent-primary: #FE2C55;
+  --accent-primary-hover: #E01E45;
+  --accent-primary-text: #C41038;
+  --accent-soft: #FFF0F3;
   --accent-contrast: #FFFFFF;
 
-  /* Brand Secondary Accent (Calm Teal-Cyan) */
-  --accent-cyan: #58C7D0;
-  --accent-cyan-hover: #42B3BC;
-  --accent-cyan-soft: #EAF8F9;
-  --accent-cyan-text: #0B636B;
+  /* Brand Secondary Accent (Creator Aqua-Teal) */
+  --accent-cyan: #25F4EE;
+  --accent-cyan-hover: #00D2CB;
+  --accent-cyan-soft: #E8FCFC;
+  --accent-cyan-text: #08747D;
 
-  /* Brand Structural Slate-Navy */
-  --accent-dark: #1A2332;
-  --accent-dark-hover: #263347;
+  /* Brand Structural Charcoal */
+  --accent-dark: #111318;
+  --accent-dark-hover: #1F2430;
 
   /* Semantic Status & Interactive States */
-  --status-success: #0B636B;
+  --status-success: #08747D;
   --status-warning: #B45309;
-  --status-danger: #B8173F;
-  --status-danger-bg: #FDF2F5;
-  --status-danger-border: #D92652;
-  --focus-ring: #D92652;
-  --state-disabled-bg: #E2E8F0;
-  --state-disabled-ink: #64748B;
+  --status-danger: #C41038;
+  --status-danger-bg: #FFF0F3;
+  --status-danger-border: #FE2C55;
+  --focus-ring: #FE2C55;
+  --state-disabled-bg: #E6EAF0;
+  --state-disabled-ink: #667085;
 
-  /* Subtle Surface Depth */
-  --shadow-card: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 12px rgba(17, 24, 39, 0.04);
-  --shadow-card-hover: 0 6px 18px rgba(17, 24, 39, 0.08);
-  --shadow-workbench: 0 12px 32px rgba(17, 24, 39, 0.08), 0 2px 6px rgba(17, 24, 39, 0.04);
+  /* Airy Light-Theme Elevation */
+  --shadow-card: 0 1px 3px rgba(17, 19, 24, 0.04), 0 4px 14px rgba(17, 19, 24, 0.03);
+  --shadow-card-hover: 0 8px 24px rgba(17, 19, 24, 0.07);
+  --shadow-workbench: 0 10px 30px rgba(17, 19, 24, 0.06), 0 1px 3px rgba(17, 19, 24, 0.04);
 
   /* Proportional Typographic Ceiling */
   --h1-size: clamp(1.75rem, 3vw, 2.35rem);
@@ -72,11 +81,6 @@
   --shadow-none: none;
 }
 
-@theme inline {
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
-}
-
 html {
   font-size: 16px;
   scroll-behavior: smooth;
@@ -86,25 +90,73 @@ body {
   background-color: var(--surface-canvas);
   color: var(--ink-primary);
   font-family: var(--font-sans);
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+/* Bright Daylight Studio Hero Wash (TikTok Aqua & Coral-Rose subtle ambient glow) */
+.hero-studio-backdrop {
+  background-color: #FFFFFF;
+  background-image:
+    radial-gradient(60% 90% at 88% 12%, rgba(37, 244, 238, 0.14) 0%, rgba(37, 244, 238, 0) 70%),
+    radial-gradient(55% 85% at 10% 85%, rgba(254, 44, 85, 0.09) 0%, rgba(254, 44, 85, 0) 70%);
 }
 
-/* Soft Scrollbar */
+/* Signature Dual-Tone Creator Accent Bar */
+.creator-split-bar {
+  background: linear-gradient(90deg, #25F4EE 0%, #25F4EE 48%, #FE2C55 52%, #FE2C55 100%);
+}
+
+/* Editorial Legal Reader Prose Rules (Logical Properties & Token Overrides) */
+.legal-prose h2 {
+  color: var(--ink-primary);
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.legal-prose h3 {
+  color: var(--ink-primary);
+}
+
+.legal-prose p,
+.legal-prose li {
+  color: var(--ink-secondary);
+}
+
+.legal-prose strong {
+  color: var(--ink-primary);
+}
+
+.legal-prose ul,
+.legal-prose ol {
+  padding-inline-start: 1.25rem;
+}
+
+.legal-prose a {
+  color: var(--accent-primary-text);
+  font-weight: 600;
+}
+
+.legal-prose code {
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+/* Crisp Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--surface-canvas);
+  background: var(--surface-sunken);
 }
 
 ::-webkit-scrollbar-thumb {

@@ -11,15 +11,16 @@ export default function Footer() {
 
   return (
     <footer className="w-full border-t border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--ink-secondary)] text-xs mt-auto">
-      <div className="max-w-[1160px] mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 text-center md:text-start">
-        {/* Col 1: Brand, Logo & Quick Links */}
-        <div className="lg:col-span-4 flex flex-col items-center md:items-start gap-3">
+      {/* Main Footer Columns */}
+      <div className="max-w-[1120px] mx-auto px-4 sm:px-6 py-9 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-7">
+        {/* Col 1: Brand, Logo & About */}
+        <div className="lg:col-span-4 flex flex-col gap-3">
           <Link
             href="/"
             onClick={handleGoHome}
             className="flex items-center gap-2.5 text-[var(--ink-primary)] hover:text-[var(--accent-primary-text)] transition-colors font-extrabold text-sm select-none w-fit rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
           >
-            <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-[var(--surface-canvas)] border border-[var(--border-subtle)]">
+            <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-[var(--surface-tint-rose)] border border-[var(--border-subtle)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png"
@@ -31,27 +32,27 @@ export default function Footer() {
           </Link>
 
           <p className="text-[var(--ink-secondary)] leading-relaxed text-xs max-w-xs">
-            Free web tool to view public TikTok profiles, watch videos smoothly, and download clean HD videos and MP3 audio with no account needed.
+            Free web tool to view public TikTok profiles anonymously, watch videos smoothly, and save clean HD MP4 videos and MP3 audio tracks.
           </p>
 
-          <div className="flex items-center justify-center md:justify-start flex-wrap gap-2.5 text-xs pt-1 text-[var(--ink-primary)]">
+          <div className="flex items-center gap-3 text-xs pt-1 text-[var(--ink-primary)]">
             <Link
               href="/about-tiktok-profile-viewer"
-              className="hover:text-[var(--accent-primary-text)] font-semibold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan)]"
+              className="hover:text-[var(--accent-primary-text)] font-bold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan-hover)]"
             >
               About
             </Link>
             <span className="text-[var(--border-strong)]">•</span>
             <Link
               href="/how-to-use-tiktok-profile-viewer"
-              className="hover:text-[var(--accent-primary-text)] font-semibold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan)]"
+              className="hover:text-[var(--accent-primary-text)] font-bold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan-hover)]"
             >
               How to use
             </Link>
             <span className="text-[var(--border-strong)]">•</span>
             <Link
               href="/creators"
-              className="hover:text-[var(--accent-primary-text)] font-semibold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan)]"
+              className="hover:text-[var(--accent-primary-text)] font-bold transition-colors underline underline-offset-4 decoration-[var(--accent-cyan-hover)]"
             >
               Top Creators
             </Link>
@@ -59,11 +60,11 @@ export default function Footer() {
         </div>
 
         {/* Col 2: Free Tools */}
-        <div className="lg:col-span-3 flex flex-col items-center md:items-start gap-2.5">
+        <div className="lg:col-span-3 flex flex-col gap-2.5">
           <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ink-primary)]">
             Free Downloader Tools
           </h4>
-          <ul className="flex flex-col gap-2 text-xs text-[var(--ink-secondary)]">
+          <ul className="flex flex-col gap-1.5 text-xs text-[var(--ink-secondary)]">
             <li>
               <Link href="/tiktok-video-downloader" className="hover:text-[var(--accent-primary-text)] font-medium transition-colors">
                 HD Video Downloader
@@ -98,11 +99,11 @@ export default function Footer() {
         </div>
 
         {/* Col 3: Creator Calculators & Growth */}
-        <div className="lg:col-span-2 flex flex-col items-center md:items-start gap-2.5">
+        <div className="lg:col-span-2 flex flex-col gap-2.5">
           <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ink-primary)]">
             Creator Growth
           </h4>
-          <ul className="flex flex-col gap-2 text-xs text-[var(--ink-secondary)]">
+          <ul className="flex flex-col gap-1.5 text-xs text-[var(--ink-secondary)]">
             <li>
               <Link href="/tiktok-analytics" className="hover:text-[var(--accent-primary-text)] font-medium transition-colors">
                 Viral Analytics
@@ -132,11 +133,11 @@ export default function Footer() {
         </div>
 
         {/* Col 4: Legal & Policies */}
-        <div className="lg:col-span-3 flex flex-col items-center md:items-start gap-2.5">
+        <div className="lg:col-span-3 flex flex-col gap-2.5">
           <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--ink-primary)]">
             Legal &amp; Protection
           </h4>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-[var(--ink-secondary)] w-full max-w-xs md:max-w-none">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-[var(--ink-secondary)]">
             <Link href="/terms-of-service" className="hover:text-[var(--accent-primary-text)] font-medium transition-colors truncate">
               Terms of Service
             </Link>
@@ -177,14 +178,14 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Legal Bar */}
-      <div className="border-t border-[var(--border-subtle)] bg-[var(--surface-canvas)] py-4 px-4 sm:px-6">
-        <div className="max-w-[1160px] mx-auto flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] text-[var(--ink-secondary)] font-medium text-center md:text-start">
-          <p className="text-[var(--ink-primary)] font-semibold">
+      {/* Bright Aqua-Mist Bottom Legal Strip */}
+      <div className="border-t border-[var(--border-subtle)] bg-[var(--surface-tint-aqua)] py-4 px-4 sm:px-6">
+        <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] text-[var(--ink-secondary)] font-medium">
+          <p className="text-[var(--ink-primary)] font-bold">
             © {new Date().getFullYear()} TikProfilesViewer.com. All rights reserved.
           </p>
-          <p className="md:text-end max-w-xl text-[var(--ink-muted)]">
-            Tik Profiles Viewer is an independent web tool and is not affiliated with, endorsed by, or associated with TikTok or ByteDance Ltd.
+          <p className="text-center md:text-end max-w-xl text-[var(--ink-muted)]">
+            Disclaimer: Tik Profiles Viewer is an independent web utility and is not affiliated with, endorsed by, or associated with TikTok or ByteDance Ltd.
           </p>
         </div>
       </div>

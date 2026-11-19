@@ -40,7 +40,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <ol className="flex items-center justify-center sm:justify-start flex-wrap gap-1.5 text-xs text-[var(--ink-muted)] font-medium">
+      <ol className="flex items-center flex-wrap gap-1.5 text-xs text-[var(--ink-muted)] font-medium">
         <li className="inline-flex items-center">
           <Link
             href="/"
@@ -49,9 +49,9 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
                 window.dispatchEvent(new CustomEvent('tpv:reset-home'));
               }
             }}
-            className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)] hover:bg-[var(--surface-elevated)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+            className="inline-flex items-center gap-1.5 text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)] transition-colors rounded px-1 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
           >
-            <Home className="w-3.5 h-3.5 text-[var(--ink-secondary)]" />
+            <Home className="w-3.5 h-3.5 text-[var(--accent-cyan-text)]" />
             <span>Home</span>
           </Link>
         </li>
@@ -59,15 +59,15 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
           const isLast = index === items.length - 1;
           return (
             <li key={index} className="inline-flex items-center gap-1.5">
-              <ChevronRight className="w-3.5 h-3.5 text-[var(--border-strong)] rtl:rotate-180 shrink-0" />
+              <ChevronRight className="w-3.5 h-3.5 text-[var(--border-strong)] rtl:rotate-180" />
               {isLast || !item.href ? (
-                <span className="px-2 py-1 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--ink-primary)] font-bold truncate max-w-[220px] sm:max-w-none">
+                <span className="text-[var(--ink-primary)] font-bold truncate max-w-[200px] sm:max-w-none">
                   {item.label}
                 </span>
               ) : (
                 <Link
                   href={item.href}
-                  className="px-2 py-1 rounded-md text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)] hover:bg-[var(--surface-elevated)] transition-colors truncate max-w-[200px] sm:max-w-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+                  className="text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)] transition-colors truncate max-w-[200px] sm:max-w-none rounded px-1 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
                 >
                   {item.label}
                 </Link>

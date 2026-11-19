@@ -95,19 +95,28 @@ function ModalContent({
       aria-modal="true"
       aria-label={mediaType === 'audio' ? 'Clean Audio Downloader' : 'Watermark-Free HD Downloader'}
       onClick={(e) => e.stopPropagation()}
-      className="relative w-full max-w-[400px] sm:max-w-[430px] h-[540px] sm:h-[580px] max-h-[90vh] bg-[var(--surface-elevated)] rounded-2xl border border-[var(--border-strong)] shadow-2xl flex flex-col justify-between overflow-hidden animate-in fade-in zoom-in-95 duration-200 select-none"
+      className="relative w-full max-w-[400px] sm:max-w-[430px] h-[540px] sm:h-[580px] max-h-[90vh] bg-[var(--surface-elevated)] rounded-2xl border border-[var(--border-subtle)] shadow-[var(--shadow-workbench)] flex flex-col justify-between overflow-hidden animate-in fade-in zoom-in-95 duration-200 select-none"
     >
-      {/* Modal Header */}
-      <div className="w-full bg-[var(--accent-dark)] text-[var(--accent-contrast)] px-4 py-3 border-b border-[var(--ink-secondary)] flex items-center justify-between gap-2.5 shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded-lg bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/50 flex items-center justify-center shrink-0">
+      {/* Top Niche Split Accent Bar */}
+      <div className="w-full h-[3px] creator-split-bar shrink-0" aria-hidden="true" />
+
+      {/* Bright Light-Theme Header */}
+      <div className="w-full bg-[var(--surface-elevated)] text-[var(--ink-primary)] px-4 py-3 border-b border-[var(--border-subtle)] flex items-center justify-between gap-2.5 shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div
+            className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${
+              mediaType === 'audio'
+                ? 'bg-[var(--accent-cyan-soft)] border-[var(--accent-cyan)] text-[var(--accent-cyan-text)]'
+                : 'bg-[var(--accent-soft)] border-[var(--accent-primary)]/30 text-[var(--accent-primary-text)]'
+            }`}
+          >
             {mediaType === 'audio' ? (
-              <Music className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
+              <Music className="w-3.5 h-3.5" />
             ) : (
-              <Film className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+              <Film className="w-3.5 h-3.5" />
             )}
           </div>
-          <span className="text-xs sm:text-[13px] font-bold text-[var(--accent-contrast)] truncate">
+          <span className="text-xs sm:text-[13px] font-extrabold text-[var(--ink-primary)] truncate">
             {mediaType === 'audio' ? 'Clean Audio Downloader' : 'Watermark-Free HD Downloader'}
           </span>
         </div>
@@ -115,7 +124,7 @@ function ModalContent({
         <button
           type="button"
           onClick={onClose}
-          className="w-8 h-8 rounded-full bg-[var(--accent-contrast)]/15 hover:bg-[var(--accent-primary)] text-[var(--accent-contrast)] flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-cyan)]"
+          className="w-8 h-8 rounded-lg bg-[var(--surface-sunken)] hover:bg-[var(--accent-soft)] text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)] border border-[var(--border-subtle)] flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
           aria-label="Close"
           title="Close and return to videos"
         >
@@ -124,7 +133,7 @@ function ModalContent({
       </div>
 
       {/* Center Body */}
-      <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-center p-5 text-center overflow-y-auto bg-[var(--surface-elevated)]">
+      <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-center p-4 sm:p-5 text-center overflow-y-auto bg-[var(--surface-elevated)]">
         {!isReady ? (
           <div className="flex flex-col items-center justify-center w-full max-w-sm">
             <div className="relative w-28 h-28 sm:w-32 sm:h-32 mb-4 flex items-center justify-center">
@@ -160,20 +169,20 @@ function ModalContent({
             </div>
 
             <div className="flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold text-[var(--ink-primary)] mb-1">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--accent-primary-text)]" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--accent-primary)]" />
               <span>Preparing {mediaType.toUpperCase()} Stream</span>
             </div>
 
             <p className="text-xs text-[var(--ink-secondary)] max-w-xs leading-relaxed px-2">
               {settings.downloadPreparingText ||
-                'Fetching original high quality stream without watermarks...'}
+                'Fetching original high quality stream and removing watermarks in background...'}
             </p>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center w-full max-w-sm animate-in fade-in duration-300">
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)] flex items-center justify-center mb-3.5">
               {isDownloading ? (
-                <Loader2 className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-[var(--accent-primary-text)]" />
+                <Loader2 className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-[var(--accent-primary)]" />
               ) : (
                 <CheckCircle2 className="w-8 h-8 sm:w-9 sm:h-9 text-[var(--accent-cyan-text)]" />
               )}
@@ -198,16 +207,16 @@ function ModalContent({
                 type="button"
                 disabled={isDownloading || !downloadUrl}
                 onClick={handleManualDownloadClick}
-                className="w-full h-11 px-4 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] disabled:cursor-not-allowed text-[var(--accent-contrast)] font-bold text-xs sm:text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="w-full h-10 px-4 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] disabled:bg-[var(--state-disabled-bg)] disabled:text-[var(--state-disabled-ink)] disabled:cursor-not-allowed text-[var(--accent-contrast)] font-bold text-xs sm:text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
               >
                 {isDownloading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-current shrink-0" />
+                    <Loader2 className="w-4 h-4 animate-spin text-[var(--accent-contrast)] shrink-0" />
                     <span>Downloading File...</span>
                   </>
                 ) : (
                   <>
-                    <Download className="w-4 h-4 text-current shrink-0" />
+                    <Download className="w-4 h-4 text-[var(--accent-contrast)] shrink-0" />
                     <span>
                       {hasTriggeredDownload
                         ? 'Download Again'
@@ -224,7 +233,7 @@ function ModalContent({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full h-10 px-4 rounded-xl bg-[var(--surface-canvas)] hover:bg-[var(--surface-interactive)] border border-[var(--border-strong)] active:scale-[0.98] text-[var(--ink-primary)] font-bold text-xs transition-all cursor-pointer"
+                className="w-full h-9 px-4 rounded-xl bg-[var(--surface-sunken)] hover:bg-[var(--surface-tint-rose)] border border-[var(--border-strong)] hover:border-[var(--accent-primary)] active:scale-[0.98] text-[var(--ink-primary)] font-bold text-xs transition-all cursor-pointer"
               >
                 Back to Profile Videos
               </button>
@@ -235,15 +244,15 @@ function ModalContent({
         <AdSlot placement="modal" className="w-full mt-3 mb-0 shrink-0" />
       </div>
 
-      {/* Bottom Metadata Bar */}
-      <div className="w-full px-4 py-2.5 bg-[var(--surface-canvas)] border-t border-[var(--border-subtle)] text-[11px] text-[var(--ink-primary)] flex items-center justify-between shrink-0">
+      {/* Bottom Aqua-Mist Metadata Bar */}
+      <div className="w-full px-4 py-2.5 bg-[var(--surface-tint-aqua)] border-t border-[var(--border-subtle)] text-[11px] text-[var(--ink-primary)] flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1.5 truncate max-w-[210px] sm:max-w-[260px] text-start">
-          <Sparkles className="w-3.5 h-3.5 text-[var(--accent-primary-text)] shrink-0" />
+          <Sparkles className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" />
           <span className="truncate font-mono font-semibold text-[var(--ink-primary)]">
             {fileName || title || 'tiktok_clean_media'}
           </span>
         </div>
-        <span className="font-extrabold text-[var(--ink-primary)] shrink-0 uppercase tracking-wider text-[10px] ms-2 bg-[var(--accent-cyan-soft)] border border-[var(--accent-cyan)] text-[var(--accent-cyan-text)] px-2 py-0.5 rounded-md">
+        <span className="font-extrabold text-[var(--accent-cyan-text)] shrink-0 uppercase tracking-wider text-[10px] ms-2 bg-[var(--surface-elevated)] border border-[var(--accent-cyan)] px-2 py-0.5 rounded-md">
           No Watermark HD
         </span>
       </div>
@@ -267,7 +276,7 @@ export default function DownloadCounterModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-[var(--accent-dark)]/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+      className="fixed inset-0 z-50 bg-[var(--ink-primary)]/45 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
     >
       <ModalContent
         initialSeconds={initialSeconds}

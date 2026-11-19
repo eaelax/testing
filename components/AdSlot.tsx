@@ -62,7 +62,7 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
       </div>
 
       <div
-        className={`relative overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex items-center justify-center ${dimClass}`}
+        className={`relative overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] shadow-[var(--shadow-card)] flex items-center justify-center ${dimClass}`}
       >
         {ad.code ? (
           <div

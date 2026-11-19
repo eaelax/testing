@@ -2,16 +2,16 @@ import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const jakarta = Plus_Jakarta_Sans({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-jakarta',
+  variable: '--font-plus-jakarta',
   display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  weight: ['500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-jetbrains-mono',
   display: 'swap',
 });
@@ -48,13 +48,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" dir="ltr" className={`${jakarta.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${plusJakarta.variable} ${jetbrainsMono.variable}`}>
       <head>
         <meta name="referrer" content="no-referrer" />
         <link rel="icon" type="image/png" href="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png" />
         <link rel="apple-touch-icon" href="/assets/aistudio/tik-profiles-viewer-logo_c4487561.png" />
       </head>
-      <body className="min-h-screen bg-[var(--surface-canvas)] text-[var(--ink-primary)] font-sans antialiased overflow-x-hidden selection:bg-[var(--accent-soft)] selection:text-[var(--ink-primary)]">
+      <body className="min-h-screen bg-[var(--surface-canvas)] text-[var(--ink-primary)] font-sans antialiased overflow-x-hidden selection:bg-[var(--accent-soft)] selection:text-[var(--accent-primary-text)]">
         {children}
       </body>
     </html>

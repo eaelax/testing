@@ -54,15 +54,15 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
   const dimClass = dimensionClasses[ad.dimension] || 'w-full min-h-[64px]';
 
   return (
-    <div className={`flex flex-col items-center justify-center my-6 select-none ${className}`}>
-      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-[var(--ink-muted)] tracking-wider mb-1.5">
+    <div className={`flex flex-col items-center justify-center my-5 select-none ${className}`}>
+      <div className="flex items-center gap-1.5 text-[10px] uppercase font-semibold text-[var(--ink-muted)] tracking-wider mb-1.5">
         <span>Advertisement</span>
         <span className="text-[var(--border-strong)]">•</span>
         <span className="font-mono text-[9px] text-[var(--ink-muted)]">{ad.dimension}</span>
       </div>
 
       <div
-        className={`relative overflow-hidden rounded-xl border border-[var(--border-strong)] bg-[var(--surface-elevated)] flex items-center justify-center ${dimClass}`}
+        className={`relative overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] shadow-[var(--shadow-card)] flex items-center justify-center ${dimClass}`}
       >
         {ad.code ? (
           <div
@@ -71,7 +71,7 @@ export default function AdSlot({ placement, className = '' }: AdSlotProps) {
           />
         ) : (
           <div className="flex flex-col items-center justify-center p-3 text-center">
-            <span className="text-[11px] font-bold text-[var(--ink-primary)]">{ad.name}</span>
+            <span className="text-[11px] font-semibold text-[var(--ink-primary)]">{ad.name}</span>
             <span className="text-[10px] text-[var(--ink-muted)] mt-0.5">
               Configure this ad in <strong className="text-[var(--ink-primary)]">/admintiktok</strong>
             </span>

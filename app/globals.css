@@ -6,63 +6,63 @@
 }
 
 :root {
-  /* High-Contrast Flat Light Surfaces (60% Cool Alabaster Canvas) */
-  --surface-canvas: #EEF1F6;
+  /* Modern Minimalist SaaS Neutral Surfaces */
+  --surface-canvas: #FAFAFA;
   --surface-elevated: #FFFFFF;
-  --surface-sunken: #E3E8F1;
-  --surface-interactive: #D8E0EC;
+  --surface-sunken: #F4F4F5;
+  --surface-interactive: #ECEEF2;
 
-  /* Structured Flat Band & Accent Surfaces (30%) */
-  --surface-tint-aqua: #E3F6F5;
-  --surface-tint-rose: #FCEAF0;
-  --surface-hero: #E6EBF3;
+  /* Subtle Structural Tints & Hero Surfaces */
+  --surface-tint-aqua: #F0FDFA;
+  --surface-tint-rose: #FFF1F2;
+  --surface-hero: #FAFAFA;
   --surface-hero-elevated: #FFFFFF;
-  --surface-hero-border: #BFC9D9;
+  --surface-hero-border: #E4E4E7;
 
-  /* High-Contrast Crisp Ink Tokens (WCAG AA/AAA) */
-  --ink-primary: #0B0E14;
-  --ink-secondary: #2B3340;
-  --ink-muted: #4C5668;
+  /* Refined Charcoal & Zinc Ink Hierarchy (WCAG AA/AAA) */
+  --ink-primary: #09090B;
+  --ink-secondary: #3F3F46;
+  --ink-muted: #71717A;
 
-  /* Crisp 1px Hairline Borders (Flat Separation, Zero Shadows) */
-  --border-subtle: #C8D1E0;
-  --border-strong: #94A1B8;
-  --border-hover: #4C5668;
+  /* Hairline Borders for Clean Separation */
+  --border-subtle: #E4E4E7;
+  --border-strong: #D4D4D8;
+  --border-hover: #A1A1AA;
 
-  /* Brand Primary Accent (10% High-Contrast Crimson-Rose) */
-  --accent-primary: #D91642;
-  --accent-primary-hover: #B80F35;
-  --accent-primary-text: #B00E33;
-  --accent-soft: #FCEAF0;
+  /* Distinctive Primary Brand Accent (Refined TikTok Rose-Crimson) */
+  --accent-primary: #E11D48;
+  --accent-primary-hover: #BE123C;
+  --accent-primary-text: #BE123C;
+  --accent-soft: #FFF1F2;
   --accent-contrast: #FFFFFF;
 
-  /* Brand Secondary Accent (High-Contrast Creator Teal) */
+  /* Muted Supporting Status Accent (Verified / Success Teal) */
   --accent-cyan: #0D9488;
   --accent-cyan-hover: #0F766E;
-  --accent-cyan-soft: #E3F6F5;
-  --accent-cyan-text: #065F5B;
+  --accent-cyan-soft: #F0FDFA;
+  --accent-cyan-text: #0F766E;
 
-  /* Brand Structural Charcoal */
-  --accent-dark: #0B0E14;
-  --accent-dark-hover: #1E2533;
+  /* Structural Charcoal for High-Contrast Controls */
+  --accent-dark: #18181B;
+  --accent-dark-hover: #27272A;
 
   /* Semantic Status & Interactive States */
-  --status-success: #065F5B;
-  --status-warning: #92400E;
-  --status-danger: #B00E33;
-  --status-danger-bg: #FCEAF0;
-  --status-danger-border: #D91642;
-  --focus-ring: #D91642;
-  --state-disabled-bg: #D5DCE8;
-  --state-disabled-ink: #576275;
+  --status-success: #0F766E;
+  --status-warning: #B45309;
+  --status-danger: #BE123C;
+  --status-danger-bg: #FFF1F2;
+  --status-danger-border: #FECDD3;
+  --focus-ring: #E11D48;
+  --state-disabled-bg: #E4E4E7;
+  --state-disabled-ink: #71717A;
 
-  /* Strict Flat Policy: Zero Box Shadows */
-  --shadow-card: none;
-  --shadow-card-hover: none;
-  --shadow-workbench: none;
+  /* Subtle SaaS Elevation */
+  --shadow-card: 0 1px 2px 0 rgba(9, 9, 11, 0.04);
+  --shadow-card-hover: 0 6px 16px -4px rgba(9, 9, 11, 0.06), 0 2px 6px -1px rgba(9, 9, 11, 0.03);
+  --shadow-workbench: 0 12px 32px -8px rgba(9, 9, 11, 0.07), 0 2px 8px -2px rgba(9, 9, 11, 0.03);
 
-  /* Proportional Typographic Ceiling */
-  --h1-size: clamp(1.75rem, 3vw, 2.35rem);
+  /* Proportional Typographic Scale */
+  --h1-size: clamp(1.85rem, 3.2vw, 2.65rem);
 
   /* Compatibility Alias Tokens */
   --bg-page: var(--surface-canvas);
@@ -90,31 +90,33 @@ body {
   background-color: var(--surface-canvas);
   color: var(--ink-primary);
   font-family: var(--font-sans);
-  line-height: 1.65;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Flat High-Contrast Hero Surface */
+/* Subtle SaaS Hero Backdrop */
 .hero-studio-backdrop {
   background-color: var(--surface-hero);
+  background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(225, 29, 72, 0.05), transparent);
 }
 
-/* Flat Dual-Tone Creator Accent Line */
+/* Subtle Thin Top Identity Line */
 .creator-split-bar {
-  background: linear-gradient(90deg, #0D9488 0%, #0D9488 50%, #D91642 50%, #D91642 100%);
+  background: linear-gradient(90deg, #18181B 0%, #E11D48 55%, #0D9488 100%);
 }
 
-/* Editorial Legal Reader Prose Rules (Logical Properties & Token Overrides) */
+/* Editorial Legal Reader Prose Rules */
 .legal-prose h2 {
   color: var(--ink-primary);
   font-size: 1.125rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .legal-prose h3 {
   color: var(--ink-primary);
+  font-weight: 600;
 }
 
 .legal-prose p,
@@ -124,6 +126,7 @@ body {
 
 .legal-prose strong {
   color: var(--ink-primary);
+  font-weight: 600;
 }
 
 .legal-prose ul,
@@ -146,14 +149,14 @@ body {
   font-size: 0.85em;
 }
 
-/* Crisp Flat Scrollbar */
+/* Subtle Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--surface-sunken);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -168,5 +171,12 @@ body {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

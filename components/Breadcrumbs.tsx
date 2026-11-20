@@ -49,9 +49,9 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
                 window.dispatchEvent(new CustomEvent('tpv:reset-home'));
               }
             }}
-            className="inline-flex items-center gap-1.5 text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)] transition-colors rounded px-1 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+            className="inline-flex items-center gap-1.5 text-[var(--ink-muted)] hover:text-[var(--ink-primary)] transition-colors rounded px-1 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
           >
-            <Home className="w-3.5 h-3.5 text-[var(--accent-cyan-text)]" />
+            <Home className="w-3.5 h-3.5 shrink-0" />
             <span>Home</span>
           </Link>
         </li>
@@ -59,15 +59,15 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
           const isLast = index === items.length - 1;
           return (
             <li key={index} className="inline-flex items-center gap-1.5">
-              <ChevronRight className="w-3.5 h-3.5 text-[var(--border-strong)] rtl:rotate-180" />
+              <ChevronRight className="w-3.5 h-3.5 text-[var(--border-strong)] rtl:rotate-180 shrink-0" />
               {isLast || !item.href ? (
-                <span className="text-[var(--ink-primary)] font-bold truncate max-w-[200px] sm:max-w-none">
+                <span className="text-[var(--ink-primary)] font-semibold truncate max-w-[200px] sm:max-w-none">
                   {item.label}
                 </span>
               ) : (
                 <Link
                   href={item.href}
-                  className="text-[var(--ink-secondary)] hover:text-[var(--accent-primary-text)] transition-colors truncate max-w-[200px] sm:max-w-none rounded px-1 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+                  className="text-[var(--ink-muted)] hover:text-[var(--ink-primary)] transition-colors truncate max-w-[200px] sm:max-w-none rounded px-1 py-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
                 >
                   {item.label}
                 </Link>

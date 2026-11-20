@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 
-const EASE_OUT = [0.22, 1, 0.36, 1] as const;
+const EASE_SMOOTH = [0.22, 1, 0.36, 1] as const;
 
 interface MotionFadeInProps {
   children: ReactNode;
@@ -27,10 +27,10 @@ export function MotionFadeIn({
   if (inView) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 6 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.12 }}
-        transition={{ duration: 0.32, delay, ease: EASE_OUT }}
+        viewport={{ once: true, amount: 0.08 }}
+        transition={{ duration: 0.24, delay, ease: EASE_SMOOTH }}
         className={className}
       >
         {children}
@@ -40,9 +40,9 @@ export function MotionFadeIn({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, delay, ease: EASE_OUT }}
+      transition={{ duration: 0.22, delay, ease: EASE_SMOOTH }}
       className={className}
     >
       {children}
@@ -71,7 +71,7 @@ export function MotionStaggerGrid({
     hidden: {},
     visible: {
       transition: {
-        staggerChildren: 0.045,
+        staggerChildren: 0.035,
       },
     },
   };
@@ -82,7 +82,7 @@ export function MotionStaggerGrid({
         variants={variants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
+        viewport={{ once: true, amount: 0.08 }}
         className={className}
       >
         {children}
@@ -120,11 +120,11 @@ export function MotionStaggerItem({
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 10 },
+        hidden: { opacity: 0, y: 6 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.26, ease: EASE_OUT },
+          transition: { duration: 0.2, ease: EASE_SMOOTH },
         },
       }}
       className={className}
@@ -151,10 +151,10 @@ export function MotionDropdownPanel({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -6 }}
-          transition={{ duration: prefersReduced ? 0.08 : 0.18, ease: EASE_OUT }}
+          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: -4, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
+          transition={{ duration: prefersReduced ? 0.06 : 0.14, ease: EASE_SMOOTH }}
           className={className}
         >
           {children}
@@ -182,7 +182,7 @@ export function MotionModalBackdrop({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: prefersReduced ? 0.08 : 0.18, ease: EASE_OUT }}
+      transition={{ duration: prefersReduced ? 0.06 : 0.16, ease: EASE_SMOOTH }}
       onClick={onClick}
       className={className}
     >
@@ -215,10 +215,10 @@ export function MotionModalPanel({
       role={role}
       aria-modal={ariaModal}
       aria-label={ariaLabel}
-      initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
-      transition={{ duration: prefersReduced ? 0.08 : 0.22, ease: EASE_OUT }}
+      initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 8, scale: 0.99 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.99 }}
+      transition={{ duration: prefersReduced ? 0.06 : 0.18, ease: EASE_SMOOTH }}
       onClick={onClick}
       className={className}
     >
@@ -247,7 +247,7 @@ export function MotionCollapse({
           initial={prefersReduced ? { opacity: 1 } : { opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={prefersReduced ? { opacity: 0 } : { opacity: 0, height: 0 }}
-          transition={{ duration: prefersReduced ? 0.08 : 0.2, ease: EASE_OUT }}
+          transition={{ duration: prefersReduced ? 0.06 : 0.18, ease: EASE_SMOOTH }}
           className={`overflow-hidden ${className}`}
         >
           {children}

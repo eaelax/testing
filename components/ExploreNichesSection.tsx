@@ -4,111 +4,129 @@ import Link from 'next/link';
 import {
   Utensils,
   Film,
-  ChefHat,
   Flame,
   Music,
+  Gamepad2,
+  Dumbbell,
   ArrowRight,
   ShieldCheck,
   Layers,
   Zap,
+  ChevronRight,
 } from 'lucide-react';
 
 const NICHES = [
   {
+    icon: Flame,
+    label: 'Comedy & Entertainment',
+    desc: 'Viral sketches, parodies, and reaction creators.',
+    href: '/category/comedy',
+    count: '6 creators',
+  },
+  {
     icon: Utensils,
-    label: 'Food & Mukbangs',
+    label: 'Food & Cooking',
+    desc: 'Quick recipes, restaurant dishes, and ASMR cooking.',
     href: '/category/food-cooking',
-    className:
-      'text-[var(--ink-primary)] bg-[var(--surface-sunken)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)] hover:bg-[var(--accent-soft)]',
-    iconClass: 'text-[var(--accent-primary-text)]',
+    count: '5 creators',
   },
   {
     icon: Film,
     label: 'Tech & AI',
+    desc: 'Gadget reviews, AI workflows, and software guides.',
     href: '/category/tech-ai',
-    className:
-      'text-[var(--accent-cyan-text)] bg-[var(--accent-cyan-soft)] border-[var(--accent-cyan)] hover:bg-[var(--accent-cyan)] hover:text-[var(--ink-primary)]',
-    iconClass: 'text-current',
+    count: '5 creators',
   },
   {
-    icon: ChefHat,
-    label: 'Culinary & Recipes',
-    href: '/category/food-cooking',
-    className:
-      'text-[var(--accent-primary-text)] bg-[var(--accent-soft)] border-[var(--accent-primary)]/40 hover:bg-[var(--accent-primary)] hover:text-[var(--accent-contrast)]',
-    iconClass: 'text-current',
+    icon: Gamepad2,
+    label: 'Gaming & Esports',
+    desc: 'Highlights, stream clips, and tournament moments.',
+    href: '/category/gaming',
+    count: '5 creators',
   },
   {
-    icon: Flame,
-    label: 'Comedy & Viral',
-    href: '/category/comedy',
-    className:
-      'text-[var(--ink-primary)] bg-[var(--surface-sunken)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)] hover:bg-[var(--accent-soft)]',
-    iconClass: 'text-[var(--accent-primary-text)]',
+    icon: Dumbbell,
+    label: 'Fitness & Sports',
+    desc: 'Training routines, mobility drills, and athletic clips.',
+    href: '/category/fitness-sports',
+    count: '5 creators',
   },
   {
     icon: Music,
     label: 'Dance & Music',
+    desc: 'Trending choreography and extractable MP3 sounds.',
     href: '/category/dance-music',
-    className:
-      'text-[var(--accent-cyan-text)] bg-[var(--accent-cyan-soft)] border-[var(--accent-cyan)] hover:bg-[var(--accent-cyan)] hover:text-[var(--ink-primary)]',
-    iconClass: 'text-current',
+    count: '5 creators',
   },
 ];
 
 export default function ExploreNichesSection() {
   const scrollToSearch = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    const input = document.querySelector('input[type="text"]') as HTMLInputElement | null;
+    const input = document.querySelector('#tiktok-username-search') as HTMLInputElement | null;
     input?.focus();
   };
 
   return (
-    <div className="w-full flex flex-col items-center">
-      <div className="flex flex-col items-center text-center max-w-2xl mx-auto mb-6">
-        <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight leading-tight">
-          Explore Any TikTok Niche &amp; Creator Format
-        </h2>
-
-        <p className="text-sm text-[var(--ink-secondary)] mt-2.5 leading-relaxed max-w-xl">
-          From viral mukbangs and cooking tutorials to 3D animations and comedy sketches, Tik Profiles Viewer lets you browse any public account and save HD videos with zero restrictions.
-        </p>
-
-        {/* Interactive Niche Category Links */}
-        <div className="flex items-center justify-center gap-2 flex-wrap mt-4">
-          {NICHES.map((niche, i) => {
-            const Icon = niche.icon;
-            return (
-              <Link
-                key={i}
-                href={niche.href}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${niche.className}`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${niche.iconClass}`} />
-                <span>{niche.label}</span>
-              </Link>
-            );
-          })}
+    <div className="w-full flex flex-col">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-7">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--ink-primary)] tracking-tight leading-tight">
+            Explore TikTok Niches &amp; Creator Formats
+          </h2>
+          <p className="text-sm text-[var(--ink-secondary)] mt-2 leading-relaxed">
+            From cooking tutorials and tech reviews to comedy sketches, browse public accounts by topic and save clean HD videos with zero restrictions.
+          </p>
         </div>
+
+        <Link
+          href="/categories"
+          className="h-9 px-3.5 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-xs font-semibold text-[var(--ink-primary)] inline-flex items-center gap-1.5 transition-colors shrink-0 w-fit"
+        >
+          <span>All categories</span>
+          <ChevronRight className="w-3.5 h-3.5 text-[var(--ink-muted)] rtl:rotate-180" />
+        </Link>
       </div>
 
-      {/* Direct Showcase Image without outer or inner container */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/assets/aistudio/section-1_3e8f1512.png"
-        alt="Popular TikTok niches including Mukbang, 3D Animation, and Culinary Chef videos"
-        referrerPolicy="no-referrer"
-        loading="lazy"
-        className="w-full max-w-3xl mx-auto h-auto block my-2"
-      />
+      {/* Clean 6-Niche Directory Grid (No decorative 3D illustration) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {NICHES.map((niche) => {
+          const Icon = niche.icon;
+          return (
+            <Link
+              key={niche.href}
+              href={niche.href}
+              className="group p-4 rounded-xl bg-[var(--surface-canvas)] hover:bg-[var(--surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 hover:shadow-[var(--shadow-card-hover)] transition-all flex items-start gap-3.5"
+            >
+              <div className="w-9 h-9 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] group-hover:text-[var(--accent-primary-text)] group-hover:border-[var(--accent-primary)]/30 flex items-center justify-center shrink-0 transition-colors">
+                <Icon className="w-4 h-4" />
+              </div>
 
-      {/* Three High-Contrast Value Pillars */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-6">
-        <div className="p-5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-start flex flex-col gap-2">
-          <div className="w-9 h-9 rounded-lg bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)] flex items-center justify-center">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-bold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors truncate">
+                    {niche.label}
+                  </h3>
+                  <span className="text-[11px] font-medium text-[var(--ink-muted)] shrink-0">
+                    {niche.count}
+                  </span>
+                </div>
+                <p className="text-xs text-[var(--ink-secondary)] mt-1 line-clamp-2 leading-relaxed">
+                  {niche.desc}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Three Clean Value Pillars */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+        <div className="p-5 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-subtle)] text-start flex flex-col gap-2">
+          <div className="w-8 h-8 rounded-lg bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)]/20 flex items-center justify-center">
             <ShieldCheck className="w-4 h-4" />
           </div>
-          <span className="text-sm font-extrabold text-[var(--ink-primary)] block">
+          <span className="text-sm font-bold text-[var(--ink-primary)] block mt-0.5">
             100% Anonymous Viewing
           </span>
           <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
@@ -116,11 +134,11 @@ export default function ExploreNichesSection() {
           </p>
         </div>
 
-        <div className="p-5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-start flex flex-col gap-2">
-          <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40 flex items-center justify-center">
+        <div className="p-5 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-subtle)] text-start flex flex-col gap-2">
+          <div className="w-8 h-8 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/20 flex items-center justify-center">
             <Layers className="w-4 h-4" />
           </div>
-          <span className="text-sm font-extrabold text-[var(--ink-primary)] block">
+          <span className="text-sm font-bold text-[var(--ink-primary)] block mt-0.5">
             Every Public Category
           </span>
           <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
@@ -128,11 +146,11 @@ export default function ExploreNichesSection() {
           </p>
         </div>
 
-        <div className="p-5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-start flex flex-col gap-2">
-          <div className="w-9 h-9 rounded-lg bg-[var(--accent-dark)] text-[var(--accent-contrast)] flex items-center justify-center">
-            <Zap className="w-4 h-4 text-[var(--accent-cyan)]" />
+        <div className="p-5 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-subtle)] text-start flex flex-col gap-2">
+          <div className="w-8 h-8 rounded-lg bg-[var(--surface-elevated)] text-[var(--ink-primary)] border border-[var(--border-subtle)] flex items-center justify-center">
+            <Zap className="w-4 h-4 text-[var(--accent-primary)]" />
           </div>
-          <span className="text-sm font-extrabold text-[var(--ink-primary)] block">
+          <span className="text-sm font-bold text-[var(--ink-primary)] block mt-0.5">
             Instant HD Downloads
           </span>
           <p className="text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed">
@@ -141,15 +159,17 @@ export default function ExploreNichesSection() {
         </div>
       </div>
 
-      {/* Bottom CTA Button */}
-      <button
-        type="button"
-        onClick={scrollToSearch}
-        className="mt-6 h-11 inline-flex items-center gap-2 px-6 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] text-[var(--accent-contrast)] text-xs sm:text-sm font-bold shadow-[var(--shadow-card)] transition-all cursor-pointer"
-      >
-        <span>Search a creator in your favorite niche</span>
-        <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-      </button>
+      {/* Bottom CTA */}
+      <div className="mt-7 flex justify-center">
+        <button
+          type="button"
+          onClick={scrollToSearch}
+          className="h-10 inline-flex items-center gap-2 px-5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)] text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+        >
+          <span>Search a creator in your favorite niche</span>
+          <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, X, Mail, HelpCircle } from 'lucide-react';
+import { Plus, Minus, Mail, HelpCircle } from 'lucide-react';
+import { MotionCollapse } from './MotionPrimitives';
 
 interface FaqItem {
   question: string;
@@ -50,14 +51,14 @@ export default function FaqSection() {
 
   return (
     <div id="faq" className="w-full scroll-mt-20">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         {/* Left Column */}
-        <div className="lg:col-span-5 flex flex-col items-start text-start p-5 sm:p-6 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)]">
-          <div className="w-10 h-10 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/40 flex items-center justify-center mb-3.5">
-            <HelpCircle className="w-5 h-5" />
+        <div className="lg:col-span-5 flex flex-col items-start text-start p-6 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-subtle)]">
+          <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/20 flex items-center justify-center mb-4">
+            <HelpCircle className="w-4 h-4" />
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink-primary)] tracking-tight leading-tight">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--ink-primary)] tracking-tight leading-tight">
             Frequently Asked Questions
           </h2>
 
@@ -67,14 +68,14 @@ export default function FaqSection() {
 
           <a
             href="mailto:support@tikprofilesviewer.com"
-            className="mt-5 h-10 inline-flex items-center gap-2 px-4 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-primary-hover)] active:scale-[0.98] text-[var(--accent-contrast)] text-xs font-bold transition-all cursor-pointer"
+            className="mt-5 h-9 inline-flex items-center gap-2 px-4 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] text-[var(--accent-contrast)] text-xs font-semibold transition-colors cursor-pointer"
           >
-            <Mail className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
+            <Mail className="w-3.5 h-3.5 text-[var(--ink-muted)]" />
             <span>Contact support</span>
           </a>
         </div>
 
-        {/* Right Column: Accordion Stack */}
+        {/* Right Column: Clean SaaS Accordion */}
         <div className="lg:col-span-7 flex flex-col space-y-2.5">
           {FAQS.map((item, index) => {
             const isOpen = openIndex === index;
@@ -82,42 +83,42 @@ export default function FaqSection() {
             return (
               <div
                 key={index}
-                className={`rounded-xl bg-[var(--surface-elevated)] border shadow-[var(--shadow-card)] transition-colors overflow-hidden ${
+                className={`rounded-xl bg-[var(--surface-elevated)] border transition-colors overflow-hidden ${
                   isOpen
-                    ? 'border-[var(--accent-primary)]'
+                    ? 'border-[var(--border-strong)] shadow-[var(--shadow-card)]'
                     : 'border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => toggleIndex(index)}
-                  className="w-full px-4 sm:px-5 py-3.5 text-start flex items-center justify-between gap-3 cursor-pointer focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[var(--focus-ring)] group"
+                  className="w-full px-5 py-4 text-start flex items-center justify-between gap-4 cursor-pointer focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[var(--focus-ring)] group"
                   aria-expanded={isOpen}
                 >
-                  <span className="text-xs sm:text-sm font-extrabold text-[var(--ink-primary)] tracking-tight">
+                  <span className="text-xs sm:text-sm font-semibold text-[var(--ink-primary)] tracking-tight">
                     {item.question}
                   </span>
 
                   <div
-                    className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${
+                    className={`w-7 h-7 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
                       isOpen
-                        ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-[var(--accent-contrast)]'
-                        : 'bg-[var(--surface-sunken)] group-hover:bg-[var(--accent-cyan-soft)] border-[var(--border-subtle)] text-[var(--ink-primary)]'
+                        ? 'bg-[var(--accent-soft)] border-[var(--accent-primary)]/25 text-[var(--accent-primary-text)]'
+                        : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-muted)] group-hover:text-[var(--ink-primary)]'
                     }`}
                   >
                     {isOpen ? (
-                      <X className="w-3.5 h-3.5 text-[var(--accent-contrast)]" />
+                      <Minus className="w-3.5 h-3.5" />
                     ) : (
-                      <Plus className="w-3.5 h-3.5 text-[var(--ink-primary)]" />
+                      <Plus className="w-3.5 h-3.5" />
                     )}
                   </div>
                 </button>
 
-                {isOpen && (
-                  <div className="px-4 sm:px-5 pb-4 pt-3 text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed border-t border-[var(--border-subtle)] bg-[var(--surface-canvas)]">
+                <MotionCollapse isOpen={isOpen}>
+                  <div className="px-5 pb-4 pt-3 text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed border-t border-[var(--border-subtle)] bg-[var(--surface-canvas)]/50">
                     <p>{item.answer}</p>
                   </div>
-                )}
+                </MotionCollapse>
               </div>
             );
           })}

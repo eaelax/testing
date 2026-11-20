@@ -53,8 +53,8 @@ export default function FaqSection() {
     <div id="faq" className="w-full scroll-mt-20">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         {/* Left Column */}
-        <div className="lg:col-span-5 flex flex-col items-start text-start p-6 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-subtle)]">
-          <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/20 flex items-center justify-center mb-4">
+        <div className="lg:col-span-5 flex flex-col items-start text-start p-6 rounded-2xl bg-[var(--pastel-blue)]/45 border border-[var(--pastel-blue-border)] shadow-[var(--shadow-card)]">
+          <div className="w-9 h-9 rounded-xl bg-[var(--surface-elevated)] text-[var(--accent-cyan-text)] border border-[var(--pastel-blue-border)] flex items-center justify-center mb-4">
             <HelpCircle className="w-4 h-4" />
           </div>
 
@@ -68,14 +68,14 @@ export default function FaqSection() {
 
           <a
             href="mailto:support@tikprofilesviewer.com"
-            className="mt-5 h-9 inline-flex items-center gap-2 px-4 rounded-lg bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] text-[var(--accent-contrast)] text-xs font-semibold transition-colors cursor-pointer"
+            className="mt-5 h-10 inline-flex items-center gap-2 px-5 rounded-full bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] text-[var(--accent-contrast)] text-xs font-semibold transition-colors cursor-pointer"
           >
-            <Mail className="w-3.5 h-3.5 text-[var(--ink-muted)]" />
+            <Mail className="w-3.5 h-3.5 text-[var(--accent-contrast)]/80" />
             <span>Contact support</span>
           </a>
         </div>
 
-        {/* Right Column: Clean SaaS Accordion */}
+        {/* Right Column: Pastel-Editorial Accordion */}
         <div className="lg:col-span-7 flex flex-col space-y-2.5">
           {FAQS.map((item, index) => {
             const isOpen = openIndex === index;
@@ -83,9 +83,9 @@ export default function FaqSection() {
             return (
               <div
                 key={index}
-                className={`rounded-xl bg-[var(--surface-elevated)] border transition-colors overflow-hidden ${
+                className={`rounded-2xl bg-[var(--surface-elevated)] border transition-colors overflow-hidden shadow-[var(--shadow-card)] ${
                   isOpen
-                    ? 'border-[var(--border-strong)] shadow-[var(--shadow-card)]'
+                    ? 'border-[var(--pastel-lavender-border)]'
                     : 'border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
                 }`}
               >
@@ -100,10 +100,10 @@ export default function FaqSection() {
                   </span>
 
                   <div
-                    className={`w-7 h-7 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
+                    className={`w-7 h-7 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                       isOpen
-                        ? 'bg-[var(--accent-soft)] border-[var(--accent-primary)]/25 text-[var(--accent-primary-text)]'
-                        : 'bg-[var(--surface-canvas)] border-[var(--border-subtle)] text-[var(--ink-muted)] group-hover:text-[var(--ink-primary)]'
+                        ? 'bg-[var(--pastel-pink)] border-[var(--pastel-pink-border)] text-[var(--ink-primary)]'
+                        : 'bg-[var(--surface-sunken)] border-[var(--border-subtle)] text-[var(--ink-muted)] group-hover:text-[var(--ink-primary)]'
                     }`}
                   >
                     {isOpen ? (
@@ -115,7 +115,7 @@ export default function FaqSection() {
                 </button>
 
                 <MotionCollapse isOpen={isOpen}>
-                  <div className="px-5 pb-4 pt-3 text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed border-t border-[var(--border-subtle)] bg-[var(--surface-canvas)]/50">
+                  <div className="px-5 pb-4 pt-3 text-xs sm:text-[13px] text-[var(--ink-secondary)] leading-relaxed border-t border-[var(--border-subtle)] bg-[var(--pastel-lavender)]/25">
                     <p>{item.answer}</p>
                   </div>
                 </MotionCollapse>

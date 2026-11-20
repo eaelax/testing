@@ -90,7 +90,7 @@ export default function CreatorToolsSection() {
         </p>
       </div>
 
-      {/* Clean 10-Tool SaaS Grid */}
+      {/* Clean 10-Tool Pastel-Editorial Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
         {ALL_TOOLS.map((tool) => {
           const Icon = tool.icon;
@@ -98,10 +98,10 @@ export default function CreatorToolsSection() {
             <Link
               key={tool.href}
               href={tool.href}
-              className="group p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] hover:border-[var(--accent-primary)]/40 hover:shadow-[var(--shadow-card-hover)] transition-all flex flex-col justify-between min-h-[148px]"
+              className="group p-4 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] hover:border-[var(--pastel-blue-border)] hover:shadow-[var(--shadow-card-hover)] transition-all flex flex-col justify-between min-h-[152px]"
             >
               <div>
-                <div className="w-9 h-9 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] group-hover:bg-[var(--accent-soft)] group-hover:text-[var(--accent-primary-text)] group-hover:border-[var(--accent-primary)]/25 flex items-center justify-center shrink-0 transition-colors mb-3">
+                <div className="w-9 h-9 rounded-xl bg-[var(--pastel-lavender)]/60 border border-[var(--pastel-lavender-border)] text-[var(--ink-primary)] group-hover:bg-[var(--accent-dark)] group-hover:text-[var(--accent-contrast)] group-hover:border-[var(--accent-dark)] flex items-center justify-center shrink-0 transition-colors mb-3">
                   <Icon className="w-4 h-4" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors line-clamp-1">
@@ -112,9 +112,9 @@ export default function CreatorToolsSection() {
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-3 mt-3 border-t border-[var(--border-subtle)] text-xs font-semibold text-[var(--ink-secondary)] group-hover:text-[var(--accent-primary-text)] transition-colors">
+              <div className="flex items-center justify-between pt-3 mt-3 border-t border-[var(--border-subtle)] text-xs font-semibold text-[var(--ink-secondary)] group-hover:text-[var(--ink-primary)] transition-colors">
                 <span>Open tool</span>
-                <ChevronRight className="w-3.5 h-3.5 text-[var(--ink-muted)] group-hover:text-[var(--accent-primary-text)] group-hover:translate-x-0.5 transition-all rtl:rotate-180" />
+                <ChevronRight className="w-3.5 h-3.5 text-[var(--ink-muted)] group-hover:text-[var(--ink-primary)] group-hover:translate-x-0.5 transition-all rtl:rotate-180" />
               </div>
             </Link>
           );

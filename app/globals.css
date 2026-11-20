@@ -6,43 +6,52 @@
 }
 
 :root {
-  /* Modern Minimalist SaaS Neutral Surfaces */
-  --surface-canvas: #FAFAFA;
+  /* Airy Pastel-Editorial Canvas & Surfaces */
+  --surface-canvas: #F6F7FB;
   --surface-elevated: #FFFFFF;
-  --surface-sunken: #F4F4F5;
-  --surface-interactive: #ECEEF2;
+  --surface-sunken: #EEF1F8;
+  --surface-interactive: #E5E9F4;
+
+  /* Soft Pastel Surface Tints (Reference Style Accents) */
+  --pastel-blue: #DCEEFF;
+  --pastel-blue-border: #C2DFFF;
+  --pastel-pink: #FFD9EA;
+  --pastel-pink-border: #FBC0DA;
+  --pastel-lavender: #EAE4FF;
+  --pastel-lavender-border: #D5CAFF;
+  --pastel-peach: #FCE4D6;
 
   /* Subtle Structural Tints & Hero Surfaces */
-  --surface-tint-aqua: #F0FDFA;
-  --surface-tint-rose: #FFF1F2;
-  --surface-hero: #FAFAFA;
+  --surface-tint-aqua: #E6F4FF;
+  --surface-tint-rose: #FFE8F2;
+  --surface-hero: #F7F8FC;
   --surface-hero-elevated: #FFFFFF;
-  --surface-hero-border: #E4E4E7;
+  --surface-hero-border: #E4E7F2;
 
-  /* Refined Charcoal & Zinc Ink Hierarchy (WCAG AA/AAA) */
-  --ink-primary: #09090B;
-  --ink-secondary: #3F3F46;
-  --ink-muted: #71717A;
+  /* Charcoal & Slate Ink Hierarchy (WCAG 2.2 AA) */
+  --ink-primary: #18181B;
+  --ink-secondary: #475569;
+  --ink-muted: #64748B;
 
-  /* Hairline Borders for Clean Separation */
-  --border-subtle: #E4E4E7;
-  --border-strong: #D4D4D8;
-  --border-hover: #A1A1AA;
+  /* Soft Hairline Borders */
+  --border-subtle: #E4E7F2;
+  --border-strong: #D0D5E5;
+  --border-hover: #94A3B8;
 
-  /* Distinctive Primary Brand Accent (Refined TikTok Rose-Crimson) */
-  --accent-primary: #E11D48;
-  --accent-primary-hover: #BE123C;
-  --accent-primary-text: #BE123C;
-  --accent-soft: #FFF1F2;
+  /* Brand & Status Accents */
+  --accent-primary: #DB2777;
+  --accent-primary-hover: #BE185D;
+  --accent-primary-text: #BE185D;
+  --accent-soft: #FCE7F3;
   --accent-contrast: #FFFFFF;
 
-  /* Muted Supporting Status Accent (Verified / Success Teal) */
-  --accent-cyan: #0D9488;
-  --accent-cyan-hover: #0F766E;
-  --accent-cyan-soft: #F0FDFA;
-  --accent-cyan-text: #0F766E;
+  /* Supporting Cool Sky-Teal Accent */
+  --accent-cyan: #0284C7;
+  --accent-cyan-hover: #0369A1;
+  --accent-cyan-soft: #E0F2FE;
+  --accent-cyan-text: #0369A1;
 
-  /* Structural Charcoal for High-Contrast Controls */
+  /* Signature Dark Charcoal Pill Controls (DesignX Reference CTA) */
   --accent-dark: #18181B;
   --accent-dark-hover: #27272A;
 
@@ -52,17 +61,17 @@
   --status-danger: #BE123C;
   --status-danger-bg: #FFF1F2;
   --status-danger-border: #FECDD3;
-  --focus-ring: #E11D48;
-  --state-disabled-bg: #E4E4E7;
-  --state-disabled-ink: #71717A;
+  --focus-ring: #18181B;
+  --state-disabled-bg: #E2E8F0;
+  --state-disabled-ink: #64748B;
 
-  /* Subtle SaaS Elevation */
-  --shadow-card: 0 1px 2px 0 rgba(9, 9, 11, 0.04);
-  --shadow-card-hover: 0 6px 16px -4px rgba(9, 9, 11, 0.06), 0 2px 6px -1px rgba(9, 9, 11, 0.03);
-  --shadow-workbench: 0 12px 32px -8px rgba(9, 9, 11, 0.07), 0 2px 8px -2px rgba(9, 9, 11, 0.03);
+  /* Soft Diffused Editorial Shadows */
+  --shadow-card: 0 2px 10px -2px rgba(24, 24, 27, 0.04), 0 1px 3px 0 rgba(24, 24, 27, 0.02);
+  --shadow-card-hover: 0 14px 30px -8px rgba(24, 24, 27, 0.08), 0 4px 10px -2px rgba(24, 24, 27, 0.03);
+  --shadow-workbench: 0 20px 44px -12px rgba(30, 41, 59, 0.1), 0 4px 12px -2px rgba(30, 41, 59, 0.04);
 
   /* Proportional Typographic Scale */
-  --h1-size: clamp(1.85rem, 3.2vw, 2.65rem);
+  --h1-size: clamp(1.85rem, 3.2vw, 2.55rem);
 
   /* Compatibility Alias Tokens */
   --bg-page: var(--surface-canvas);
@@ -95,15 +104,26 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle SaaS Hero Backdrop */
+/* Soft Atmospheric Pastel Mesh Backdrop */
 .hero-studio-backdrop {
   background-color: var(--surface-hero);
-  background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(225, 29, 72, 0.05), transparent);
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(191, 219, 254, 0.65) 0%, transparent 45%),
+    radial-gradient(circle at 86% 16%, rgba(251, 207, 232, 0.55) 0%, transparent 44%),
+    radial-gradient(circle at 52% 88%, rgba(221, 214, 254, 0.5) 0%, transparent 48%);
+}
+
+/* Secondary Pastel Section Wash */
+.pastel-mesh-band {
+  background-color: var(--surface-canvas);
+  background-image:
+    radial-gradient(circle at 8% 82%, rgba(251, 207, 232, 0.35) 0%, transparent 40%),
+    radial-gradient(circle at 92% 22%, rgba(191, 219, 254, 0.45) 0%, transparent 42%);
 }
 
 /* Subtle Thin Top Identity Line */
 .creator-split-bar {
-  background: linear-gradient(90deg, #18181B 0%, #E11D48 55%, #0D9488 100%);
+  background: linear-gradient(90deg, #18181B 0%, #DB2777 52%, #38BDF8 100%);
 }
 
 /* Editorial Legal Reader Prose Rules */
@@ -143,7 +163,7 @@ body {
   background-color: var(--surface-sunken);
   border: 1px solid var(--border-subtle);
   padding: 0.125rem 0.375rem;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   color: var(--ink-primary);
   font-family: var(--font-mono);
   font-size: 0.85em;

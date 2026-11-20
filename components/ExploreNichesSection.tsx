@@ -81,14 +81,14 @@ export default function ExploreNichesSection() {
 
         <Link
           href="/categories"
-          className="h-9 px-3.5 rounded-lg bg-[var(--surface-canvas)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-xs font-semibold text-[var(--ink-primary)] inline-flex items-center gap-1.5 transition-colors shrink-0 w-fit"
+          className="h-9 px-4 rounded-full bg-[var(--surface-canvas)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] shadow-[var(--shadow-card)] text-xs font-semibold text-[var(--ink-primary)] inline-flex items-center gap-1.5 transition-colors shrink-0 w-fit"
         >
           <span>All categories</span>
           <ChevronRight className="w-3.5 h-3.5 text-[var(--ink-muted)] rtl:rotate-180" />
         </Link>
       </div>
 
-      {/* Clean 6-Niche Directory Grid (No decorative 3D illustration) */}
+      {/* 6-Niche Directory Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {NICHES.map((niche) => {
           const Icon = niche.icon;
@@ -96,9 +96,9 @@ export default function ExploreNichesSection() {
             <Link
               key={niche.href}
               href={niche.href}
-              className="group p-4 rounded-xl bg-[var(--surface-canvas)] hover:bg-[var(--surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 hover:shadow-[var(--shadow-card-hover)] transition-all flex items-start gap-3.5"
+              className="group p-4 rounded-2xl bg-[var(--surface-canvas)]/70 hover:bg-[var(--surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--pastel-blue-border)] hover:shadow-[var(--shadow-card-hover)] transition-all flex items-start gap-3.5"
             >
-              <div className="w-9 h-9 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] group-hover:text-[var(--accent-primary-text)] group-hover:border-[var(--accent-primary)]/30 flex items-center justify-center shrink-0 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] group-hover:bg-[var(--pastel-blue)] group-hover:text-[var(--ink-primary)] group-hover:border-[var(--pastel-blue-border)] flex items-center justify-center shrink-0 transition-colors">
                 <Icon className="w-4 h-4" />
               </div>
 
@@ -107,7 +107,7 @@ export default function ExploreNichesSection() {
                   <h3 className="text-sm font-bold text-[var(--ink-primary)] group-hover:text-[var(--accent-primary-text)] transition-colors truncate">
                     {niche.label}
                   </h3>
-                  <span className="text-[11px] font-medium text-[var(--ink-muted)] shrink-0">
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--ink-muted)] shrink-0">
                     {niche.count}
                   </span>
                 </div>
@@ -120,10 +120,10 @@ export default function ExploreNichesSection() {
         })}
       </div>
 
-      {/* Three Clean Value Pillars */}
+      {/* Three Pastel-Tinted Value Pillars */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-        <div className="p-5 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-subtle)] text-start flex flex-col gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[var(--accent-cyan-soft)] text-[var(--accent-cyan-text)] border border-[var(--accent-cyan)]/20 flex items-center justify-center">
+        <div className="p-5 rounded-2xl bg-[var(--pastel-blue)]/45 border border-[var(--pastel-blue-border)] text-start flex flex-col gap-2">
+          <div className="w-9 h-9 rounded-xl bg-[var(--surface-elevated)] text-[var(--accent-cyan-text)] border border-[var(--pastel-blue-border)] flex items-center justify-center">
             <ShieldCheck className="w-4 h-4" />
           </div>
           <span className="text-sm font-bold text-[var(--ink-primary)] block mt-0.5">
@@ -134,8 +134,8 @@ export default function ExploreNichesSection() {
           </p>
         </div>
 
-        <div className="p-5 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-subtle)] text-start flex flex-col gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/20 flex items-center justify-center">
+        <div className="p-5 rounded-2xl bg-[var(--pastel-pink)]/45 border border-[var(--pastel-pink-border)] text-start flex flex-col gap-2">
+          <div className="w-9 h-9 rounded-xl bg-[var(--surface-elevated)] text-[var(--accent-primary-text)] border border-[var(--pastel-pink-border)] flex items-center justify-center">
             <Layers className="w-4 h-4" />
           </div>
           <span className="text-sm font-bold text-[var(--ink-primary)] block mt-0.5">
@@ -146,8 +146,8 @@ export default function ExploreNichesSection() {
           </p>
         </div>
 
-        <div className="p-5 rounded-xl bg-[var(--surface-canvas)] border border-[var(--border-subtle)] text-start flex flex-col gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[var(--surface-elevated)] text-[var(--ink-primary)] border border-[var(--border-subtle)] flex items-center justify-center">
+        <div className="p-5 rounded-2xl bg-[var(--pastel-lavender)]/45 border border-[var(--pastel-lavender-border)] text-start flex flex-col gap-2">
+          <div className="w-9 h-9 rounded-xl bg-[var(--surface-elevated)] text-[var(--ink-primary)] border border-[var(--pastel-lavender-border)] flex items-center justify-center">
             <Zap className="w-4 h-4 text-[var(--accent-primary)]" />
           </div>
           <span className="text-sm font-bold text-[var(--ink-primary)] block mt-0.5">
@@ -164,7 +164,7 @@ export default function ExploreNichesSection() {
         <button
           type="button"
           onClick={scrollToSearch}
-          className="h-10 inline-flex items-center gap-2 px-5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-[var(--accent-contrast)] text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+          className="h-10 inline-flex items-center gap-2 px-6 rounded-full bg-[var(--accent-dark)] hover:bg-[var(--accent-dark-hover)] text-[var(--accent-contrast)] text-xs sm:text-sm font-semibold transition-colors cursor-pointer shadow-[var(--shadow-card)]"
         >
           <span>Search a creator in your favorite niche</span>
           <ArrowRight className="w-4 h-4 rtl:rotate-180" />

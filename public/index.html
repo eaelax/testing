@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer" />
+  <title>TikTok Profile Viewer & Downloader | 100% Free HD No-Watermark</title>
+  <meta name="description" content="View TikTok profiles and download HD videos with no watermark and MP3 audio for free." />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+            },
+            dark: {
+              bg: '#090d16',
+              surface: '#0f172a',
+              card: '#1e293b',
+              border: '#334155'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-rose-500/30 selection:text-rose-200">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-[#090d16]/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <!-- Brand Title -->
+      <a href="#" class="flex items-center gap-2.5 text-lg font-bold tracking-tight text-white whitespace-nowrap">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-rose-600 via-pink-500 to-amber-400 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
+          <i data-lucide="play" class="w-4 h-4 fill-white"></i>
+        </div>
+        <span>Tik<span class="text-rose-500">Vault</span></span>
+      </a>
+
+      <!-- Center status/badge -->
+      <div class="hidden md:flex items-center gap-2 text-xs text-slate-400">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700/60 font-medium text-emerald-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          100% Free · No API Key
+        </span>
+        <span class="text-slate-500">|</span>
+        <span>HD Video & MP3 Downloader</span>
+      </div>
+
+      <!-- Action Button -->
+      <div class="flex items-center gap-3">
+        <button id="quick-clear-btn" class="hidden text-xs font-medium text-slate-400 hover:text-white px-2.5 py-1.5 rounded-md hover:bg-slate-800 transition-colors">
+          Clear
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+
+    <!-- Search Section -->
+    <section class="w-full max-w-2xl mx-auto flex flex-col items-center gap-4 text-center">
+      <div class="space-y-1.5">
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+          TikTok Profile Viewer & Downloader
+        </h1>
+        <p class="text-sm text-slate-400 max-w-md mx-auto">
+          Explore any creator's latest posts, watch watermark-free HD streams, and download MP4 or MP3 directly.
+        </p>
+      </div>
+
+      <!-- Search Input Box -->
+      <form id="search-form" class="w-full relative mt-2">
+        <div class="relative flex items-center shadow-2xl rounded-xl bg-slate-900 border border-slate-700/80 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-500/20 transition-all">
+          <!-- Pinned Fixed Non-Editable @ Symbol -->
+          <div class="absolute left-0 top-0 bottom-0 pl-4 pr-1 flex items-center justify-center pointer-events-none select-none text-slate-400 font-semibold text-lg">
+            @
+          </div>
+
+          <!-- Raw Username Input -->
+          <input
+            id="username-input"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="username (e.g. charlidamelio)"
+            class="w-full pl-9 pr-28 py-3.5 bg-transparent text-white placeholder-slate-500 font-medium text-sm sm:text-base focus:outline-none"
+          />
+
+          <!-- Search Button -->
+          <button
+            type="submit"
+            id="search-btn"
+            class="absolute right-1.5 top-1.5 bottom-1.5 px-4 rounded-lg bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-medium text-sm flex items-center gap-1.5 shadow-md shadow-rose-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <span id="search-btn-icon"><i data-lucide="search" class="w-4 h-4"></i></span>
+            <span id="search-btn-text">Search</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Quick Pick Suggestions -->
+      <div class="flex items-center flex-wrap justify-center gap-1.5 text-xs text-slate-400">
+        <span class="text-slate-500 mr-1">Popular creators:</span>
+        <button type="button" class="quick-chip px-2.5 py-1 rounded-md bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:text-rose-400 transition-colors cursor-pointer" data-user="charlidamelio">@charlidamelio</button>
+        <button type="button" class="quick-chip px-2.5 py-1 rounded-md bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:text-rose-400 transition-colors cursor-pointer" data-user="khaby.lame">@khaby.lame</button>
+        <button type="button" class="quick-chip px-2.5 py-1 rounded-md bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:text-rose-400 transition-colors cursor-pointer" data-user="zachking">@zachking</button>
+        <button type="button" class="quick-chip px-2.5 py-1 rounded-md bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:text-rose-400 transition-colors cursor-pointer" data-user="bellapoarch">@bellapoarch</button>
+        <button type="button" class="quick-chip px-2.5 py-1 rounded-md bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:text-rose-400 transition-colors cursor-pointer" data-user="mrbeast">@mrbeast</button>
+        <button type="button" class="quick-chip px-2.5 py-1 rounded-md bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 hover:text-rose-400 transition-colors cursor-pointer" data-user="sssniperwolf">@sssniperwolf</button>
+      </div>
+
+      <!-- Alert / Error Banner -->
+      <div id="error-alert" class="hidden w-full p-4 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-200 text-sm text-left flex items-start gap-3">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
+        <div class="flex-1">
+          <p id="error-message" class="font-medium text-rose-100">User not found or account is private.</p>
+          <p class="text-xs text-rose-300/80 mt-0.5">Please check the TikTok username and ensure the account has public videos.</p>
+        </div>
+        <button id="dismiss-error" class="text-rose-400 hover:text-rose-200 cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading-spinner" class="hidden flex-col items-center justify-center py-12 gap-3">
+        <div class="w-10 h-10 border-3 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sm font-medium text-slate-300">Retrieving profile and video streams...</p>
+        <p class="text-xs text-slate-500">Connecting to public feed engine</p>
+      </div>
+    </section>
+
+    <!-- Compact Profile Information Container -->
+    <section id="profile-container" class="hidden w-full max-w-4xl mx-auto rounded-2xl bg-slate-900/90 border border-slate-800 p-5 sm:p-6 shadow-xl">
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+        <!-- Avatar -->
+        <div class="relative shrink-0">
+          <img
+            id="profile-avatar"
+            src=""
+            alt="Profile Avatar"
+            referrerPolicy="no-referrer"
+            class="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 border-rose-500 shadow-md shadow-rose-500/10 bg-slate-800"
+            onerror="this.src='https://ui-avatars.com/api/?name=User&background=1e293b&color=f43f5e'"
+          />
+          <div id="verified-badge" class="hidden absolute bottom-0 right-0 bg-blue-500 text-white p-1 rounded-full border-2 border-slate-900 shadow">
+            <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>
+          </div>
+        </div>
+
+        <!-- Identity & Bio -->
+        <div class="flex-1 text-center sm:text-left min-w-0">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+            <h2 id="profile-nickname" class="text-lg sm:text-xl font-bold text-white truncate"></h2>
+            <div class="flex items-center justify-center sm:justify-start gap-2">
+              <span id="profile-username" class="text-xs sm:text-sm font-mono text-rose-400 font-medium"></span>
+              <a
+                id="profile-tiktok-link"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 transition-colors"
+                title="Open on TikTok"
+              >
+                <span>TikTok</span>
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+              </a>
+            </div>
+          </div>
+
+          <p id="profile-bio" class="text-xs sm:text-sm text-slate-300 mt-2 line-clamp-2 sm:line-clamp-3 leading-relaxed"></p>
+
+          <!-- 4-Column Compact Stat Metrics -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-4 pt-4 border-t border-slate-800/80">
+            <!-- Followers -->
+            <div class="bg-slate-800/50 rounded-xl p-2.5 text-center border border-slate-800">
+              <div id="stat-followers" class="text-base sm:text-lg font-bold text-white font-mono tracking-tight">-</div>
+              <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Followers</div>
+            </div>
+            <!-- Following -->
+            <div class="bg-slate-800/50 rounded-xl p-2.5 text-center border border-slate-800">
+              <div id="stat-following" class="text-base sm:text-lg font-bold text-white font-mono tracking-tight">-</div>
+              <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Following</div>
+            </div>
+            <!-- Total Likes -->
+            <div class="bg-slate-800/50 rounded-xl p-2.5 text-center border border-slate-800">
+              <div id="stat-likes" class="text-base sm:text-lg font-bold text-rose-400 font-mono tracking-tight">-</div>
+              <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Likes</div>
+            </div>
+            <!-- Video Count -->
+            <div class="bg-slate-800/50 rounded-xl p-2.5 text-center border border-slate-800">
+              <div id="stat-videos" class="text-base sm:text-lg font-bold text-white font-mono tracking-tight">-</div>
+              <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Videos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Video Grid Section -->
+    <section id="videos-section" class="hidden w-full flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="film" class="w-4 h-4 text-rose-500"></i>
+          <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">User Posts</h3>
+          <span id="posts-count-badge" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">0 videos</span>
+        </div>
+        <div class="text-xs text-slate-400 flex items-center gap-1.5">
+          <i data-lucide="tv" class="w-3.5 h-3.5"></i>
+          <span>Click any video to watch & download</span>
+        </div>
+      </div>
+
+      <!-- 1. Strictly 5 columns on desktop, NO zooming or changing shapes on hover -->
+      <div
+        id="video-grid"
+        class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4"
+      >
+        <!-- Dynamic Video Cards inserted here -->
+      </div>
+
+      <!-- 7. SHOW MORE VIDEOS Button at end of grid -->
+      <div id="show-more-container" class="hidden flex-col items-center justify-center pt-6 pb-4">
+        <button
+          type="button"
+          id="show-more-btn"
+          class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 active:scale-[0.98] text-white font-bold text-sm tracking-wide uppercase flex items-center gap-2.5 shadow-lg shadow-rose-600/20 transition-all cursor-pointer disabled:opacity-50"
+        >
+          <span id="show-more-text">SHOW MORE VIDEOS</span>
+          <i id="show-more-icon" data-lucide="chevron-down" class="w-4 h-4"></i>
+        </button>
+        <p id="show-more-counter" class="text-xs text-slate-500 mt-2"></p>
+      </div>
+    </section>
+
+    <!-- Empty State / Welcome Placeholder -->
+    <section id="welcome-placeholder" class="w-full max-w-xl mx-auto py-12 text-center flex flex-col items-center gap-4 text-slate-400">
+      <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-rose-500 shadow-inner">
+        <i data-lucide="video" class="w-8 h-8"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-semibold text-slate-200">Ready to View & Download</h3>
+        <p class="text-xs text-slate-400 mt-1 max-w-md">
+          Type any public TikTok username above or click one of the quick suggestions to inspect videos, stream without watermarks, and download HD files.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Watch & Download Modal -->
+  <div
+    id="video-modal"
+    class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+  >
+    <div
+      id="modal-card"
+      class="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200"
+    >
+      <!-- Modal Header -->
+      <div class="p-3.5 px-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90 z-10">
+        <div class="flex items-center gap-2 truncate">
+          <img id="modal-author-avatar" src="" alt="avatar" class="w-6 h-6 rounded-full object-cover border border-rose-500 shrink-0" onerror="this.style.display='none'" />
+          <span id="modal-author-name" class="text-xs font-semibold text-slate-200 truncate"></span>
+        </div>
+        <!-- Close Button -->
+        <button
+          id="modal-close-btn"
+          type="button"
+          class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          title="Close modal (Esc)"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Video Player Viewport -->
+      <div class="relative bg-black flex items-center justify-center min-h-[300px] max-h-[55vh] overflow-hidden">
+        <div id="video-loading-indicator" class="hidden absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/80 z-20 text-slate-400">
+          <div class="w-8 h-8 border-3 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+          <span class="text-xs font-medium">Loading watermark-free stream...</span>
+        </div>
+        <video
+          id="modal-video-player"
+          controls
+          playsinline
+          autoplay
+          class="w-full max-h-[55vh] object-contain"
+        ></video>
+      </div>
+
+      <!-- Video Info & Meta -->
+      <div class="p-4 flex flex-col gap-3.5 bg-slate-900">
+        <!-- 4. Video title WITHOUT scrollbar (clean word wrap) -->
+        <p id="modal-video-title" class="text-xs sm:text-sm text-slate-200 leading-relaxed break-words"></p>
+
+        <!-- Stats Bar in Modal -->
+        <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-800/60 px-3 py-2 rounded-lg border border-slate-800 font-mono">
+          <span class="flex items-center gap-1.5"><i data-lucide="play" class="w-3.5 h-3.5 text-slate-400"></i><span id="modal-plays">0</span></span>
+          <span class="flex items-center gap-1.5"><i data-lucide="heart" class="w-3.5 h-3.5 text-rose-500"></i><span id="modal-likes">0</span></span>
+          <span class="flex items-center gap-1.5"><i data-lucide="share-2" class="w-3.5 h-3.5 text-blue-400"></i><span id="modal-shares">0</span></span>
+          <span id="modal-duration" class="text-slate-500">0:00</span>
+        </div>
+
+        <!-- Music info -->
+        <div id="modal-music-row" class="hidden flex items-center gap-2 text-xs text-slate-400 truncate">
+          <i data-lucide="music" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+          <span id="modal-music-title" class="truncate"></span>
+        </div>
+
+        <!-- 5 & 6. Action Buttons with text-only state changing to "Downloading..." (NO new elements) -->
+        <div class="flex flex-col gap-2 pt-1">
+          <!-- Button 1: Download HD Video (No Watermark) -->
+          <button
+            id="download-video-btn"
+            type="button"
+            class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 active:scale-[0.99] text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-rose-600/25 transition-all disabled:opacity-50 cursor-pointer"
+          >
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span id="download-video-text">Download HD Video (No Watermark)</span>
+          </button>
+
+          <!-- Button 2: Download Audio Only (MP3) -->
+          <button
+            id="download-audio-btn"
+            type="button"
+            class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-[0.99] text-slate-200 hover:text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 border border-slate-700/80 transition-all disabled:opacity-50 cursor-pointer"
+          >
+            <i data-lucide="music" class="w-4 h-4 text-emerald-400"></i>
+            <span id="download-audio-text">Download Audio Only (MP3)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w-full border-t border-slate-800/80 py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>TikTok Profile Viewer & Downloader · 100% Free · No-Watermark MP4 & MP3</p>
+      <p class="text-slate-600">Educational & Personal Use Only · Powered by TikTok Public Engine</p>
+    </div>
+  </footer>
+
+  <!-- Vanilla JavaScript Logic -->
+  <script>
+    const state = {
+      currentUser: null,
+      currentVideos: [],
+      selectedVideo: null,
+      isLoading: false,
+      isLoadingMore: false,
+      nextCursor: null,
+      hasMore: false,
+    };
+
+    const searchForm = document.getElementById('search-form');
+    const usernameInput = document.getElementById('username-input');
+    const searchBtn = document.getElementById('search-btn');
+    const searchBtnText = document.getElementById('search-btn-text');
+    const quickClearBtn = document.getElementById('quick-clear-btn');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const errorAlert = document.getElementById('error-alert');
+    const errorMessage = document.getElementById('error-message');
+    const dismissError = document.getElementById('dismiss-error');
+    const welcomePlaceholder = document.getElementById('welcome-placeholder');
+
+    const profileContainer = document.getElementById('profile-container');
+    const profileAvatar = document.getElementById('profile-avatar');
+    const profileNickname = document.getElementById('profile-nickname');
+    const profileUsername = document.getElementById('profile-username');
+    const profileBio = document.getElementById('profile-bio');
+    const profileTiktokLink = document.getElementById('profile-tiktok-link');
+    const verifiedBadge = document.getElementById('verified-badge');
+    const statFollowers = document.getElementById('stat-followers');
+    const statFollowing = document.getElementById('stat-following');
+    const statLikes = document.getElementById('stat-likes');
+    const statVideos = document.getElementById('stat-videos');
+
+    const videosSection = document.getElementById('videos-section');
+    const videoGrid = document.getElementById('video-grid');
+    const postsCountBadge = document.getElementById('posts-count-badge');
+    const showMoreContainer = document.getElementById('show-more-container');
+    const showMoreBtn = document.getElementById('show-more-btn');
+    const showMoreText = document.getElementById('show-more-text');
+    const showMoreCounter = document.getElementById('show-more-counter');
+
+    const videoModal = document.getElementById('video-modal');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const modalVideoPlayer = document.getElementById('modal-video-player');
+    const videoLoadingIndicator = document.getElementById('video-loading-indicator');
+    const modalAuthorAvatar = document.getElementById('modal-author-avatar');
+    const modalAuthorName = document.getElementById('modal-author-name');
+    const modalVideoTitle = document.getElementById('modal-video-title');
+    const modalPlays = document.getElementById('modal-plays');
+    const modalLikes = document.getElementById('modal-likes');
+    const modalShares = document.getElementById('modal-shares');
+    const modalDuration = document.getElementById('modal-duration');
+    const modalMusicRow = document.getElementById('modal-music-row');
+    const modalMusicTitle = document.getElementById('modal-music-title');
+    const downloadVideoBtn = document.getElementById('download-video-btn');
+    const downloadVideoText = document.getElementById('download-video-text');
+    const downloadAudioBtn = document.getElementById('download-audio-btn');
+    const downloadAudioText = document.getElementById('download-audio-text');
+
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+    refreshIcons();
+
+    function formatNumber(num) {
+      if (num === undefined || num === null || isNaN(num)) return '0';
+      const n = Number(num);
+      if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1).replace(/\.0$/, '') + 'B';
+      if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+      if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+      return n.toLocaleString();
+    }
+
+    function formatDuration(sec) {
+      if (!sec || isNaN(sec)) return '';
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function sanitizeUsername(input) {
+      if (!input) return '';
+      let clean = input.trim();
+      const urlMatch = clean.match(/tiktok\.com\/@?([a-zA-Z0-9._]+)/);
+      if (urlMatch && urlMatch[1]) clean = urlMatch[1];
+      return clean.replace(/^@+/, '').trim();
+    }
+
+    function showError(msg) {
+      errorMessage.textContent = msg || 'User not found or account is private.';
+      errorAlert.classList.remove('hidden');
+      refreshIcons();
+    }
+
+    function hideError() {
+      errorAlert.classList.add('hidden');
+    }
+
+    function setLoading(loading) {
+      state.isLoading = loading;
+      if (loading) {
+        hideError();
+        loadingSpinner.classList.remove('hidden');
+        searchBtn.disabled = true;
+        searchBtnText.textContent = 'Searching...';
+        welcomePlaceholder.classList.add('hidden');
+      } else {
+        loadingSpinner.classList.add('hidden');
+        searchBtn.disabled = false;
+        searchBtnText.textContent = 'Search';
+      }
+    }
+
+    // 2. Disable website scrolling behind video modal
+    function openVideoModal(video) {
+      state.selectedVideo = video;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+
+      const author = video.author || state.currentUser || {};
+      modalAuthorAvatar.src = author.avatar || '';
+      modalAuthorName.textContent = author.nickname ? `${author.nickname} (@${author.unique_id})` : `@${author.unique_id || ''}`;
+      
+      // 4. Video title without scrollbar
+      modalVideoTitle.textContent = video.title || 'TikTok Video (No Title)';
+      
+      modalPlays.textContent = formatNumber(video.play_count);
+      modalLikes.textContent = formatNumber(video.digg_count);
+      modalShares.textContent = formatNumber(video.share_count);
+      modalDuration.textContent = formatDuration(video.duration);
+
+      if (video.music_info && video.music_info.title) {
+        modalMusicTitle.textContent = video.music_info.title;
+        modalMusicRow.classList.remove('hidden');
+      } else {
+        modalMusicRow.classList.add('hidden');
+      }
+
+      // Reset button states
+      downloadVideoBtn.disabled = false;
+      downloadVideoText.textContent = 'Download HD Video (No Watermark)';
+      downloadAudioBtn.disabled = false;
+      downloadAudioText.textContent = 'Download Audio Only (MP3)';
+
+      videoLoadingIndicator.classList.remove('hidden');
+      videoModal.classList.remove('hidden');
+      refreshIcons();
+
+      // 3. Resolve clean working stream
+      resolveAndPlayVideo(video);
+    }
+
+    function closeVideoModal() {
+      videoModal.classList.add('hidden');
+      modalVideoPlayer.pause();
+      modalVideoPlayer.src = '';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      state.selectedVideo = null;
+    }
+
+    async function resolveAndPlayVideo(video) {
+      const authorUser = (video.author && video.author.unique_id) || (state.currentUser && state.currentUser.unique_id) || 'tiktok';
+      const videoId = video.video_id || video.id;
+
+      let playableUrl = video.play || video.wmplay || '';
+
+      try {
+        const resolveRes = await fetch(`/api/resolve?id=${encodeURIComponent(String(videoId))}&username=${encodeURIComponent(authorUser)}`);
+        if (resolveRes.ok) {
+          const resData = await resolveRes.json();
+          if (resData.success && resData.play) {
+            playableUrl = resData.play;
+            if (resData.music) {
+              video.music = resData.music;
+              if (video.music_info) video.music_info.play = resData.music;
+            }
+          }
+        }
+      } catch (e) {}
+
+      // Pipe through proxy with Range support for 100% playable HTML5 playback
+      const proxiedUrl = `/api/proxy?url=${encodeURIComponent(playableUrl)}`;
+      modalVideoPlayer.src = proxiedUrl;
+      videoLoadingIndicator.classList.add('hidden');
+
+      modalVideoPlayer.load();
+      modalVideoPlayer.play().catch(() => {});
+    }
+
+    // Direct download handler
+    async function downloadFile(url, filename) {
+      const proxyDownloadUrl = `/api/proxy?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}&download=1`;
+      try {
+        const res = await fetch(proxyDownloadUrl);
+        if (!res.ok) throw new Error('Proxy download failed');
+        const blob = await res.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(blobUrl);
+        }, 1000);
+      } catch {
+        const a = document.createElement('a');
+        a.href = proxyDownloadUrl;
+        a.target = '_blank';
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => document.body.removeChild(a), 1000);
+      }
+    }
+
+    // 5. Download HD Video (text-only "Downloading...", NO extra elements)
+    downloadVideoBtn.addEventListener('click', async () => {
+      const v = state.selectedVideo;
+      if (!v || downloadVideoBtn.disabled) return;
+
+      downloadVideoBtn.disabled = true;
+      downloadVideoText.textContent = 'Downloading...';
+
+      const username = (v.author && v.author.unique_id) || (state.currentUser && state.currentUser.unique_id) || 'tiktok';
+      const id = v.video_id || v.id || Date.now();
+      const filename = `${username}-${id}.mp4`;
+      let videoUrl = v.play || v.wmplay || '';
+
+      try {
+        const resolveRes = await fetch(`/api/resolve?id=${encodeURIComponent(id)}&username=${encodeURIComponent(username)}`);
+        if (resolveRes.ok) {
+          const resJson = await resolveRes.json();
+          if (resJson.success && resJson.play) {
+            videoUrl = resJson.play;
+          }
+        }
+      } catch (e) {}
+
+      if (videoUrl) {
+        await downloadFile(videoUrl, filename);
+      }
+
+      setTimeout(() => {
+        downloadVideoBtn.disabled = false;
+        downloadVideoText.textContent = 'Download HD Video (No Watermark)';
+      }, 1200);
+    });
+
+    // 6. Download Audio Only (MP3) - working with text-only "Downloading..."
+    downloadAudioBtn.addEventListener('click', async () => {
+      const v = state.selectedVideo;
+      if (!v || downloadAudioBtn.disabled) return;
+
+      downloadAudioBtn.disabled = true;
+      downloadAudioText.textContent = 'Downloading...';
+
+      const username = (v.author && v.author.unique_id) || (state.currentUser && state.currentUser.unique_id) || 'tiktok';
+      const id = v.video_id || v.id || Date.now();
+      const filename = `${username}-${id}.mp3`;
+      let audioUrl = (v.music_info && v.music_info.play) || v.music || '';
+
+      try {
+        const resolveRes = await fetch(`/api/resolve?id=${encodeURIComponent(id)}&username=${encodeURIComponent(username)}`);
+        if (resolveRes.ok) {
+          const resJson = await resolveRes.json();
+          if (resJson.success && resJson.music) {
+            audioUrl = resJson.music;
+          }
+        }
+      } catch (e) {}
+
+      if (audioUrl) {
+        await downloadFile(audioUrl, filename);
+      } else {
+        alert('Audio stream URL is not available.');
+      }
+
+      setTimeout(() => {
+        downloadAudioBtn.disabled = false;
+        downloadAudioText.textContent = 'Download Audio Only (MP3)';
+      }, 1200);
+    });
+
+    // Render video card (1. Static, NO hover zoom or shape changes)
+    function appendVideoCard(video, index) {
+      const card = document.createElement('div');
+      card.className = 'relative aspect-[9/16] rounded-xl overflow-hidden bg-slate-900 border border-slate-800 cursor-pointer shadow-md hover:border-rose-500 transition-colors duration-200';
+
+      const coverImg = video.cover || video.origin_cover || '';
+      const plays = formatNumber(video.play_count);
+      const likes = formatNumber(video.digg_count);
+      const shares = formatNumber(video.share_count);
+      const duration = formatDuration(video.duration);
+
+      card.innerHTML = `
+        <img
+          src="${coverImg}"
+          alt="${video.title ? video.title.replace(/"/g, '&quot;') : 'TikTok video'}"
+          referrerPolicy="no-referrer"
+          loading="lazy"
+          class="w-full h-full object-cover bg-slate-800 pointer-events-none"
+        />
+        <div class="absolute inset-x-0 top-0 p-2.5 flex justify-between items-start bg-gradient-to-b from-black/70 via-black/30 to-transparent pointer-events-none">
+          <span class="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-black/60 text-slate-200">#${index + 1}</span>
+          ${duration ? `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/60 text-slate-200">${duration}</span>` : ''}
+        </div>
+        <div class="absolute inset-x-0 bottom-0 p-2 sm:p-2.5 bg-gradient-to-t from-black/90 via-black/60 to-transparent flex flex-col gap-1.5 pointer-events-none">
+          <p class="text-[11px] text-slate-200 truncate font-medium drop-shadow-sm">${video.title ? video.title : 'Watch Video'}</p>
+          <div class="flex items-center justify-between text-[11px] text-slate-300 font-mono font-semibold pt-1 border-t border-white/10">
+            <span class="flex items-center gap-1 drop-shadow"><i data-lucide="play" class="w-3 h-3 text-slate-300"></i><span>${plays}</span></span>
+            <span class="flex items-center gap-1 drop-shadow text-rose-300"><i data-lucide="heart" class="w-3 h-3 fill-rose-500 text-rose-500"></i><span>${likes}</span></span>
+            <span class="flex items-center gap-1 drop-shadow text-blue-300"><i data-lucide="share-2" class="w-3 h-3 text-blue-400"></i><span>${shares}</span></span>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        openVideoModal(video);
+      });
+
+      videoGrid.appendChild(card);
+    }
+
+    // 7. Show More Videos Pagination
+    async function loadMoreVideos() {
+      if (!state.currentUser?.unique_id || !state.nextCursor || state.isLoadingMore) return;
+
+      state.isLoadingMore = true;
+      showMoreBtn.disabled = true;
+      showMoreText.textContent = 'LOADING MORE VIDEOS...';
+
+      try {
+        const res = await fetch(`/api/tiktok?username=${encodeURIComponent(state.currentUser.unique_id)}&cursor=${state.nextCursor}&count=15`);
+        const data = await res.json();
+
+        if (data && data.code === 0 && data.data?.videos?.length > 0) {
+          const newVideos = data.data.videos;
+          const startIndex = state.currentVideos.length;
+          newVideos.forEach((v, i) => {
+            state.currentVideos.push(v);
+            appendVideoCard(v, startIndex + i);
+          });
+
+          state.nextCursor = data.data.cursor || null;
+          state.hasMore = !!data.data.hasMore && !!data.data.cursor;
+
+          postsCountBadge.textContent = `${state.currentVideos.length} videos`;
+          showMoreCounter.textContent = `Showing ${state.currentVideos.length} of ${state.currentUser.videoCount || 'all'} videos`;
+
+          if (!state.hasMore) {
+            showMoreContainer.classList.add('hidden');
+          }
+          refreshIcons();
+        } else {
+          showMoreContainer.classList.add('hidden');
+        }
+      } catch (e) {
+        showMoreContainer.classList.add('hidden');
+      } finally {
+        state.isLoadingMore = false;
+        showMoreBtn.disabled = false;
+        showMoreText.textContent = 'SHOW MORE VIDEOS';
+      }
+    }
+
+    showMoreBtn.addEventListener('click', loadMoreVideos);
+
+    async function fetchUserPosts(username) {
+      const cleanUser = sanitizeUsername(username);
+      if (!cleanUser) {
+        showError('Please enter a valid TikTok username.');
+        return;
+      }
+
+      setLoading(true);
+      hideError();
+      showMoreContainer.classList.add('hidden');
+
+      try {
+        const res = await fetch(`/api/tiktok?username=${encodeURIComponent(cleanUser)}`);
+        const data = await res.json();
+
+        if (!data || data.code !== 0 || !data.data) {
+          const apiMsg = data && data.msg ? data.msg : `User @${cleanUser} not found or account is private.`;
+          showError(apiMsg);
+          profileContainer.classList.add('hidden');
+          videosSection.classList.add('hidden');
+          welcomePlaceholder.classList.remove('hidden');
+          return;
+        }
+
+        const resData = data.data;
+        const videos = resData.videos || [];
+        const userObj = resData.user || {};
+        const stats = resData.stats || {};
+
+        if (videos.length === 0) {
+          showError(`@${cleanUser} was found, but has 0 public videos.`);
+          profileContainer.classList.add('hidden');
+          videosSection.classList.add('hidden');
+          welcomePlaceholder.classList.remove('hidden');
+          return;
+        }
+
+        state.currentUser = {
+          unique_id: userObj.unique_id || cleanUser,
+          nickname: userObj.nickname || cleanUser,
+          avatar: userObj.avatar || '',
+          signature: userObj.signature || '',
+          verified: !!userObj.verified,
+          videoCount: stats.videoCount || videos.length,
+        };
+        state.currentVideos = [...videos];
+        state.nextCursor = resData.cursor || null;
+        state.hasMore = !!resData.hasMore && !!resData.cursor;
+
+        // Render Profile
+        profileAvatar.src = state.currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(state.currentUser.nickname)}&background=1e293b&color=f43f5e`;
+        profileNickname.textContent = state.currentUser.nickname;
+        profileUsername.textContent = `@${state.currentUser.unique_id}`;
+        profileTiktokLink.href = `https://www.tiktok.com/@${state.currentUser.unique_id}`;
+
+        if (state.currentUser.signature && state.currentUser.signature.trim()) {
+          profileBio.textContent = state.currentUser.signature;
+          profileBio.classList.remove('hidden');
+        } else {
+          profileBio.classList.add('hidden');
+        }
+
+        if (state.currentUser.verified) verifiedBadge.classList.remove('hidden');
+        else verifiedBadge.classList.add('hidden');
+
+        statFollowers.textContent = stats.followerCount !== null ? formatNumber(stats.followerCount) : '—';
+        statFollowing.textContent = stats.followingCount !== null ? formatNumber(stats.followingCount) : '—';
+        statLikes.textContent = formatNumber(stats.heartCount);
+        statVideos.textContent = formatNumber(stats.videoCount);
+
+        profileContainer.classList.remove('hidden');
+
+        // Render Video Grid
+        videoGrid.innerHTML = '';
+        postsCountBadge.textContent = `${videos.length} videos`;
+        videos.forEach((v, i) => appendVideoCard(v, i));
+
+        videosSection.classList.remove('hidden');
+        welcomePlaceholder.classList.add('hidden');
+        quickClearBtn.classList.remove('hidden');
+
+        // 7. Check if show more button should display
+        if (state.hasMore) {
+          showMoreCounter.textContent = `Showing ${videos.length} of ${stats.videoCount || 'all'} videos`;
+          showMoreContainer.classList.remove('hidden');
+          showMoreContainer.classList.add('flex');
+        }
+
+        refreshIcons();
+      } catch (err) {
+        showError(err.message || 'Failed to load TikTok profile.');
+        profileContainer.classList.add('hidden');
+        videosSection.classList.add('hidden');
+        welcomePlaceholder.classList.remove('hidden');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    modalCloseBtn.addEventListener('click', closeVideoModal);
+    videoModal.addEventListener('click', (e) => {
+      if (e.target === videoModal) closeVideoModal();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !videoModal.classList.contains('hidden')) closeVideoModal();
+    });
+
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (usernameInput.value) fetchUserPosts(usernameInput.value);
+    });
+
+    document.querySelectorAll('.quick-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const user = chip.getAttribute('data-user');
+        usernameInput.value = user;
+        fetchUserPosts(user);
+      });
+    });
+
+    quickClearBtn.addEventListener('click', () => {
+      usernameInput.value = '';
+      profileContainer.classList.add('hidden');
+      videosSection.classList.add('hidden');
+      welcomePlaceholder.classList.remove('hidden');
+      quickClearBtn.classList.add('hidden');
+      state.currentUser = null;
+      state.currentVideos = [];
+      state.nextCursor = null;
+      state.hasMore = false;
+    });
+
+    dismissError.addEventListener('click', hideError);
+  </script>
+</body>
+</html>

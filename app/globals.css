@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  /* High-Contrast Accessible Surfaces */
+  --surface-canvas: #F1F5F9;
+  --surface-elevated: #FFFFFF;
+  --surface-sunken: #E2E8F0;
+  --surface-interactive: #CBD5E1;
+
+  /* Soft Pastel Surface Tints */
+  --pastel-blue: #E0F2FE;
+  --pastel-blue-border: #BAE6FD;
+  --pastel-pink: #FCE7F3;
+  --pastel-pink-border: #FBCFE8;
+  --pastel-lavender: #EDE9FE;
+  --pastel-lavender-border: #DDD6FE;
+  --pastel-peach: #FFEDD5;
+
+  /* Header & Navbar Unified Gradient Surface */
+  --surface-tint-aqua: #E0F2FE;
+  --surface-tint-rose: #FCE7F3;
+  --surface-hero: #F8FAFC;
+  --surface-hero-elevated: #FFFFFF;
+  --surface-hero-border: #CBD5E1;
+
+  /* High-Contrast Charcoal & Slate Ink Hierarchy (WCAG 2.2 AA+) */
+  --ink-primary: #0F172A;
+  --ink-secondary: #334155;
+  --ink-muted: #475569;
+
+  /* Crisp 1px Borders */
+  --border-subtle: #CBD5E1;
+  --border-strong: #94A3B8;
+  --border-hover: #64748B;
+
+  /* Brand & Action Accents */
+  --accent-primary: #E11D48;
+  --accent-primary-hover: #BE123C;
+  --accent-primary-text: #BE123C;
+  --accent-soft: #FFE4E6;
+  --accent-contrast: #FFFFFF;
+
+  /* Supporting Sky-Cyan Accent */
+  --accent-cyan: #0284C7;
+  --accent-cyan-hover: #0369A1;
+  --accent-cyan-soft: #E0F2FE;
+  --accent-cyan-text: #0369A1;
+
+  /* High-Contrast Dark Controls */
+  --accent-dark: #0F172A;
+  --accent-dark-hover: #1E293B;
+
+  /* Semantic Status & Interactive States */
+  --status-success: #0F766E;
+  --status-warning: #B45309;
+  --status-danger: #BE123C;
+  --status-danger-bg: #FFF1F2;
+  --status-danger-border: #FDA4AF;
+  --focus-ring: #0F172A;
+  --focus-border: #0F172A;
+  --focus-halo: rgba(15, 23, 42, 0.08);
+  --state-disabled-bg: #CBD5E1;
+  --state-disabled-ink: #475569;
+
+  /* Restrained Subtle Elevation */
+  --shadow-card: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 10px 24px -8px rgba(15, 23, 42, 0.16), 0 2px 6px -2px rgba(15, 23, 42, 0.06);
+  --shadow-workbench: 0 8px 24px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+
+  /* Proportional Typographic Scale */
+  --h1-size: clamp(1.85rem, 3.2vw, 2.55rem);
+
+  /* Compatibility Alias Tokens */
+  --bg-page: var(--surface-canvas);
+  --bg-surface: var(--surface-elevated);
+  --bg-surface-subtle: var(--surface-sunken);
+  --bg-surface-hover: var(--surface-interactive);
+  --text-primary: var(--ink-primary);
+  --text-secondary: var(--ink-secondary);
+  --text-muted: var(--ink-muted);
+  --text-on-accent: var(--accent-contrast);
+  --border-control: var(--border-strong);
+  --teal-soft: var(--accent-cyan-soft);
+  --teal-text: var(--accent-cyan-text);
+  --slate-soft: var(--surface-sunken);
+  --slate-text: var(--ink-secondary);
+  --shadow-none: none;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--surface-canvas);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override browser autofill light-blue tint across all inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-elevated) inset !important;
+  -webkit-text-fill-color: var(--ink-primary) !important;
+  caret-color: var(--ink-primary);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Modern Search Workbench Shell & Input Transitions */
+.tpv-search-shell {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 10px -3px rgba(15, 23, 42, 0.06);
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.tpv-search-shell:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 14px -4px rgba(15, 23, 42, 0.08);
+}
+
+.tpv-search-shell:focus-within {
+  background-color: var(--surface-elevated);
+  border-color: var(--focus-border);
+  box-shadow: 0 0 0 4px var(--focus-halo), 0 8px 20px -6px rgba(15, 23, 42, 0.1);
+}
+
+.tpv-field-control {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--ink-primary);
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.tpv-field-control:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+.tpv-field-control:focus {
+  outline: none;
+  background-color: var(--surface-elevated);
+  border-color: var(--focus-border);
+  box-shadow: 0 0 0 3px var(--focus-halo);
+}
+
+/* Unified Blurred Gradient Strictly for Navbar & Header */
+.hero-studio-backdrop {
+  background-color: var(--surface-hero);
+  background-image:
+    radial-gradient(ellipse 65% 70% at 10% 10%, rgba(147, 197, 253, 0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 90% 12%, rgba(249, 168, 212, 0.48) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 60% at 50% 90%, rgba(196, 181, 253, 0.42) 0%, transparent 62%);
+}
+
+/* Solid Canvas Surface for Lower Sections */
+.pastel-mesh-band {
+  background-color: var(--surface-canvas);
+}
+
+/* Subtle Thin Top Identity Line */
+.creator-split-bar {
+  background: linear-gradient(90deg, #0F172A 0%, #E11D48 52%, #0284C7 100%);
+}
+
+/* Editorial Legal Reader Prose Rules */
+.legal-prose h2 {
+  color: var(--ink-primary);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.legal-prose h3 {
+  color: var(--ink-primary);
+  font-weight: 600;
+}
+
+.legal-prose p,
+.legal-prose li {
+  color: var(--ink-secondary);
+}
+
+.legal-prose strong {
+  color: var(--ink-primary);
+  font-weight: 600;
+}
+
+.legal-prose ul,
+.legal-prose ol {
+  padding-inline-start: 1.25rem;
+}
+
+.legal-prose a {
+  color: var(--accent-primary-text);
+  font-weight: 600;
+}
+
+.legal-prose code {
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+/* Subtle Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
